@@ -1,5 +1,6 @@
 package com.SQLLite.it3176;
 
+import java.security.Timestamp;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -13,23 +14,23 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.text.format.DateFormat;
 
 public class mySQLLite {
-	
-	public static final String note_id = "_id";
-	public static final String note_name = "note_name";
-	public static final String note_content = "note_content";
-	public static final String note_active = "active";
-	
-	
-	private static final String database_name = "notedb";
-	private static final String database_table = "noteTable";
+
+	public static final String note_id = "noteid";
+	public static final String note_name = "notename";
+	public static final String note_content = "notecontent";
+	public static final String note_category = "category";
+	public static String note_date = "notedate";
+
+	private static final String database_name = "smartnotedb";
+	private static final String database_table = "smartnotetable";
 	private static final int database_version = 1;
-	
+
 	private DBHelper ourHelper;
 	private final Context ourContext;
 	private SQLiteDatabase ourDatabase;
-	
-	//help to create database or upgrade database
-	private static class DBHelper extends SQLiteOpenHelper{
+
+	// help to create database or upgrade database
+	private static class DBHelper extends SQLiteOpenHelper {
 
 		public DBHelper(Context context) {
 			super(context, database_name, null, database_version);
@@ -38,19 +39,10 @@ public class mySQLLite {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			// TODO Auto-generated  stub
-			
-			db.execSQL(
-				"CREATE TABLE " + database_table + " ("	
-				+ note_id + " INTEGER AUTOINCREMENT, " 
-				+ note_name + " varchar(50) NOT NULL, "
-				+ note_content + "varchar(255), "
-				+ note_active + "varchar(50) NOT NULL, "
-				+ "note_time datetime NOT NULL NOW()); "
-				
-			);
-			
-			//db.execSQL("Alter TABLE " + database_table + "ADD active varchar(50) NOT NULL, category varchar(50) NOT NULL, note_time datetime NOT NULL NOW() ");
+			// TODO Auto-generated stub
+
+			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category , notedate TEXT);");
+
 		}
 
 		@Override
@@ -58,32 +50,37 @@ public class mySQLLite {
 			// TODO Auto-generated method stub
 			db.execSQL("DROP TABLE IF EXISTS " + database_name);
 			onCreate(db);
-			
+
 		}
-		
+
 	}
-	
-	public mySQLLite(Context c){
+
+	public mySQLLite(Context c) {
 		ourContext = c;
 	}
-	
-	public mySQLLite open() throws SQLException{
+
+	public mySQLLite open() throws SQLException {
 		ourHelper = new DBHelper(ourContext);
-		
+
 		ourDatabase = ourHelper.getWritableDatabase();
-		
+
 		return this;
 	}
-	
-	public void close(){
+
+	public void close() {
 		ourHelper.close();
 	}
-	public long createEntry(String name, String content){
+
+	public long createEntry(String name, String content, String category) {
 		ContentValues cv = new ContentValues();
 		cv.put(note_name, name);
 		cv.put(note_content, content);
+		cv.put(note_category, category);
+		final SimpleDateFormat parser = new SimpleDateFormat(
+				"yyyy-MM-ddTHH:mm:ss.sss");
+		Date date = new Date(0);
+		cv.put(note_date, parser.format(date));
 		return ourDatabase.insert(database_table, null, cv);
 	}
-	
-	
+
 }

@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class sqlTest extends Activity implements OnClickListener{
 	Button sqlCreate;
@@ -27,32 +28,29 @@ public class sqlTest extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		 
+		Toast.makeText(getBaseContext(), v.getId(), Toast.LENGTH_LONG).show();
 		switch(v.getId()){
-		case R.id.btnCreate:
-			boolean didItWork = true;
+		case R.id.btnCreate :
+			boolean result = true;
 			try{
 			String name = noteName.getText().toString();
-			String content = noteContent.getText().toString();
-			 mySQLLite entry = new mySQLLite(sqlTest.this);
-			 entry.open();
-			 entry.createEntry(name, content);
-			 entry.close();
+			String con = noteContent.getText().toString();
+		
+			mySQLLite entry = new mySQLLite(this);
+			entry.open();
+			entry.createEntry(name, con, "haha");
+			entry.close();
 			}catch(Exception e){
-				didItWork = false;
-				Dialog d = new Dialog(this);
-				d.setTitle("Successful or Not");
-				TextView tv = new TextView(this);
-				tv.setText("failed");
-				d.setContentView(tv);
-				d.show();
+				result = false;
 			}finally{
-				Dialog d = new Dialog(this);
-				d.setTitle("Successful or Not");
-				TextView tv = new TextView(this);
-				tv.setText("success");
-				d.setContentView(tv);
-				d.show();
+				if(result){
+					Dialog d = new Dialog(this);
+					d.setTitle("Successful");
+					TextView tv = new TextView(this);
+					tv.setText("success");
+					d.setContentView(tv);
+					d.show();
+				}
 			}
 			break;
 		}
