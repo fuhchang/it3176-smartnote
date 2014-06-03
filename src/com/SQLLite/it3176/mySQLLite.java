@@ -1,9 +1,10 @@
 package com.SQLLite.it3176;
 
 import java.security.Timestamp;
-import java.sql.Date;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -76,11 +77,15 @@ public class mySQLLite {
 		cv.put(note_name, name);
 		cv.put(note_content, content);
 		cv.put(note_category, category);
-		final SimpleDateFormat parser = new SimpleDateFormat(
-				"yyyy-MM-ddTHH:mm:ss.sss");
-		Date date = new Date(0);
-		cv.put(note_date, parser.format(date));
+		cv.put(note_date, getDateTime());
 		return ourDatabase.insert(database_table, null, cv);
 	}
+	
+	private String getDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
+}
 
 }
