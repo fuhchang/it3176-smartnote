@@ -3,16 +3,19 @@ package com.SQLLite.it3176;
 import java.security.Timestamp;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.format.DateFormat;
+import android.util.Log;
 
 public class mySQLLite {
 
@@ -42,7 +45,7 @@ public class mySQLLite {
 		public void onCreate(SQLiteDatabase db) {
 			// TODO Auto-generated stub
 
-			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category , notedate TEXT);");
+			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category Text, notedate DATETIME);");
 
 		}
 
@@ -71,6 +74,8 @@ public class mySQLLite {
 	public void close() {
 		ourHelper.close();
 	}
+	
+	
 
 	public long createEntry(String name, String content, String category) {
 		ContentValues cv = new ContentValues();
@@ -80,12 +85,32 @@ public class mySQLLite {
 		cv.put(note_date, getDateTime());
 		return ourDatabase.insert(database_table, null, cv);
 	}
-	
+
 	private String getDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
-}
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
+
+	public ArrayList<String> selectEntry() {
+		// Cursor cursor = ourDatabase.query(database_table, null, null, null,
+		// null, null, null, null);
+		Cursor cursor = ourDatabase.query(database_table, new String[] {
+				note_name, note_content, note_category }, null, null, null,
+				null, null, null);
+		ArrayList<String> resultArray = new ArrayList<String>();
+		if (cursor != null) {
+			int size = cursor.getCount();
+			if (cursor.moveToFirst()) {
+				Log.d("result: ", cursor.getString(1));
+				for (int i = 0; i < size; i++) {
+					resultArray.add(cursor.getString(i));
+				}
+			}
+		}
+		return resultArray;
+
+	}
 
 }
