@@ -15,15 +15,14 @@ import android.widget.TextView;
 
 public class noteList extends ArrayAdapter<String>{
 	private final Activity context;
-	private final ArrayList<note> resultArray;
+	private ArrayList<note> resultArray = new ArrayList<note>();
 	
-	
-	public noteList(Activity context, ArrayList<note> resultArray) {
+	public noteList(Context context, ArrayList<note> resultArray) {
 		super(context, R.layout.note_single);
-		this.context = context;
+		// TODO Auto-generated constructor stub
+		this.context = (Activity) context;
 		this.resultArray = resultArray;
 	}
-
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -31,12 +30,11 @@ public class noteList extends ArrayAdapter<String>{
 				LayoutInflater inflater = context.getLayoutInflater();
 				View rowView = inflater.inflate(R.layout.note_single, null, true);
 				
-				//link to xml 
+				//link to widgets
 				TextView txtTitle = (TextView) rowView.findViewById(R.id.noteTitle);
 				TextView txtCate = (TextView) rowView.findViewById(R.id.noteType);
 				
-				//for loop for setting content to the list view
-				
+				//setting text to widgets
 				txtTitle.setText(resultArray.get(position).getNoteName());
 				txtCate.setText(resultArray.get(position).getCategory());
 				

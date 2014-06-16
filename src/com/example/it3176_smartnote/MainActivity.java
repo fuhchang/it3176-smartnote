@@ -42,11 +42,13 @@ public class MainActivity extends Activity {
         for(int i=0; i<size; i++){
         	System.out.println(resultArray.get(i).getNoteName() + " " + resultArray.get(i).getContent() + " " + resultArray.get(i).getCategory());
         }
-        noteList adapter = new noteList(this, resultArray);
+        noteList adapter = new noteList(MainActivity.this, resultArray);
+        
         list = (ListView) findViewById(R.id.noteListView);
         list.setAdapter(adapter);
         
     }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

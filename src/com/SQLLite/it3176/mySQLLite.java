@@ -47,7 +47,7 @@ public class mySQLLite {
 		public void onCreate(SQLiteDatabase db) {
 			// TODO Auto-generated stub
 
-			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category TEXT, notedate DATETIME);");
+			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category TEXT, notedate DATETIME, noteimg TEXT, notevideo TEXT, noteaudio TEXT);");
 
 		}
 
