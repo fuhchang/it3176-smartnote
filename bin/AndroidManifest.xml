@@ -27,6 +27,7 @@
             android:name="com.example.it3176_smartnote.CreateActivity"
             android:label="@string/title_activity_create" >
         </activity>
+        <activity  android:name="com.example.it3176_smartnote.NoteDetail"></activity>
     </application>
 
 </manifest>
