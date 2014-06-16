@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import com.example.it3176_smartnote.model.Note;
+import org.joda.time.Days;
+import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,12 +18,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.it3176_smartnote.model.Note;
+
 public class SQLiteController{
 	public static final String note_id = "noteid";
 	public static final String note_name = "notename";
 	public static final String note_content = "notecontent";
 	public static final String note_category = "category";
-	public static String note_date = "notedate";
+	public static final String note_date = "notedate";
+	public static final String note_img = "noteimg";
+	public static final String note_video = "notevideo";
+	public static final String note_audio = "noteaudio";
 	public static String note_status = "notestatus";
 	
 	private static final String database_name = "smartnotedb";
@@ -66,7 +74,7 @@ public class SQLiteController{
 	}
 
 	private String getDateTime() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", Locale.getDefault());
 		Date date = new Date();
 		return dateFormat.format(date);
 	}
@@ -78,10 +86,40 @@ public class SQLiteController{
 		cv.put(note_content, note.getNote_content());
 		cv.put(note_category, note.getNote_category());
 		cv.put(note_date, getDateTime());
+		cv.put(note_img, note.getNote_img());
+		cv.put(note_video, note.getNote_video());
+		cv.put(note_audio, note.getNote_audio());
 		cv.put(note_status, "active");
 		
 		Log.d(LOGCAT, "Inserting new note");
 		return ourDatabase.insert(database_table, null, cv);
+	}
+	
+	//Retrieving all notes
+	public ArrayList<Note> retrieveNotes(){
+		//Cursor cursor = ourDatabase.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
+		Cursor cursor = ourDatabase.query(database_table, new String[] {note_id, note_name, note_content, note_category, note_date, note_img, note_video, note_audio, note_status}, null, null, null, null, null, null);
+		ArrayList<Note> note_list = new ArrayList<Note>();
+			if(cursor != null){
+				Log.d(LOGCAT, "Retrieving each note");
+				if(cursor.moveToFirst()){
+					do{
+						Note note = new Note();
+						note.setNote_id(cursor.getColumnIndex(note_id));
+						note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
+						note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
+						note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
+						note.setNote_date(cursor.getString(cursor.getColumnIndex(note_date)));
+						note.setNote_img(cursor.getString(cursor.getColumnIndex(note_img)));
+						note.setNote_video(cursor.getString(cursor.getColumnIndex(note_video)));
+						note.setNote_audio(cursor.getString(cursor.getColumnIndex(note_audio)));
+						note.setNote_status(cursor.getString(cursor.getColumnIndex(note_status)));
+						note_list.add(note);
+					} while(cursor.moveToNext());
+				}
+			}
+		Log.d(LOGCAT, "Retrieved all notes");
+		return note_list;
 	}
 	
 	//Deleting note
@@ -91,15 +129,17 @@ public class SQLiteController{
 	}
 	
 	//Updating note status
-	public long updateNoteStatus(Note note){
-		ContentValues cv = new ContentValues();
-		cv.put(note_name, note.getNote_name());
-		cv.put(note_content, note.getNote_content());
-		cv.put(note_category, note.getNote_category());
-		cv.put(note_date, getDateTime());
-		cv.put(note_status, "archive");
+	public void updateNoteStatus(ArrayList<Note> note_list, Note note){
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");
 		
-		Log.d(LOGCAT, "Updating note status");
-		return ourDatabase.update(database_table, cv, "NoteId= " + note.getNote_id(), null);
+		for(int i = 0; i < note_list.size(); i++){
+			if(new Period(formatter.parseDateTime(note_list.get(i).getNote_date()), formatter.parseDateTime(getDateTime())).getDays() > 30){
+				ContentValues cv = new ContentValues();
+				cv.put(note_status, "archive");
+				
+				Log.d(LOGCAT, "Updating NoteId: " + note_list.get(i).getNote_id() + "  status");
+				ourDatabase.update(database_table, cv, "NoteId= " + note.getNote_id(), null);
+			}
+		}
 	}
 }

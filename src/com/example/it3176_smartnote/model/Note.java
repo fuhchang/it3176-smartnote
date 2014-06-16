@@ -24,6 +24,10 @@ public class Note {
 		this.note_status = note_status;
 	}
 	
+	public Note(int note_id){
+		this.note_id = note_id;
+	}
+	
 	public Note() {}
 
 	//Getters and Setters
