@@ -106,7 +106,7 @@ public class mySQLLite {
 			int size = cursor.getCount();
 			note note = new note();
 			if (cursor.moveToFirst()) {
-<<<<<<< HEAD
+
 				for (int i = 0; i < 3; i++) {
 					if(i == 0 ){
 						note.setNoteName(cursor.getString(i));
@@ -115,20 +115,16 @@ public class mySQLLite {
 					}else{
 						note.setCategory(cursor.getString(i));
 					}
-=======
-				Log.d("result: ", cursor.getString(1));
-				for (int i = 0; i < size; i++) {
-				//	resultArray.add(cursor.getString(i));
->>>>>>> 1a568ba3ece145eb8a860ea78c07836a10be5457
-				}
+
 			}
 			
 			for(int i=0; i<size; i++){
 				resultArray.add(note);
 			}
 		}
-		return resultArray;
+		
 
 	}
-
+		return resultArray;
+	}
 }
