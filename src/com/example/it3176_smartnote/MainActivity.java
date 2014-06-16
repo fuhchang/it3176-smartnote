@@ -2,28 +2,22 @@ package com.example.it3176_smartnote;
 
 import java.util.ArrayList;
 
-import com.SQLLite.it3176.mySQLLite;
-import com.example.it3176_smartnote.model.Note;
-import com.example.it3176_smartnote_model.note;
-
-import android.R.menu;
-import android.os.Bundle;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import com.SQLiteController.it3176.SQLiteController;
+import com.example.it3176_smartnote.model.Note;
 
 public class MainActivity extends Activity {
 	int count;
@@ -35,10 +29,15 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        mySQLLite getEntry = new mySQLLite(this);
+        /*mySQLLite getEntry = new mySQLLite(this);
         getEntry.open();
         resultArray.addAll(getEntry.selectEntry());
-        getEntry.close();
+        getEntry.close();*/
+        
+        SQLiteController controller = new SQLiteController(this);
+        controller.open();
+        resultArray.addAll(controller.retrieveNotes());
+        controller.close();
         
         noteList notelist = new noteList(MainActivity.this, resultArray);
         list = (ListView) findViewById(R.id.noteListView);
@@ -56,6 +55,7 @@ public class MainActivity extends Activity {
 				selectedNote.add(resultArray.get(position).getNote_category());
 				selectedNote.add(resultArray.get(position).getNote_date());
 				intent.putStringArrayListExtra("resultArray", selectedNote);
+				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
 		        startActivity(intent);
 				
 			}
@@ -88,9 +88,6 @@ public class MainActivity extends Activity {
 			Toast.makeText(getBaseContext(), "Click on the add icon", Toast.LENGTH_LONG).show();
 			Intent intent = new Intent(this, CreateActivity.class);
 			startActivity(intent);
-			return true;
-		case R.id.action_Delete:
-			Toast.makeText(getBaseContext(), "DELETING", Toast.LENGTH_LONG).show();
 			return true;
 		case R.id.action_settings:
 			Toast.makeText(getBaseContext(), "Setting!", Toast.LENGTH_LONG).show();

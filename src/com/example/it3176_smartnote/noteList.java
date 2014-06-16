@@ -1,10 +1,6 @@
 package com.example.it3176_smartnote;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import com.example.it3176_smartnote.model.Note;
-import com.example.it3176_smartnote_model.note;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.example.it3176_smartnote.model.Note;
 
 public class noteList extends ArrayAdapter<Note>{
 	private final Activity context;

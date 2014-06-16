@@ -28,6 +28,12 @@ public class Note {
 		this.note_id = note_id;
 	}
 	
+	public Note(String note_name, String note_content, String note_category){
+		this.note_name = note_name;
+		this.note_content = note_content;
+		this.note_category = note_category;
+	}
+	
 	public Note() {}
 
 	//Getters and Setters

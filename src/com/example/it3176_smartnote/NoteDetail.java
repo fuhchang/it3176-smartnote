@@ -2,19 +2,17 @@ package com.example.it3176_smartnote;
 
 import java.util.ArrayList;
 
-
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
+import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.os.Build;
+
+import com.SQLiteController.it3176.SQLiteController;
+import com.example.it3176_smartnote.model.Note;
 
 public class NoteDetail extends Activity {
 
@@ -45,15 +43,21 @@ public class NoteDetail extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			return true;
+			Note note = new Note(Integer.parseInt(getIntent().getStringExtra("note_id")));
+			SQLiteController controller = new SQLiteController(this);
+			try{
+				controller.open();
+				controller.deleteNote(note);
+			} catch(SQLException e){
+				return false;
+			} finally{
+				controller.close();
+				Intent refresh = new Intent(this, MainActivity.class);
+				startActivity(refresh);
+			}
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
-
 }

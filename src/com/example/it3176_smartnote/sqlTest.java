@@ -1,7 +1,5 @@
 package com.example.it3176_smartnote;
 
-import com.SQLLite.it3176.mySQLLite;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -11,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.SQLiteController.it3176.SQLiteController;
+import com.example.it3176_smartnote.model.Note;
 
 public class sqlTest extends Activity implements OnClickListener{
 	Button sqlCreate;
@@ -36,10 +37,16 @@ public class sqlTest extends Activity implements OnClickListener{
 			String name = noteName.getText().toString();
 			String con = noteContent.getText().toString();
 		
-			mySQLLite entry = new mySQLLite(this);
+			/*mySQLLite entry = new mySQLLite(this);
 			entry.open();
 			entry.createEntry(name, con, "haha");
-			entry.close();
+			entry.close();*/
+			
+			SQLiteController controller = new SQLiteController(this);
+			controller.open();
+			controller.insertNote(new Note(name, con, "cat"));
+			controller.close();
+			
 			}catch(Exception e){
 				result = false;
 			}finally{

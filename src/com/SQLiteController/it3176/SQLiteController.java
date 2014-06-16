@@ -29,7 +29,7 @@ public class SQLiteController{
 	public static final String note_img = "noteimg";
 	public static final String note_video = "notevideo";
 	public static final String note_audio = "noteaudio";
-	public static String note_status = "notestatus";
+	public static final String note_status = "notestatus";
 	
 	private static final String database_name = "smartnotedb";
 	private static final String database_table = "smartnotetable";
@@ -48,7 +48,7 @@ public class SQLiteController{
 	
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + database_table + " (NoteId INTEGER PRIMARY KEY AUTOINCREMENT, NoteName TEXT, NoteContent TEXT, Category Text, NoteDate DATETIME, NoteImg Text, NoteVideo Text, NoteAudio Text, NoteStatus TEXT);");
+			db.execSQL("CREATE TABLE " + database_table + " (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category Text, notedate DATETIME, noteimg Text, notevideo Text, noteaudio Text, notestatus TEXT);");
 		}
 	
 		@Override
@@ -105,7 +105,7 @@ public class SQLiteController{
 				if(cursor.moveToFirst()){
 					do{
 						Note note = new Note();
-						note.setNote_id(cursor.getColumnIndex(note_id));
+						note.setNote_id(cursor.getInt(cursor.getColumnIndex(note_id)));
 						note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
 						note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
 						note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
@@ -125,11 +125,11 @@ public class SQLiteController{
 	//Deleting note
 	public long deleteNote(Note note){
 		Log.d(LOGCAT, "Deleting note");
-		return ourDatabase.delete(database_table, "NoteId= " + note.getNote_id(), null);
+		return ourDatabase.delete(database_table, "noteid= " + note.getNote_id(), null);
 	}
 	
 	//Updating note status
-	public void updateNoteStatus(ArrayList<Note> note_list, Note note){
+	public void updateNoteStatus(ArrayList<Note> note_list){
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");
 		
 		for(int i = 0; i < note_list.size(); i++){
@@ -138,7 +138,7 @@ public class SQLiteController{
 				cv.put(note_status, "archive");
 				
 				Log.d(LOGCAT, "Updating NoteId: " + note_list.get(i).getNote_id() + "  status");
-				ourDatabase.update(database_table, cv, "NoteId= " + note.getNote_id(), null);
+				ourDatabase.update(database_table, cv, "noteid= " + note_list.get(i).getNote_id(), null);
 			}
 		}
 	}
