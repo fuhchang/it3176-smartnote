@@ -105,7 +105,7 @@ public class mySQLLite {
 			if (cursor.moveToFirst()) {
 				Log.d("result: ", cursor.getString(1));
 				for (int i = 0; i < size; i++) {
-					resultArray.add(cursor.getString(i));
+				//	resultArray.add(cursor.getString(i));
 				}
 			}
 		}
