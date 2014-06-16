@@ -6,14 +6,22 @@ public class Note {
 	private String note_content;
 	private String note_category;
 	private String note_date;
+	private String note_img;
+	private String note_video;
+	private String note_audio;
+	private String note_status;
 	
 	//Constructor
-	public Note(int note_id, String note_name, String note_content, String note_category, String note_date){
+	public Note(int note_id, String note_name, String note_content, String note_category, String note_date, String note_img, String note_video, String note_audio, String note_status){
 		this.note_id = note_id;
 		this.note_name = note_name;
 		this.note_content = note_content;
 		this.note_category = note_category;
 		this.note_date = note_date;
+		this.note_img = note_img;
+		this.note_video = note_video;
+		this.note_audio = note_audio;
+		this.note_status = note_status;
 	}
 	
 	public Note() {}
@@ -57,5 +65,37 @@ public class Note {
 
 	public void setNote_date(String note_date) {
 		this.note_date = note_date;
+	}
+
+	public String getNote_img() {
+		return note_img;
+	}
+
+	public void setNote_img(String note_img) {
+		this.note_img = note_img;
+	}
+
+	public String getNote_video() {
+		return note_video;
+	}
+
+	public void setNote_video(String note_video) {
+		this.note_video = note_video;
+	}
+
+	public String getNote_audio() {
+		return note_audio;
+	}
+
+	public void setNote_audio(String note_audio) {
+		this.note_audio = note_audio;
+	}
+
+	public String getNote_status() {
+		return note_status;
+	}
+
+	public void setNote_status(String note_status) {
+		this.note_status = note_status;
 	}
 }
