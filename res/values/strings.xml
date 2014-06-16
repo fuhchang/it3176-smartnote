@@ -8,5 +8,20 @@
     <string name="new_title">Add New</string>
     <string name="search_title">Search here!</string>
     <string name="search_hint">Search hint!</string>
-	
+    <string name="title_activity_create">CreateActivity</string>
+
+    <string name="selection"><u>Tap here to select note category</u></string>
+    
+    
+    <string-array name="category_choice">
+        <item>Work</item>
+        <item>Business</item>
+        <item>School</item>
+        <item>Information</item>
+        <item>Personal</item>
+        <item>Reminder</item>        
+    </string-array>
+    
+    
+    
 </resources>
