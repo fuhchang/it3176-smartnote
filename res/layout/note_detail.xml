@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+     <EditText
+        android:id="@+id/noteTitleET"
+        android:layout_marginLeft="5dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/create_note_styling"
+        android:textSize="32sp"
+        android:hint="Title"
+        android:inputType="text" />
+
+    <TextView
+        android:id="@+id/txtTime"
+        android:layout_marginLeft="5dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noteTitleET"
+         />
+
+    <View 
+        android:id="@+id/hr"
+        android:layout_marginTop="5dp"
+   	    android:layout_width="fill_parent"
+        android:layout_height="2dp" 
+        android:layout_below="@+id/txtTime"      
+        android:background="#000"/>
+   
+    
+    <TextView
+        android:id="@+id/cateChoice"
+        android:layout_marginLeft="5dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/hr"
+        android:text="Category: None Selected"
+        android:textColor="#C35817"
+         />
+    
+   
+     <View 
+        android:id="@+id/hr3"
+        android:layout_marginTop="5dp"
+   	    android:layout_width="fill_parent"
+        android:layout_height="2dp" 
+        android:layout_below="@+id/cateChoice"      
+        android:background="#000"/>
+    
+    
+     <EditText
+         android:id="@+id/contentTxt"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:layout_below="@+id/hr3"
+         android:layout_marginLeft="5dp"
+         android:layout_marginTop="5dp"
+         android:background="@drawable/create_note_styling"
+         android:gravity="top"
+         android:layout_above="@+id/imageView1"
+         android:hint="Content"
+         android:inputType="textMultiLine" />
+     
+     <ImageView
+        android:id="@+id/img1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/hr2" 
+        android:layout_centerInParent="true"/> 
+     
+      <View 
+        android:id="@+id/hr2"
+        android:layout_marginTop="5dp"
+   	    android:layout_width="fill_parent"
+        android:layout_height="2dp" 
+        android:layout_above="@+id/btnSave"     
+        android:background="#000"/>
+     
+     <Button
+         android:id="@+id/btnSave"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+         android:layout_marginBottom="5dp"
+         android:text="Save Note"
+         android:onClick="onClick" />
+
+</LinearLayout>

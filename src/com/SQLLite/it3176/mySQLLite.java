@@ -1,22 +1,16 @@
 package com.SQLLite.it3176;
 
-import java.security.Timestamp;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
-
-import com.example.it3176_smartnote_model.note;
-
+import com.example.it3176_smartnote.model.Note;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 public class mySQLLite {
@@ -95,35 +89,22 @@ public class mySQLLite {
 		return dateFormat.format(date);
 	}
 
-	public ArrayList<note> selectEntry() {
-		// Cursor cursor = ourDatabase.query(database_table, null, null, null,
-		// null, null, null, null);
+	public ArrayList<Note> selectEntry() {
 		Cursor cursor = ourDatabase.query(database_table, new String[] {
-				note_name, note_content, note_category }, null, null, null,
+				note_name, note_content, note_category, note_date}, null, null, null,
 				null, null, null);
-		ArrayList<note> resultArray = new ArrayList<note>();
+		ArrayList<Note> resultArray = new ArrayList<Note>();
 		if (cursor != null) {
-			int size = cursor.getCount();
-			note note = new note();
 			if (cursor.moveToFirst()) {
-
-				for (int i = 0; i < 3; i++) {
-					if(i == 0 ){
-						note.setNoteName(cursor.getString(i));
-					}else if(i == 1 ){
-						note.setContent(cursor.getString(i));
-					}else{
-						note.setCategory(cursor.getString(i));
-					}
-
-			}
-			
-			for(int i=0; i<size; i++){
-				resultArray.add(note);
-			}
+				do{
+					Note note = new Note();
+					note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
+					note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
+					note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
+					note.setNote_date(cursor.getString(cursor.getColumnIndex(note_date)));
+					resultArray.add(note);
+				}while(cursor.moveToNext());
 		}
-		
-
 	}
 		return resultArray;
 	}
