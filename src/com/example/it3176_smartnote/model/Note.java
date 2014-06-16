@@ -16,6 +16,8 @@ public class Note {
 		this.note_date = note_date;
 	}
 	
+	public Note() {}
+
 	//Getters and Setters
 	public int getNote_id() {
 		return note_id;
