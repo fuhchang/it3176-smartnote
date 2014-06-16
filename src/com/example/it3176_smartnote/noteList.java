@@ -1,6 +1,9 @@
 package com.example.it3176_smartnote;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import com.example.it3176_smartnote_model.note;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,25 +15,35 @@ import android.widget.TextView;
 
 public class noteList extends ArrayAdapter<String>{
 	private final Activity context;
-	private final ArrayList<String> contentBody;
+	private final ArrayList<note> resultArray;
 	
-	public noteList(Activity context, ArrayList<String> resultArray) {
-		super(context, R.layout.note_single, resultArray);
+	
+	public noteList(Activity context, ArrayList<note> resultArray) {
+		super(context, R.layout.note_single);
 		this.context = context;
-		this.contentBody = resultArray;
+		this.resultArray = resultArray;
 	}
 
-	public View getView(int position, View view, ViewGroup parent){
-		
-		LayoutInflater inflater = context.getLayoutInflater();
-		View rowView = inflater.inflate(R.layout.note_single, null, true);
-		
-		TextView txtTitle = (TextView) rowView.findViewById(R.id.noteTitle);
-		txtTitle.setText(contentBody.get(position));
-		
-		
-		return rowView;
-		
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		//setup the infalter
+				LayoutInflater inflater = context.getLayoutInflater();
+				View rowView = inflater.inflate(R.layout.note_single, null, true);
+				
+				//link to xml 
+				TextView txtTitle = (TextView) rowView.findViewById(R.id.noteTitle);
+				TextView txtCate = (TextView) rowView.findViewById(R.id.noteType);
+				
+				//for loop for setting content to the list view
+				
+				txtTitle.setText(resultArray.get(position).getNoteName());
+				txtCate.setText(resultArray.get(position).getCategory());
+				
+				
+				return rowView;
 	}
+
+	
 
 }

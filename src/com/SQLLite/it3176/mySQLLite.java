@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.example.it3176_smartnote_model.note;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -45,7 +47,7 @@ public class mySQLLite {
 		public void onCreate(SQLiteDatabase db) {
 			// TODO Auto-generated stub
 
-			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category Text, notedate DATETIME);");
+			db.execSQL("CREATE TABLE smartnotetable (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category TEXT, notedate DATETIME);");
 
 		}
 
@@ -93,20 +95,30 @@ public class mySQLLite {
 		return dateFormat.format(date);
 	}
 
-	public ArrayList<String> selectEntry() {
+	public ArrayList<note> selectEntry() {
 		// Cursor cursor = ourDatabase.query(database_table, null, null, null,
 		// null, null, null, null);
 		Cursor cursor = ourDatabase.query(database_table, new String[] {
 				note_name, note_content, note_category }, null, null, null,
 				null, null, null);
-		ArrayList<String> resultArray = new ArrayList<String>();
+		ArrayList<note> resultArray = new ArrayList<note>();
 		if (cursor != null) {
 			int size = cursor.getCount();
+			note note = new note();
 			if (cursor.moveToFirst()) {
-				Log.d("result: ", cursor.getString(1));
-				for (int i = 0; i < size; i++) {
-					resultArray.add(cursor.getString(i));
+				for (int i = 0; i < 3; i++) {
+					if(i == 0 ){
+						note.setNoteName(cursor.getString(i));
+					}else if(i == 1 ){
+						note.setContent(cursor.getString(i));
+					}else{
+						note.setCategory(cursor.getString(i));
+					}
 				}
+			}
+			
+			for(int i=0; i<size; i++){
+				resultArray.add(note);
 			}
 		}
 		return resultArray;

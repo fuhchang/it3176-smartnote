@@ -3,6 +3,7 @@ package com.example.it3176_smartnote;
 import java.util.ArrayList;
 
 import com.SQLLite.it3176.mySQLLite;
+import com.example.it3176_smartnote_model.note;
 
 import android.R.menu;
 import android.os.Bundle;
@@ -24,7 +25,7 @@ public class MainActivity extends Activity {
 	int count;
 	ListView list;
 	
-	ArrayList<String> resultArray = new ArrayList<String>();
+	ArrayList<note> resultArray = new ArrayList<note>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,10 +37,15 @@ public class MainActivity extends Activity {
         getEntry.close();
         
         int size = resultArray.size();
-        list= (ListView) findViewById(R.id.noteListView);
+        Log.d("size: ", Integer.toString(size));
         
-        noteList adapter = new noteList(MainActivity.this, resultArray);
+        for(int i=0; i<size; i++){
+        	System.out.println(resultArray.get(i).getNoteName() + " " + resultArray.get(i).getContent() + " " + resultArray.get(i).getCategory());
+        }
+        noteList adapter = new noteList(this, resultArray);
+        list = (ListView) findViewById(R.id.noteListView);
         list.setAdapter(adapter);
+        
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
