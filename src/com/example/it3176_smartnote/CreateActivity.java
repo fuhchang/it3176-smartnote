@@ -19,6 +19,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.Media;
+import android.text.Html;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,19 +43,20 @@ public class CreateActivity extends Activity {
 	private static Bitmap Image = null;
 	private ImageView imageView;
 	private VideoView videoView;
-	private static final int PICK_IMAGE = 1;
-	MediaController mc;
-	private static final int PICK_VIDEO=2;
 	
+	private static final int PICK_IMAGE = 1;
+	private static final int PICK_VIDEO=2;
 	static int SELECTION_CHOICE_DIALOG=1;
+	
 	static String[] selectionArray;
 	static String noteCategory="";
 	
-	TextView dateTimeCreation, categorySelection, attachment, hrTv;
+	TextView dateTimeCreation, categorySelection, attachment, hrTv, imageUriTv, videoUriTv;
 	static TextView categorySelectionChoice;
 	EditText noteTitle, noteContent;
 	Button btnSave;
 	
+	MediaController mc;
 	
 	static String category="";
 
@@ -74,6 +76,17 @@ public class CreateActivity extends Activity {
 		attachment.setVisibility(View.GONE);
 		hrTv=(TextView) findViewById(R.id.hrTv);
 		hrTv.setVisibility(View.GONE);
+		
+		imageView = (ImageView) findViewById(R.id.imageView);
+		videoView = (VideoView) findViewById(R.id.videoView);
+		imageUriTv = (TextView) findViewById(R.id.imageUriTv);
+		videoUriTv = (TextView) findViewById(R.id.videoUriTv);
+		
+		imageView.setVisibility(View.GONE);
+		videoView.setVisibility(View.GONE);
+		imageUriTv.setVisibility(View.GONE);
+		videoUriTv.setVisibility(View.GONE);
+		
 
 		mc = new MediaController(this);
         mc.setAnchorView(videoView);
@@ -295,8 +308,14 @@ public class CreateActivity extends Activity {
 						attachment.setVisibility(View.VISIBLE);
 						hrTv.setVisibility(View.VISIBLE);
 						
+						imageUriTv.setVisibility(View.VISIBLE);
+						String uriOfImage = "<b>Image: </b>" +mImageUri.toString();
+						imageUriTv.setText(Html.fromHtml(uriOfImage));
+						imageView.setVisibility(View.VISIBLE);
+						imageView.setImageBitmap(Image);
+						
 						/**Create UI to display selected image and uri**/
-						LinearLayout imagell = (LinearLayout)findViewById(R.id.lLA);
+			/*			LinearLayout imagell = (LinearLayout)findViewById(R.id.lLA);
 						TextView imageUri = new TextView(this);
 						imageUri.setText(mImageUri.toString());
 						LinearLayout.LayoutParams imageUriLL = new LinearLayout.LayoutParams(
@@ -316,7 +335,7 @@ public class CreateActivity extends Activity {
 						
 						imagell.addView(imageUri);
 						imagell.addView(iv);
-						imagell.addView(tv1);					
+						imagell.addView(tv1);		*/			
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();			
@@ -333,8 +352,26 @@ public class CreateActivity extends Activity {
 		            attachment.setVisibility(View.VISIBLE);
 					hrTv.setVisibility(View.VISIBLE);
 					
+					videoUriTv.setVisibility(View.VISIBLE);
+					videoView.setVisibility(View.VISIBLE);
+					String uriOfVideo = "<b>Video: </b>" + mVideoURI.toString();
+					videoUriTv.setText(Html.fromHtml(uriOfVideo));
+					videoView.setVideoURI(mVideoURI);
+					videoView.setMediaController(mc);
+					videoView.requestFocus();
+					videoView.setOnPreparedListener(new OnPreparedListener(){
+
+						@Override
+						public void onPrepared(MediaPlayer mp) {
+							// TODO Auto-generated method stub
+							//videoView.start();
+							mc.show(0);
+						}
+						
+					});
+					
 					/**Create UI to display selected video and uri**/
-		            LinearLayout videoll = (LinearLayout)findViewById(R.id.lLA);
+		         /*   LinearLayout videoll = (LinearLayout)findViewById(R.id.lLA);
 					TextView videoUri = new TextView(this);
 					videoUri.setText(mVideoURI.toString());
 					LinearLayout.LayoutParams videoUriLL = new LinearLayout.LayoutParams(
@@ -368,7 +405,7 @@ public class CreateActivity extends Activity {
 								mc.show(0);
 						}
 				            	
-				     });
+				     });*/
 
 					break;
 			}
