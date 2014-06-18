@@ -3,10 +3,17 @@ package com.example.it3176_smartnote;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.SearchManager;
+import android.app.TabActivity;
+import android.content.ClipData.Item;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
 import com.SQLiteController.it3176.SQLiteController;
@@ -21,18 +29,18 @@ import com.example.it3176_smartnote.model.Note;
 
 public class MainActivity extends Activity {
 	int count;
-	ListView list;
+	static ListView list;
+	static String[] cateArray;
 	
-	ArrayList<Note> resultArray = new ArrayList<Note>();
+	
+	static ArrayList<Note> resultArray = new ArrayList<Note>();
+	static ArrayList<Note> tempArray = new ArrayList<Note>();
+	ArrayList<Note> searchResult = new ArrayList<Note>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        /*mySQLLite getEntry = new mySQLLite(this);
-        getEntry.open();
-        resultArray.addAll(getEntry.selectEntry());
-        getEntry.close();*/
+       cateArray = getResources().getStringArray(R.array.category_choice);
         
         SQLiteController controller = new SQLiteController(this);
         controller.open();
@@ -40,9 +48,10 @@ public class MainActivity extends Activity {
         controller.close();
         
         noteList notelist = new noteList(MainActivity.this, resultArray);
+        
         list = (ListView) findViewById(R.id.noteListView);
         list.setAdapter(notelist);
-        
+       
         list.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
@@ -57,22 +66,55 @@ public class MainActivity extends Activity {
 				intent.putStringArrayListExtra("resultArray", selectedNote);
 				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
 		        startActivity(intent);
+		        
 				
 			}
         	
         });
     }
     
-    @Override
+   
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_activity_action, menu);
         
     	  SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
           SearchView searchView  = (SearchView) menu.findItem(R.id.search_icon).getActionView();
+          if(searchView != null){
           searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+          }
+         
+          
+          searchView.setOnQueryTextListener(new OnQueryTextListener(){
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				// TODO Auto-generated method stub
+				//Toast.makeText(getBaseContext(), newText, Toast.LENGTH_LONG).show();
+				return false;
+			}
+			
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				// TODO Auto-generated method stub
+				ArrayList<Note> searchResult = new ArrayList<Note>();
+				for(int i=0; i<resultArray.size(); i++){
+					if(resultArray.get(i).getNote_name().equals(query)){
+						searchResult.add(resultArray.get(i));
+					}
+				}
+				noteList notelist = new noteList(MainActivity.this, searchResult);
+				list = (ListView) findViewById(R.id.noteListView);
+		        list.setAdapter(notelist);
+				return false;
+			}
+        	  
+        	  
+          });
           
     	return super.onCreateOptionsMenu(menu);
+          
     }
     
 	@Override
@@ -81,21 +123,65 @@ public class MainActivity extends Activity {
 		
 		
 		switch(item.getItemId()){
-		case R.id.search_icon :
-			Toast.makeText(getBaseContext(), "Click on the Search icon", Toast.LENGTH_LONG).show();
-			return true;
+		
 		case R.id.new_icon:
-			Toast.makeText(getBaseContext(), "Click on the add icon", Toast.LENGTH_LONG).show();
-			Intent intent = new Intent(this, CreateActivity.class);
+			Intent intent = new Intent(this, sqlTest.class);
 			startActivity(intent);
-			return true;
+			break;
 		case R.id.action_settings:
 			Toast.makeText(getBaseContext(), "Setting!", Toast.LENGTH_LONG).show();
-			return true;
-		
+			break;
+		case R.id.action_adv_search:
+			MyCategoryDialog dialog = new MyCategoryDialog();
+			dialog.show(getFragmentManager(), "myCategoryDialog");
+			break;
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
+
+	
+	public static class MyCategoryDialog extends DialogFragment{
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Select The Type");
+			builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					tempArray.clear();
+					// TODO Auto-generated method stub
+					String selected = cateArray[which];
+					Log.d("Selected", selected);
+					for(int i=0; i< resultArray.size(); i++){
+						if(resultArray.get(i).getNote_category().equals(selected)){
+							tempArray.add(resultArray.get(i));
+						}else{
+							Log.d("result", "not found");
+						}
+						
+					}
+					
+					if(!tempArray.isEmpty()){
+					noteList notelist = new noteList(getActivity(), tempArray);
+					list = (ListView) getActivity().findViewById(R.id.noteListView);
+					list.deferNotifyDataSetChanged();
+					list.setAdapter(notelist);
+					}
+				}
+				
+			});
+			return builder.create();
+			
+		}
+	}
+
+	
+	
+
+	
     
 }

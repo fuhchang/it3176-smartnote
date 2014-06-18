@@ -2,6 +2,7 @@ package com.example.it3176_smartnote;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,7 +30,7 @@ public class sqlTest extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		Toast.makeText(getBaseContext(), v.getId(), Toast.LENGTH_LONG).show();
+		
 		switch(v.getId()){
 		case R.id.btnCreate :
 			boolean result = true;
@@ -57,8 +58,12 @@ public class sqlTest extends Activity implements OnClickListener{
 					tv.setText("success");
 					d.setContentView(tv);
 					d.show();
+					Intent refresh = new Intent(this, MainActivity.class);
+					startActivity(refresh);
+					finish();
 				}
 			}
+			
 			break;
 		}
 	}

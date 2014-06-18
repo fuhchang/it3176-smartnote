@@ -106,22 +106,57 @@ public class SQLiteController{
 					do{
 						Note note = new Note();
 						note.setNote_id(cursor.getInt(cursor.getColumnIndex(note_id)));
+						
 						note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
+						
 						note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
+						
 						note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
+						
 						note.setNote_date(cursor.getString(cursor.getColumnIndex(note_date)));
+						
+						/*
 						note.setNote_img(cursor.getString(cursor.getColumnIndex(note_img)));
+						Log.d("result ", note.getNote_img());
 						note.setNote_video(cursor.getString(cursor.getColumnIndex(note_video)));
+						Log.d("result ", note.getNote_video());
 						note.setNote_audio(cursor.getString(cursor.getColumnIndex(note_audio)));
+						Log.d("result ", note.getNote_audio());
 						note.setNote_status(cursor.getString(cursor.getColumnIndex(note_status)));
+						Log.d("result ",note.getNote_status());
+						*/
 						note_list.add(note);
+						
 					} while(cursor.moveToNext());
+					
 				}
 			}
 		Log.d(LOGCAT, "Retrieved all notes");
 		return note_list;
 	}
-	
+	public ArrayList<Note> searchByName(String name){
+		Cursor cursor = ourDatabase.query(database_table, new String[] {note_id, note_name, note_content, note_category, note_date, note_img, note_video, note_audio, note_status}, note_name + "=" + name, null, null, null, null, null);
+		ArrayList<Note> note_list = new ArrayList<Note>();
+		if(cursor != null){
+		if(cursor.moveToFirst()){
+			do{
+				Note note = new Note();
+				note.setNote_id(cursor.getInt(cursor.getColumnIndex(note_id)));
+				
+				note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
+				
+				note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
+				
+				note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
+
+					note.setNote_date(cursor.getString(cursor
+							.getColumnIndex(note_date)));
+			}while(cursor.moveToNext());
+		}
+		
+		}
+		return null;
+	}
 	//Deleting note
 	public long deleteNote(Note note){
 		Log.d(LOGCAT, "Deleting note");

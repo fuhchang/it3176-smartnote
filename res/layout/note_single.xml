@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal" >
-    <ImageView 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+	  <ImageView 
         android:id="@+id/noteImg"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
@@ -17,16 +15,22 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="match_parent"
 	    android:textStyle="bold"
+	    android:layout_toRightOf="@+id/noteImg"
+	    android:layout_marginLeft="5dp"
+	   
 	    />
 	<TextView 
 	    android:id="@+id/noteType"
 	    android:layout_width="wrap_content"
 	    android:layout_height="match_parent"
+	     android:layout_below="@+id/noteTitle"
+	     android:layout_toRightOf="@+id/noteImg"
+	     android:layout_marginLeft="5dp"
 	    />
 	<TextView 
 	    android:id="@+id/noteDate"
 	    android:layout_width="wrap_content"
 	    android:layout_height="match_parent"
+	    android:layout_alignParentRight="true"
 	    />
-	 
-</LinearLayout>
+</RelativeLayout>
