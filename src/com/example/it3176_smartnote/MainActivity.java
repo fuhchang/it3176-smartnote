@@ -1,8 +1,17 @@
 package com.example.it3176_smartnote;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
+
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -28,6 +37,8 @@ import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.Toast;
+
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 
@@ -37,104 +48,110 @@ public class MainActivity extends Activity {
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
-	
+
+	private DatePickerDialog datePicker;
+	private DatePickerDialog.OnDateSetListener dateListener;
+
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
-	
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        cateArray = getResources().getStringArray(R.array.category_choice);
-        
-        SQLiteController controller = new SQLiteController(this);
-        controller.open();
-        //resultArray.addAll(controller.retrieveNotes());
-        ArrayList<Note> temptArray = controller.retrieveNotes();
-        temptArray = controller.autoUpdateNoteStatus(temptArray);
-        controller.close();
-        for(int i = 0; i < temptArray.size(); i++){
-        	if(temptArray.get(i).getNote_status().equals("active")){
-        		resultArray.add(temptArray.get(i));
-        	}
-        }
-        
-        
-        noteList notelist = new noteList(MainActivity.this, resultArray);        
-        list = (ListView) findViewById(R.id.noteListView);
-        list.setAdapter(notelist);
-       
-        list.setOnItemClickListener(new OnItemClickListener(){
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		cateArray = getResources().getStringArray(R.array.category_choice);
+
+		SQLiteController controller = new SQLiteController(this);
+		controller.open();
+		// resultArray.addAll(controller.retrieveNotes());
+		ArrayList<Note> temptArray = controller.retrieveNotes();
+		temptArray = controller.autoUpdateNoteStatus(temptArray);
+		controller.close();
+		for (int i = 0; i < temptArray.size(); i++) {
+			if (temptArray.get(i).getNote_status().equals("active")) {
+				resultArray.add(temptArray.get(i));
+			}
+		}
+
+		noteList notelist = new noteList(MainActivity.this, resultArray);
+		list = (ListView) findViewById(R.id.noteListView);
+		list.setAdapter(notelist);
+
+		list.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position,long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1,
+					int position, long arg3) {
 				// TODO Auto-generated method stub
-				Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
+				Intent intent = new Intent(getApplicationContext(),
+						NoteDetail.class);
 				ArrayList<String> selectedNote = new ArrayList<String>();
 				selectedNote.add(resultArray.get(position).getNote_name());
 				selectedNote.add(resultArray.get(position).getNote_content());
 				selectedNote.add(resultArray.get(position).getNote_category());
 				selectedNote.add(resultArray.get(position).getNote_date());
 				intent.putStringArrayListExtra("resultArray", selectedNote);
-				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
-		        startActivity(intent);
+				intent.putExtra("note_id", Integer.toString(resultArray.get(
+						position).getNote_id()));
+				startActivity(intent);
 			}
-        	
-        });
-    }
-    
+
+		});
+	}
+
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_activity_action, menu);
-        
-    	  SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-          SearchView searchView  = (SearchView) menu.findItem(R.id.search_icon).getActionView();
-          if(searchView != null){
-          searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-          }
-         
-          
-          searchView.setOnQueryTextListener(new OnQueryTextListener(){
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main_activity_action, menu);
+
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		SearchView searchView = (SearchView) menu.findItem(R.id.search_icon)
+				.getActionView();
+		if (searchView != null) {
+			searchView.setSearchableInfo(searchManager
+					.getSearchableInfo(getComponentName()));
+		}
+
+		searchView.setOnQueryTextListener(new OnQueryTextListener() {
 
 			@Override
 			public boolean onQueryTextChange(String newText) {
 				// TODO Auto-generated method stub
-				//Toast.makeText(getBaseContext(), newText, Toast.LENGTH_LONG).show();
+				// Toast.makeText(getBaseContext(), newText,
+				// Toast.LENGTH_LONG).show();
 				return false;
 			}
-			
+
 			@Override
 			public boolean onQueryTextSubmit(String query) {
 				// TODO Auto-generated method stub
 				ArrayList<Note> searchResult = new ArrayList<Note>();
-				for(int i=0; i<resultArray.size(); i++){
-					if(resultArray.get(i).getNote_name().equals(query)){
+				for (int i = 0; i < resultArray.size(); i++) {
+					if (resultArray.get(i).getNote_name().equals(query)) {
 						searchResult.add(resultArray.get(i));
 					}
 				}
-				noteList notelist = new noteList(MainActivity.this, searchResult);
+				noteList notelist = new noteList(MainActivity.this,
+						searchResult);
 				list = (ListView) findViewById(R.id.noteListView);
-		        list.setAdapter(notelist);
-		        
+				list.setAdapter(notelist);
+
 				return false;
 			}
-        	  
-        	  
-          });
-          
-    	return super.onCreateOptionsMenu(menu);
-          
-    }
-    
+
+		});
+
+		return super.onCreateOptionsMenu(menu);
+
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
-		
-		
-		switch(item.getItemId()){
-		
+
+		switch (item.getItemId()) {
+
 		case R.id.new_icon:
 			Intent intent = new Intent(this, CreateActivity.class);
 			startActivity(intent);
@@ -146,8 +163,7 @@ public class MainActivity extends Activity {
 			this.finish();
 			break;
 		case R.id.action_settings:
-			
-			
+
 			break;
 		case R.id.search_type:
 			MyCategoryDialog dialog = new MyCategoryDialog();
@@ -156,17 +172,19 @@ public class MainActivity extends Activity {
 		case R.id.search_date:
 			MyDatePicker datepicker = new MyDatePicker();
 			datepicker.show(getFragmentManager(), "myDatePicker");
-			
+
 			break;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
-	
-	
-	private class MyDatePicker extends DialogFragment implements DatePickerDialog.OnDateSetListener{
-		int pYear, pDay, pMonth;
-		
+
+	private class MyDatePicker extends DialogFragment implements
+			DatePickerDialog.OnDateSetListener {
+		int pYear;
+		int pDay;
+		int pMonth;
+
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			// TODO Auto-generated method stub
@@ -174,7 +192,7 @@ public class MainActivity extends Activity {
 			int year = c.get(Calendar.YEAR);
 			int month = c.get(Calendar.MONTH);
 			int day = c.get(Calendar.DAY_OF_MONTH);
-			
+
 			return new DatePickerDialog(getActivity(), this, year, month, day);
 		}
 
@@ -184,54 +202,126 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated method stub
 			pYear = year;
 			pDay = dayOfMonth;
-			pMonth = monthOfYear;
+			pMonth = monthOfYear + 1;
+			
+			String monthString = null;
+
+			switch (pMonth) {
+			case 1:
+				monthString = "Jan";
+				break;
+			case 2:
+				monthString = "Feb";
+				break;
+			case 3:
+				monthString = "Mar";
+				break;
+			case 4:
+				monthString = "Apr";
+				break;
+			case 5:
+				monthString = "May";
+				break;
+			case 6:
+				monthString = "Jun";
+				break;
+			case 7:
+				monthString = "Jul";
+				break;
+			case 8:
+				monthString = "Aug";
+				break;
+			case 9:
+				monthString = "Sep";
+				break;
+			case 10:
+				monthString = "Oc";
+				break;
+			case 11:
+				monthString = "Nov";
+				break;
+			case 12:
+				monthString = "Dec";
+				break;
+			}
+			DateTimeFormatter formatter = DateTimeFormat
+					.forPattern("dd-MMM-yyyy HH:mm:ss");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+			tempArray.clear();
+			if (pYear > 0 || pDay > 0 || pMonth > 0) {
+				if (!resultArray.isEmpty()) {
+					for (int i = 0; i < resultArray.size(); i++) {
+						DateTime noteDate = formatter.parseDateTime(resultArray
+								.get(0).getNote_date());
+						String selectedDate = pDay + "-" + monthString + "-"
+								+ pYear;
+						String date1 = dateFormat.format(noteDate.toDate());
+						if (date1.equals(selectedDate)) {
+							tempArray.add(resultArray.get(i));
+						} else {
+							Toast.makeText(getApplicationContext(), "fail",
+									Toast.LENGTH_SHORT).show();
+						}
+					}
+				} 
+				if(!tempArray.isEmpty()){
+				noteList notelist = new noteList(MainActivity.this,
+						tempArray);
+				list = (ListView) findViewById(R.id.noteListView);
+				list.setAdapter(notelist);
+				}else{
+					Note note = new Note();
+					note.setNote_name("NO result Found please check your input. Thank you");
+					tempArray.add(note);
+					noteList notelist = new noteList(MainActivity.this,
+							tempArray);
+					list = (ListView) findViewById(R.id.noteListView);
+					list.setAdapter(notelist);
+				}
+			}
 		}
-		
-		
 	}
-	
-	
-	private class MyCategoryDialog extends DialogFragment{
-		
+
+	private class MyCategoryDialog extends DialogFragment {
+
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle("Select The Type");
-			builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					tempArray.clear();
-					// TODO Auto-generated method stub
-					String selected = cateArray[which];
-					Log.d("Selected", selected);
-					for(int i=0; i< resultArray.size(); i++){
-						if(resultArray.get(i).getNote_category().equals(selected)){
-							tempArray.add(resultArray.get(i));
-						}else{
-							Log.d("result", "not found");
+			builder.setItems(R.array.category_choice,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							tempArray.clear();
+							// TODO Auto-generated method stub
+							String selected = cateArray[which];
+							Log.d("Selected", selected);
+							for (int i = 0; i < resultArray.size(); i++) {
+								if (resultArray.get(i).getNote_category()
+										.equals(selected)) {
+									tempArray.add(resultArray.get(i));
+								} else {
+									Log.d("result", "not found");
+								}
+
+							}
+
+							if (!tempArray.isEmpty()) {
+								noteList notelist = new noteList(getActivity(),
+										tempArray);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							}
 						}
-						
-					}
-					
-					if(!tempArray.isEmpty()){
-					noteList notelist = new noteList(getActivity(), tempArray);
-					list = (ListView) getActivity().findViewById(R.id.noteListView);
-					list.deferNotifyDataSetChanged();
-					list.setAdapter(notelist);
-					}
-				}
-				
-			});
+
+					});
 			return builder.create();
-			
+
 		}
 	}
 
-	
-	
-
-	
-    
 }
