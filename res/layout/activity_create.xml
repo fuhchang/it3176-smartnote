@@ -1,120 +1,175 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="5dp"
-    tools:context=".CreateActivity" >
 
-    <EditText
-        android:id="@+id/noteTitle"
-        android:layout_marginLeft="5dp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/create_note_styling"
-        android:textSize="32sp"
-        android:hint="Title"
-        android:inputType="text" />
-
-    <TextView
-        android:id="@+id/currentDateTimeOfCreation"
-        android:layout_marginLeft="5dp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/noteTitle"
-         />
-
-    <View 
-        android:id="@+id/hr"
-        android:layout_marginTop="5dp"
-   	    android:layout_width="fill_parent"
-        android:layout_height="2dp" 
-        android:layout_below="@+id/currentDateTimeOfCreation"      
-        android:background="#000"/>
-    
-   <!--   <TextView
-        android:id="@+id/selection"
-        android:layout_marginLeft="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Category(ies): "
-        android:layout_below="@+id/hr"
-         />-->
-    
-    <TextView
-        android:id="@+id/categorySelection"
-        android:layout_marginLeft="5dp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/hr"
-        
-        android:textColor="#0000ff"
-        android:text="@string/selection"
-        />
-    
-    
-    
-    <TextView
-        android:id="@+id/categorySelectionChoice"
-        android:layout_marginLeft="5dp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/categorySelection"
-        android:text="Category: None Selected"
-        android:textColor="#C35817"
-         />
-    
-   
-    
-     <View 
-        android:id="@+id/hr3"
-        android:layout_marginTop="5dp"
-   	    android:layout_width="fill_parent"
-        android:layout_height="2dp" 
-        android:layout_below="@+id/categorySelectionChoice"      
-        android:background="#000"/>
-    
-    
-     <EditText
-         android:id="@+id/noteContent"
-         android:layout_width="fill_parent"
-         android:layout_height="fill_parent"
-         android:layout_below="@+id/hr3"
-         android:layout_marginLeft="5dp"
-         android:layout_marginTop="5dp"
-         android:background="@drawable/create_note_styling"
-         android:gravity="top"
-         android:layout_above="@+id/imageView1"
-         android:hint="Content"
-         android:inputType="textMultiLine" />
-     
-     <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/hr2" 
-        android:layout_centerInParent="true"/> 
-     
-      <View 
-        android:id="@+id/hr2"
-        android:layout_marginTop="5dp"
-   	    android:layout_width="fill_parent"
-        android:layout_height="2dp" 
-        android:layout_above="@+id/btnSave"     
-        android:background="#000"/>
-     
-     <Button
-         android:id="@+id/btnSave"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_alignParentBottom="true"
-         android:layout_marginBottom="5dp"
-         android:text="Save Note"
-         android:onClick="onClick" />
-
-    
-     
-     
-    
-    
-    
+<RelativeLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+ 	xmlns:tools="http://schemas.android.com/tools"
+	tools:context=".CreateActivity"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingTop="5dp"
+	     >
+	
+	    <EditText
+	        android:id="@+id/noteTitle"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/create_note_styling"
+	        android:textSize="32sp"
+	        android:hint="Title"
+	        android:inputType="text" />
+	
+	    <TextView
+	        android:id="@+id/currentDateTimeOfCreation"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/noteTitle"
+	         />
+	
+	    <View 
+	        android:id="@+id/hr"
+	        android:layout_marginTop="5dp"
+	   	    android:layout_width="fill_parent"
+	        android:layout_height="2dp" 
+	        android:layout_below="@+id/currentDateTimeOfCreation"      
+	        android:background="#000"/>
+	    
+	   <!--   <TextView
+	        android:id="@+id/selection"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Category(ies): "
+	        android:layout_below="@+id/hr"
+	         />-->
+	    
+	    <TextView
+	        android:id="@+id/categorySelection"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/hr"
+	        
+	        android:textColor="#0000ff"
+	        android:text="@string/selection"
+	        />
+	    
+	    
+	    
+	    <TextView
+	        android:id="@+id/categorySelectionChoice"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/categorySelection"
+	        android:text="Category: None Selected"
+	        android:textColor="#C35817"
+	         />
+	    
+	   
+	    
+	     <View 
+	        android:id="@+id/hr2"
+	        android:layout_marginTop="5dp"
+	   	    android:layout_width="fill_parent"
+	        android:layout_height="2dp" 
+	        android:layout_below="@+id/categorySelectionChoice"      
+	        android:background="#000"/>
+	    
+	    
+	     <EditText
+	         android:id="@+id/noteContent"
+	         android:layout_width="fill_parent"
+	         android:layout_height="250dp"
+	         android:layout_below="@+id/hr2"
+	         android:layout_marginLeft="5dp"
+	         android:layout_marginTop="5dp"
+	         android:background="@drawable/create_note_styling"
+	         android:gravity="top"
+	         android:hint="Content"
+	         android:inputType="textMultiLine" />
+	     
+	     
+	     <ScrollView
+	         	android:id="@+id/sv"
+	         	android:layout_below="@+id/noteContent"
+	         	android:layout_width="fill_parent"
+	         	android:layout_height="fill_parent">
+	     
+	         <LinearLayout
+	             android:id="@+id/lLA"
+	             android:layout_width="fill_parent"
+	             android:layout_height="wrap_content"
+	             android:orientation="vertical"
+	             >       
+	             <TextView 
+	                 android:id="@+id/hrTv"
+	                 android:layout_width="fill_parent"
+	        		 android:layout_height="2dp"     
+	   			     android:background="#000"/>
+	                 
+	             
+	           <TextView
+	               android:id="@+id/attachment"  
+	               android:layout_height="wrap_content"
+	               android:layout_width="fill_parent"
+	               android:layout_marginTop="5dp"
+	               android:text="@string/attachment"
+	               />
+	                 
+			<!--       <TextView
+	               android:id="@+id/videoUriTv"
+	               android:layout_height="wrap_content"
+	               android:layout_width="fill_parent"
+	               
+	               android:layout_marginTop="5dp"/>
+			     
+			     
+			     <VideoView 
+			        android:id="@+id/videoView"
+			        android:layout_width="fill_parent"
+			        android:layout_height="200dp"
+			        
+			        
+			        android:layout_marginTop="5dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"
+				/> 
+			     <TextView
+			         
+			         
+			         android:layout_width="fill_parent"
+			         android:layout_height="wrap_content"
+			         />
+			     -->
+			     
+			     
+	    	 </LinearLayout>
+	     
+	     </ScrollView>
+	   <!--     <View 
+	        android:id="@+id/hr3"
+	        android:layout_marginTop="5dp"
+	   	    android:layout_width="fill_parent"
+	        android:layout_height="2dp" 
+	        android:layout_above="@+id/btnSave"     
+	        android:background="#000"/>
+	     
+	     <Button
+	         android:id="@+id/btnSave"
+	         android:layout_width="wrap_content"
+	         android:layout_height="wrap_content"
+	         android:layout_alignParentBottom="true"
+	         android:layout_marginBottom="5dp"
+	         android:text="Save Note"
+	         android:onClick="onClick" />
+	
+	    -->
+	     
+	     
+	    
+	    
+	    
 </RelativeLayout>
+
+

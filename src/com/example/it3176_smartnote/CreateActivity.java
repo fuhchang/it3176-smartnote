@@ -14,9 +14,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.Media;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,8 +27,12 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
@@ -33,19 +40,22 @@ import com.example.it3176_smartnote.model.Note;
 public class CreateActivity extends Activity {
 	
 	private static Bitmap Image = null;
-	private static Bitmap rotateImage = null;
 	private ImageView imageView;
-	private static final int GALLERY = 1;
+	private VideoView videoView;
+	private static final int PICK_IMAGE = 1;
+	MediaController mc;
+	private static final int PICK_VIDEO=2;
 	
 	static int SELECTION_CHOICE_DIALOG=1;
 	static String[] selectionArray;
 	static String noteCategory="";
-	//static ArrayList<Integer> categorySelected = new ArrayList<Integer>();
 	
-	TextView dateTimeCreation, categorySelection;
+	TextView dateTimeCreation, categorySelection, attachment, hrTv;
 	static TextView categorySelectionChoice;
 	EditText noteTitle, noteContent;
 	Button btnSave;
+	
+	
 	static String category="";
 
 	final Context context = this;
@@ -60,7 +70,14 @@ public class CreateActivity extends Activity {
 		noteTitle=(EditText)findViewById(R.id.noteTitle);
 		noteContent=(EditText)findViewById(R.id.noteContent);
 		btnSave=(Button)findViewById(R.id.btnSave);
-		imageView = (ImageView) findViewById(R.id.imageView1);
+		attachment=(TextView)findViewById(R.id.attachment);
+		attachment.setVisibility(View.GONE);
+		hrTv=(TextView) findViewById(R.id.hrTv);
+		hrTv.setVisibility(View.GONE);
+
+		mc = new MediaController(this);
+        mc.setAnchorView(videoView);
+		
 		getActionBar().setTitle("New Note");
 		
 		//Get time of pressing "New Note"
@@ -70,7 +87,7 @@ public class CreateActivity extends Activity {
 		String strDate = sdf.format(c.getTime());
 		dateTimeCreation.setText(strDate);
 		
-		//For selection
+		//For selection of category
 		selectionArray=getResources().getStringArray(R.array.category_choice);
 		categorySelection = (TextView) findViewById(R.id.categorySelection);
 		categorySelectionChoice = (TextView) findViewById(R.id.categorySelectionChoice);
@@ -113,10 +130,9 @@ public class CreateActivity extends Activity {
 				
 		         @Override
 		         public void onClick(DialogInterface arg0, int arg1) {
-		            /*Intent positveActivity = new Intent(getApplicationContext(),com.example.it3176_smartnote.MainActivity.class);
-		            startActivity(positveActivity);
-					*/
 		        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
+		        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
+						startActivity(intent);
 		        	 CreateActivity.this.finish();
 		         }
 		      });
@@ -132,23 +148,79 @@ public class CreateActivity extends Activity {
 		      AlertDialog alertDialog = alertDialogBuilder.create();
 		      alertDialog.show();
 		}
-		else{
-			if(id==R.id.reset){
+		else if(id==R.id.reset){
 				noteTitle.getText().clear();
 				noteContent.getText().clear();
 				imageView.setImageResource(android.R.color.transparent);
 				noteCategory="";
 				categorySelectionChoice.setText("Category: None Selected");
+		}
+		else if(id==R.id.uploadImage){
+				Intent intent = new Intent();
+				intent.setType("image/*");
+				//intent.setType("*/*");
+				intent.setAction(Intent.ACTION_GET_CONTENT);
+				startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);	
+		}
+		else if(id==R.id.saveNote){
+			String title = noteTitle.getText().toString();
+			String content = noteContent.getText().toString();
+			
+			/**Get all notes in database**/
+			ArrayList<Note> resultArray = new ArrayList<Note>();
+			SQLiteController getEntry = new SQLiteController(this);
+	        getEntry.open();
+	        resultArray.addAll(getEntry.retrieveNotes());
+	        getEntry.close();
+	        
+	       String duplicateTitle="";
+			
+	       /**Check for duplicate titles**/
+	        for(int i=0; i<resultArray.size(); i++){
+	        	if(resultArray.get(i).getNote_name().equals(noteTitle.getText().toString())){
+	        		duplicateTitle="yes";
+	        	}
+	        }
+			
+			
+			if(title.matches("")||content.matches("")||noteCategory.matches("")){
+				Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
 			}
-			else{
-				if(id==R.id.uploadImage){
-					Intent intent = new Intent();
-					intent.setType("image/*");
-					//intent.setType("*/*");
-					intent.setAction(Intent.ACTION_GET_CONTENT);
-					startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY);
+			else
+				if(duplicateTitle.matches("yes")){
+						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
 				}
+				else{
+					
+						boolean result = true;
+						try{
+						
+						Note note = new Note(title, content, noteCategory);
+					
+						SQLiteController entry = new SQLiteController(this);
+						entry.open();
+						entry.insertNote(note);
+						entry.close();
+						}catch(Exception e){
+							result = false;
+						}finally{
+							if(result){
+								Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
+								CreateActivity.this.finish();
+								Intent intent = new Intent(this, MainActivity.class);
+								startActivity(intent);
+								
+							}
+						}
+					}	
 			}
+		
+		else if(id==R.id.uploadVideo){
+			Intent intent = new Intent();
+	        intent.setType("video/*");
+	        intent.setAction(Intent.ACTION_GET_CONTENT);
+	        startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
+			
 		}
 		
 		
@@ -156,7 +228,7 @@ public class CreateActivity extends Activity {
 	}
 
 	/**Insert note into database**/
-	public void onClick(View view){
+	/*public void onClick(View view){
 		//Toast.makeText(getApplicationContext(), "Nooooo.", Toast.LENGTH_LONG).show();
 		//Toast.makeText(getBaseContext(), v.getId(), Toast.LENGTH_LONG).show();
 		
@@ -209,25 +281,99 @@ public class CreateActivity extends Activity {
 					}
 				}	
 				
-	}
+	}*/
 
 	/**Set the selected image from gallery and display in image view**/
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		if (requestCode == GALLERY && resultCode != 0) {
-			Uri mImageUri = data.getData();
-			try {
-				Image = Media.getBitmap(this.getContentResolver(), mImageUri);
-				imageView.setImageBitmap(Image);			
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();			
-			} 
-			catch (IOException e) {			
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if(resultCode == RESULT_OK){
+			switch(requestCode){
+				case PICK_IMAGE:
+					Uri mImageUri = data.getData();
+					try {
+						Image = Media.getBitmap(this.getContentResolver(), mImageUri);
+						attachment.setVisibility(View.VISIBLE);
+						hrTv.setVisibility(View.VISIBLE);
+						
+						/**Create UI to display selected image and uri**/
+						LinearLayout imagell = (LinearLayout)findViewById(R.id.lLA);
+						TextView imageUri = new TextView(this);
+						imageUri.setText(mImageUri.toString());
+						LinearLayout.LayoutParams imageUriLL = new LinearLayout.LayoutParams(
+					            LinearLayout.LayoutParams.FILL_PARENT,
+					            LinearLayout.LayoutParams.WRAP_CONTENT);
+						imageUri.setLayoutParams(imageUriLL);
+
+						ImageView iv = new ImageView(this);
+						iv.setImageBitmap(Image);
+						LinearLayout.LayoutParams ivLL = new LinearLayout.LayoutParams(
+						            LinearLayout.LayoutParams.FILL_PARENT,
+						            300);
+						iv.setLayoutParams(ivLL);
+						
+						TextView tv1 = new TextView(this);
+						tv1.setLayoutParams(imageUriLL);
+						
+						imagell.addView(imageUri);
+						imagell.addView(iv);
+						imagell.addView(tv1);					
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();			
+					} 
+					catch (IOException e) {			
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					break;
+					
+					
+				case PICK_VIDEO:
+					Uri mVideoURI = data.getData();        
+		            attachment.setVisibility(View.VISIBLE);
+					hrTv.setVisibility(View.VISIBLE);
+					
+					/**Create UI to display selected video and uri**/
+		            LinearLayout videoll = (LinearLayout)findViewById(R.id.lLA);
+					TextView videoUri = new TextView(this);
+					videoUri.setText(mVideoURI.toString());
+					LinearLayout.LayoutParams videoUriLL = new LinearLayout.LayoutParams(
+				            LinearLayout.LayoutParams.FILL_PARENT,
+				            LinearLayout.LayoutParams.WRAP_CONTENT);
+					videoUri.setLayoutParams(videoUriLL);
+
+					VideoView vv = new VideoView(this);
+					vv.setVideoURI(mVideoURI);
+					LinearLayout.LayoutParams vvLL = new LinearLayout.LayoutParams(
+					            LinearLayout.LayoutParams.FILL_PARENT,
+					            300);
+					vvLL.gravity=Gravity.CENTER;
+					vv.setLayoutParams(vvLL);
+
+					TextView tv2 = new TextView(this);
+					tv2.setLayoutParams(videoUriLL);
+					
+					videoll.addView(videoUri);
+					videoll.addView(vv);
+					videoll.addView(tv2);
+
+					 vv.setMediaController(mc);
+					 vv.requestFocus();
+				     vv.setOnPreparedListener(new OnPreparedListener(){
+
+						@Override
+						public void onPrepared(MediaPlayer arg0) {
+							// TODO Auto-generated method stub
+							//videoView.start();
+								mc.show(0);
+						}
+				            	
+				     });
+
+					break;
 			}
 		}
+		
 	}
 	
 	/**Creates a dialog with title and options from array**/
@@ -238,15 +384,12 @@ public class CreateActivity extends Activity {
 			dialogType=type;
 		}
 		
-		
 		public Dialog onCreateDialog(Bundle savedInstanceState)
 		{
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			
 			if(dialogType==SELECTION_CHOICE_DIALOG)
-			{
-				
-				
+			{								
 				builder.setTitle("Select Category");
 				builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
 					
@@ -257,38 +400,10 @@ public class CreateActivity extends Activity {
 						updateChoice();
 					}
 				});
-				/*builder.setTitle("Select Category(ies)");
-				boolean[] checkedValues= new boolean[selectionArray.length];
-				for(int i=0;i<categorySelected.size();i++){
-					checkedValues[categorySelected.get(i)]=true;
-				}
-				builder.setMultiChoiceItems(R.array.category_choice, checkedValues, new DialogInterface.OnMultiChoiceClickListener(){
-					public void onClick(DialogInterface dialog, int which, boolean isChecked)
-					{
-						if(isChecked){
-							categorySelected.add(which);
-							
-						}
-						else if(categorySelected.contains(which)){
-							categorySelected.remove(Integer.valueOf(which));
-						}
-					}
-					
-				});
-				builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						updateChoice();
-					}
-				});*/
-				
 			}
 			return builder.create();
 		}
 	}
-	
 	
 	/**Set textview to display selected category**/
 	public static void updateChoice(){
@@ -297,23 +412,9 @@ public class CreateActivity extends Activity {
 		if(noteCategory.length()>0){
 			category="Category: " + noteCategory;
 		}
-		
-		/*if(categorySelected.size()>0){
-			category="Category: ";
-			for(int i=0;i<categorySelected.size();i++){
-				category+= "(" + selectionArray[categorySelected.get(i)] + ") ";
-			
-			Log.i("Here", selectionArray[categorySelected.get(i)]);
-			}
-		}
-		else{
-			category="Category: None Selected";
-		}
-	//	category += ".";*/
 		categorySelectionChoice.setText(category);
 	}
 
-	
 	
 	/**For back pressed event**/
 	@Override
@@ -327,6 +428,8 @@ public class CreateActivity extends Activity {
 	         @Override
 	         public void onClick(DialogInterface arg0, int arg1) {
 	        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
+	        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
+					startActivity(intent);
 	        	 CreateActivity.this.finish();
 	         }
 	      });
@@ -346,7 +449,7 @@ public class CreateActivity extends Activity {
 	
 	
 	
-}	
+}//class
 	
 	
 

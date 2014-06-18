@@ -23,6 +23,8 @@
     <string name="selection"><u>Tap here to select note category</u></string>
     <string name="search_label">search here</string>
 
+    <string name="attachment"><b><u>Attachment(s):</u></b></string>
+    
     <string-array name="category_choice">
         <item>Work</item>
         <item>Business</item>
