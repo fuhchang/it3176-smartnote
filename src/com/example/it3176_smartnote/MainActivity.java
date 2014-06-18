@@ -1,14 +1,18 @@
 package com.example.it3176_smartnote;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.SearchManager;
 import android.app.TabActivity;
+import android.app.AlertDialog.Builder;
 import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,11 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
-import android.widget.Toast;
-
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 
@@ -33,7 +36,7 @@ public class MainActivity extends Activity {
 	int count;
 	ListView list;
 	String[] cateArray;
-	
+	DatePicker dpInputDate;
 	
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
@@ -50,12 +53,13 @@ public class MainActivity extends Activity {
         //resultArray.addAll(controller.retrieveNotes());
         ArrayList<Note> temptArray = controller.retrieveNotes();
         temptArray = controller.autoUpdateNoteStatus(temptArray);
+        controller.close();
         for(int i = 0; i < temptArray.size(); i++){
         	if(temptArray.get(i).getNote_status().equals("active")){
         		resultArray.add(temptArray.get(i));
         	}
         }
-        controller.close();
+        
         
         noteList notelist = new noteList(MainActivity.this, resultArray);        
         list = (ListView) findViewById(R.id.noteListView);
@@ -113,6 +117,7 @@ public class MainActivity extends Activity {
 				noteList notelist = new noteList(MainActivity.this, searchResult);
 				list = (ListView) findViewById(R.id.noteListView);
 		        list.setAdapter(notelist);
+		        
 				return false;
 			}
         	  
@@ -141,24 +146,52 @@ public class MainActivity extends Activity {
 			this.finish();
 			break;
 		case R.id.action_settings:
-			Intent settings_intent = new Intent(this, SettingsActivity.class);
-			startActivity(settings_intent);
-			this.finish();
+			
+			
 			break;
 		case R.id.search_type:
 			MyCategoryDialog dialog = new MyCategoryDialog();
 			dialog.show(getFragmentManager(), "myCategoryDialog");
 			break;
 		case R.id.search_date:
+			MyDatePicker datepicker = new MyDatePicker();
+			datepicker.show(getFragmentManager(), "myDatePicker");
 			
 			break;
 		}
 		
 		return super.onOptionsItemSelected(item);
 	}
-
 	
-	public class MyCategoryDialog extends DialogFragment{
+	
+	private class MyDatePicker extends DialogFragment implements DatePickerDialog.OnDateSetListener{
+		int pYear, pDay, pMonth;
+		
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			final Calendar c = Calendar.getInstance();
+			int year = c.get(Calendar.YEAR);
+			int month = c.get(Calendar.MONTH);
+			int day = c.get(Calendar.DAY_OF_MONTH);
+			
+			return new DatePickerDialog(getActivity(), this, year, month, day);
+		}
+
+		@Override
+		public void onDateSet(DatePicker view, int year, int monthOfYear,
+				int dayOfMonth) {
+			// TODO Auto-generated method stub
+			pYear = year;
+			pDay = dayOfMonth;
+			pMonth = monthOfYear;
+		}
+		
+		
+	}
+	
+	
+	private class MyCategoryDialog extends DialogFragment{
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
