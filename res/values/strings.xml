@@ -13,7 +13,7 @@
     <string name="new_title">Add New</string>
     <string name="search_title">Search here!</string>
     <string name="search_hint">Search hint!</string>
- 	<string name="action_adv_search">Advance Search</string>
+ 	<string name="action_adv_search">Search By Category</string>
     <string name="action_settings">Settings</string>
 
     <!-- Category of notes -->

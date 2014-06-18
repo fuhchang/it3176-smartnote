@@ -2,6 +2,7 @@ package com.example.it3176_smartnote;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 
+@SuppressLint("ValidFragment")
 public class MainActivity extends Activity {
 	int count;
 	ListView list;
@@ -131,6 +133,7 @@ public class MainActivity extends Activity {
 		case R.id.new_icon:
 			Intent intent = new Intent(this, CreateActivity.class);
 			startActivity(intent);
+			this.finish();
 			break;
 		case R.id.action_settings:
 			Intent settings_intent = new Intent(this, SettingsActivity.class);
