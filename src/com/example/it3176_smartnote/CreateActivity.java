@@ -9,6 +9,9 @@ import java.util.TimeZone;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.SQLLite.it3176.mySQLLite;
+import com.example.it3176_smartnote.model.Note;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,7 +54,8 @@ public class CreateActivity extends Activity {
 	
 	static int SELECTION_CHOICE_DIALOG=1;
 	static String[] selectionArray;
-	static ArrayList<Integer> categorySelected = new ArrayList<Integer>();
+	static String noteCategory="";
+	//static ArrayList<Integer> categorySelected = new ArrayList<Integer>();
 	
 	TextView dateTimeCreation, categorySelection;
 	static TextView categorySelectionChoice;
@@ -59,6 +63,9 @@ public class CreateActivity extends Activity {
 	Button btnSave;
 	static String category="";
 
+	final Context context = this;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -74,7 +81,7 @@ public class CreateActivity extends Activity {
 		//Get time of pressing "New Note"
 		dateTimeCreation = (TextView) findViewById(R.id.currentDateTimeOfCreation);		
 		Calendar c = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMMM yyyy - KK:mm a");
+		SimpleDateFormat sdf = new SimpleDateFormat("E, dd MMMM yyyy - hh:mm a");
 		String strDate = sdf.format(c.getTime());
 		dateTimeCreation.setText(strDate);
 		
@@ -103,6 +110,9 @@ public class CreateActivity extends Activity {
 		return true;
 	}
 
+	
+	
+	/**Menu items**/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
@@ -142,7 +152,7 @@ public class CreateActivity extends Activity {
 				noteTitle.getText().clear();
 				noteContent.getText().clear();
 				imageView.setImageResource(android.R.color.transparent);
-				categorySelected.clear();
+				noteCategory="";
 				categorySelectionChoice.setText("Category: None Selected");
 			}
 			else{
@@ -160,33 +170,62 @@ public class CreateActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**Insert note into database**/
 	public void onClick(View view){
-		Toast.makeText(getApplicationContext(), "Nooooo.", Toast.LENGTH_LONG).show();
-		/*Intent intent;
-		try {
-			switch (view.getId()) {
-			case R.id.btnSave:
-				intent = new Intent(Temp_main.this, Volunteer_Register.class);
-				startActivity(intent);
-				this.finish();
-				break;
-			case R.id.btnView:
-				intent = new Intent(Temp_main.this, Volunteer_View.class);
-				startActivity(intent);
-				this.finish();
-			case R.id.btnEdit:
-				intent = new Intent(Temp_main.this, Volunteer_Edit.class);
-				startActivity(intent);
-				this.finish();
-			default:
-				Temp_main.this.finish();
-				break;
+		//Toast.makeText(getApplicationContext(), "Nooooo.", Toast.LENGTH_LONG).show();
+		//Toast.makeText(getBaseContext(), v.getId(), Toast.LENGTH_LONG).show();
+		
+		String title = noteTitle.getText().toString();
+		String content = noteContent.getText().toString();
+		
+		ArrayList<Note> resultArray = new ArrayList<Note>();
+		mySQLLite getEntry = new mySQLLite(this);
+        getEntry.open();
+        resultArray.addAll(getEntry.selectEntry());
+        getEntry.close();
+        
+       String duplicateTitle="";
+		
+        for(int i=0; i<resultArray.size(); i++){
+        	if(resultArray.get(i).getNote_name().equals(noteTitle.getText().toString())){
+        		duplicateTitle="yes";
+        	}
+        }
+		
+		
+		if(title.matches("")||content.matches("")||noteCategory.matches("")){
+			Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
+		}
+		else
+			if(duplicateTitle.matches("yes")){
+					Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-
+			else{
+				
+					boolean result = true;
+					try{
+					
+				
+					mySQLLite entry = new mySQLLite(this);
+					entry.open();
+					entry.createEntry(title, content, noteCategory);
+					entry.close();
+					}catch(Exception e){
+						result = false;
+					}finally{
+						if(result){
+							Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
+							CreateActivity.this.finish();
+							Intent intent = new Intent(this, MainActivity.class);
+							startActivity(intent);
+							
+						}
+					}
+				}	
+				
 	}
+
+	/**Set the selected image from gallery and display in image view**/
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (requestCode == GALLERY && resultCode != 0) {
@@ -205,6 +244,7 @@ public class CreateActivity extends Activity {
 		}
 	}
 	
+	/**Creates a dialog with title and options from array**/
 	public static class CreateNoteDialog extends DialogFragment{
 		int dialogType;
 		
@@ -219,7 +259,19 @@ public class CreateActivity extends Activity {
 			
 			if(dialogType==SELECTION_CHOICE_DIALOG)
 			{
-				builder.setTitle("Select Category(ies)");
+				
+				
+				builder.setTitle("Select Category");
+				builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						noteCategory=selectionArray[which];
+						updateChoice();
+					}
+				});
+				/*builder.setTitle("Select Category(ies)");
 				boolean[] checkedValues= new boolean[selectionArray.length];
 				for(int i=0;i<categorySelected.size();i++){
 					checkedValues[categorySelected.get(i)]=true;
@@ -244,7 +296,7 @@ public class CreateActivity extends Activity {
 						// TODO Auto-generated method stub
 						updateChoice();
 					}
-				});
+				});*/
 				
 			}
 			return builder.create();
@@ -252,11 +304,15 @@ public class CreateActivity extends Activity {
 	}
 	
 	
-	
+	/**Set textview to display selected category**/
 	public static void updateChoice(){
 		category="";
 		
-		if(categorySelected.size()>0){
+		if(noteCategory.length()>0){
+			category="Category: " + noteCategory;
+		}
+		
+		/*if(categorySelected.size()>0){
 			category="Category: ";
 			for(int i=0;i<categorySelected.size();i++){
 				category+= "(" + selectionArray[categorySelected.get(i)] + ") ";
@@ -267,9 +323,43 @@ public class CreateActivity extends Activity {
 		else{
 			category="Category: None Selected";
 		}
-	//	category += ".";
+	//	category += ".";*/
 		categorySelectionChoice.setText(category);
 	}
+
+	
+	
+	/**For back pressed event**/
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+	      alertDialogBuilder.setMessage("Discard Note?");
+	      alertDialogBuilder.setPositiveButton("Yes", 
+	      new DialogInterface.OnClickListener() {
+			
+	         @Override
+	         public void onClick(DialogInterface arg0, int arg1) {
+	        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
+	        	 CreateActivity.this.finish();
+	         }
+	      });
+	      alertDialogBuilder.setNegativeButton("No", 
+	      new DialogInterface.OnClickListener() {
+				
+	         @Override
+	         public void onClick(DialogInterface dialog, int which) {
+	            
+			 }
+	      });
+		    
+	      AlertDialog alertDialog = alertDialogBuilder.create();
+	      alertDialog.show();
+	}
+	
+	
+	
+	
 }	
 	
 	
