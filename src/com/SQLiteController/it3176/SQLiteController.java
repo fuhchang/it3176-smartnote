@@ -98,6 +98,24 @@ public class SQLiteController{
 		return ourDatabase.insert(database_table, null, cv);
 	}
 	
+	//Creating new note with self-declared date
+	public long insertNoteWithDate(Note note){
+		ContentValues cv = new ContentValues();
+		cv.put(note_name, note.getNote_name());
+		cv.put(note_content, note.getNote_content());
+		cv.put(note_category, note.getNote_category());
+		cv.put(note_date, note.getNote_date());
+		cv.put(note_img, note.getNote_img());
+		cv.put(note_video, note.getNote_video());
+		cv.put(note_audio, note.getNote_audio());
+		cv.put(note_address, note.getNote_address());
+		cv.put(note_tags, note.getNote_tags());
+		cv.put(note_status, "active");
+		
+		Log.d(LOGCAT, "Inserting new note with self-declared date");
+		return ourDatabase.insert(database_table, null, cv);
+	}
+	
 	//Retrieving all notes
 	public ArrayList<Note> retrieveNotes(){
 		//Cursor cursor = ourDatabase.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
