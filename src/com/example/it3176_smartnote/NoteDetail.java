@@ -109,6 +109,7 @@ public class NoteDetail extends Activity {
 				LayoutInflater inflater = LayoutInflater.from(this);
 				final View setting_view = inflater.inflate(R.layout.setting_dialog, null);
 				cb_remember_setting = (CheckBox) setting_view.findViewById(R.id.cb_remember_setting);
+				savePreferences("preference", false);
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setView(setting_view);

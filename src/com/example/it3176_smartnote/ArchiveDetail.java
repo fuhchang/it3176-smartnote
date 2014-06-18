@@ -26,9 +26,9 @@ public class ArchiveDetail extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.note_detail);
 		ArrayList<String> list = getIntent().getStringArrayListExtra("resultArray");
-		EditText etTitle = (EditText) findViewById(R.id.noteTitleET);
+		TextView etTitle = (TextView ) findViewById(R.id.noteTitleET);
 		etTitle.setText(list.get(0).toString());
-		EditText etContent = (EditText) findViewById(R.id.contentTxt);
+		TextView etContent = (TextView ) findViewById(R.id.contentTxt);
 		etContent.setText(list.get(1).toString());
 		TextView tvCate = (TextView) findViewById(R.id.cateChoice);
 		tvCate.setText(list.get(2).toString());
