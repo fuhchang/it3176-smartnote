@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.it3176_smartnote.NoteDetail" >
+
+    <item
+        android:id="@+id/btn_reactivate"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_undo"
+        android:title="@string/btn_reactivate" />
+</menu>
