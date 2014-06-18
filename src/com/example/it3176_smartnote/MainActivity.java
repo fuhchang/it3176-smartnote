@@ -135,13 +135,22 @@ public class MainActivity extends Activity {
 			startActivity(intent);
 			this.finish();
 			break;
+		case R.id.action_archive:
+			Intent archive_intent = new Intent(this, ArchiveActivity.class);
+			startActivity(archive_intent);
+			this.finish();
+			break;
 		case R.id.action_settings:
 			Intent settings_intent = new Intent(this, SettingsActivity.class);
 			startActivity(settings_intent);
+			this.finish();
 			break;
-		case R.id.action_adv_search:
+		case R.id.search_type:
 			MyCategoryDialog dialog = new MyCategoryDialog();
 			dialog.show(getFragmentManager(), "myCategoryDialog");
+			break;
+		case R.id.search_date:
+			
 			break;
 		}
 		
