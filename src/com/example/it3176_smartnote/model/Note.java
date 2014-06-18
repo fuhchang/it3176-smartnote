@@ -9,10 +9,12 @@ public class Note {
 	private String note_img;
 	private String note_video;
 	private String note_audio;
+	private String note_address;
+	private String note_tags;
 	private String note_status;
 	
 	//Constructor
-	public Note(int note_id, String note_name, String note_content, String note_category, String note_date, String note_img, String note_video, String note_audio, String note_status){
+	public Note(int note_id, String note_name, String note_content, String note_category, String note_date, String note_img, String note_video, String note_audio, String note_address, String note_tags, String note_status){
 		this.note_id = note_id;
 		this.note_name = note_name;
 		this.note_content = note_content;
@@ -21,6 +23,8 @@ public class Note {
 		this.note_img = note_img;
 		this.note_video = note_video;
 		this.note_audio = note_audio;
+		this.note_address = note_address;
+		this.note_tags = note_tags;
 		this.note_status = note_status;
 	}
 	
@@ -99,6 +103,22 @@ public class Note {
 
 	public void setNote_audio(String note_audio) {
 		this.note_audio = note_audio;
+	}
+
+	public String getNote_address() {
+		return note_address;
+	}
+
+	public void setNote_address(String note_address) {
+		this.note_address = note_address;
+	}
+
+	public String getNote_tags() {
+		return note_tags;
+	}
+
+	public void setNote_tags(String note_tags) {
+		this.note_tags = note_tags;
 	}
 
 	public String getNote_status() {

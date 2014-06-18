@@ -28,6 +28,8 @@ public class SQLiteController{
 	public static final String note_img = "noteimg";
 	public static final String note_video = "notevideo";
 	public static final String note_audio = "noteaudio";
+	public static final String note_address = "noteaddress";
+	public static final String note_tags = "notetags";
 	public static final String note_status = "notestatus";
 	
 	private static final String database_name = "smartnotedb";
@@ -47,7 +49,7 @@ public class SQLiteController{
 	
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + database_table + " (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category Text, notedate DATETIME, noteimg Text, notevideo Text, noteaudio Text, notestatus TEXT);");
+			db.execSQL("CREATE TABLE " + database_table + " (noteid INTEGER PRIMARY KEY AUTOINCREMENT, notename TEXT, notecontent TEXT, category Text, notedate DATETIME, noteimg Text, notevideo Text, noteaudio Text, noteaddress Text, notetags Text, notestatus TEXT);");
 		}
 	
 		@Override
@@ -88,6 +90,8 @@ public class SQLiteController{
 		cv.put(note_img, note.getNote_img());
 		cv.put(note_video, note.getNote_video());
 		cv.put(note_audio, note.getNote_audio());
+		cv.put(note_address, note.getNote_address());
+		cv.put(note_tags, note.getNote_tags());
 		cv.put(note_status, "active");
 		
 		Log.d(LOGCAT, "Inserting new note");
@@ -97,7 +101,7 @@ public class SQLiteController{
 	//Retrieving all notes
 	public ArrayList<Note> retrieveNotes(){
 		//Cursor cursor = ourDatabase.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
-		Cursor cursor = ourDatabase.query(database_table, new String[] {note_id, note_name, note_content, note_category, note_date, note_img, note_video, note_audio, note_status}, null, null, null, null, null, null);
+		Cursor cursor = ourDatabase.query(database_table, new String[] {note_id, note_name, note_content, note_category, note_date, note_img, note_video, note_audio, note_address, note_tags, note_status}, null, null, null, null, null, null);
 		ArrayList<Note> note_list = new ArrayList<Note>();
 			if(cursor != null){
 				Log.d(LOGCAT, "Retrieving each note");
@@ -112,6 +116,8 @@ public class SQLiteController{
 						note.setNote_img(cursor.getString(cursor.getColumnIndex(note_img)));
 						note.setNote_video(cursor.getString(cursor.getColumnIndex(note_video)));
 						note.setNote_audio(cursor.getString(cursor.getColumnIndex(note_audio)));
+						note.setNote_address(cursor.getString(cursor.getColumnIndex(note_address)));
+						note.setNote_tags(cursor.getString(cursor.getColumnIndex(note_tags)));
 						note.setNote_status(cursor.getString(cursor.getColumnIndex(note_status)));
 						note_list.add(note);						
 					} while(cursor.moveToNext());					
@@ -119,29 +125,6 @@ public class SQLiteController{
 			}
 		Log.d(LOGCAT, "Retrieved all notes");
 		return note_list;
-	}
-	public ArrayList<Note> searchByName(String name){
-		Cursor cursor = ourDatabase.query(database_table, new String[] {note_id, note_name, note_content, note_category, note_date, note_img, note_video, note_audio, note_status}, note_name + "=" + name, null, null, null, null, null);
-		ArrayList<Note> note_list = new ArrayList<Note>();
-		if(cursor != null){
-		if(cursor.moveToFirst()){
-			do{
-				Note note = new Note();
-				note.setNote_id(cursor.getInt(cursor.getColumnIndex(note_id)));
-				
-				note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
-				
-				note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
-				
-				note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
-
-					note.setNote_date(cursor.getString(cursor
-							.getColumnIndex(note_date)));
-			}while(cursor.moveToNext());
-		}
-		
-		}
-		return null;
 	}
 	
 	//Deleting note
