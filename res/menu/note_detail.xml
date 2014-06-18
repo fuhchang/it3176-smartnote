@@ -3,10 +3,9 @@
     tools:context="com.example.it3176_smartnote.NoteDetail" >
 
     <item
-        android:id="@+id/btnDel"
+        android:id="@+id/btn_remove"
         android:orderInCategory="100"
         android:showAsAction="always"
         android:icon="@drawable/ic_action_discard"
-        android:title="@string/action_settings"/>
-
+        android:title="@string/btn_remove"/>
 </menu>

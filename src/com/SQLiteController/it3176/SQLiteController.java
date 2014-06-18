@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import org.joda.time.Days;
-import org.joda.time.Period;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -106,29 +105,16 @@ public class SQLiteController{
 					do{
 						Note note = new Note();
 						note.setNote_id(cursor.getInt(cursor.getColumnIndex(note_id)));
-						
 						note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
-						
 						note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
-						
 						note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
-						
 						note.setNote_date(cursor.getString(cursor.getColumnIndex(note_date)));
-						
-						/*
 						note.setNote_img(cursor.getString(cursor.getColumnIndex(note_img)));
-						Log.d("result ", note.getNote_img());
 						note.setNote_video(cursor.getString(cursor.getColumnIndex(note_video)));
-						Log.d("result ", note.getNote_video());
 						note.setNote_audio(cursor.getString(cursor.getColumnIndex(note_audio)));
-						Log.d("result ", note.getNote_audio());
 						note.setNote_status(cursor.getString(cursor.getColumnIndex(note_status)));
-						Log.d("result ",note.getNote_status());
-						*/
-						note_list.add(note);
-						
-					} while(cursor.moveToNext());
-					
+						note_list.add(note);						
+					} while(cursor.moveToNext());					
 				}
 			}
 		Log.d(LOGCAT, "Retrieved all notes");
@@ -157,18 +143,58 @@ public class SQLiteController{
 		}
 		return null;
 	}
+	
 	//Deleting note
 	public long deleteNote(Note note){
-		Log.d(LOGCAT, "Deleting note");
+		Log.d(LOGCAT, "Delete note");
 		return ourDatabase.delete(database_table, "noteid= " + note.getNote_id(), null);
 	}
 	
-	//Updating note status
-	public void updateNoteStatus(ArrayList<Note> note_list){
+	//Update note status
+	public long updateNoteStatus(Note note, String status){
+		ContentValues cv = new ContentValues();
+		cv.put(note_status, status);
+		
+		Log.d(LOGCAT, "Update note status");
+		return ourDatabase.update(database_table, cv, "noteid= " + note.getNote_id(), null);
+	}
+	
+	//Reactivate note
+	public long reactivateNote(Note note){
+		ContentValues cv = new ContentValues();
+		cv.put(note_date, getDateTime());
+		cv.put(note_status, "active");
+		
+		Log.d(LOGCAT, "Reactivate note");
+		return ourDatabase.update(database_table, cv, "noteid= " + note.getNote_id(), null);
+	}
+	
+	//Auto delete note
+	public ArrayList<Note> autoDeleteNote(ArrayList<Note> note_list, int daysDiff){
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");
+		DateTime today_date = formatter.parseDateTime(getDateTime());
 		
 		for(int i = 0; i < note_list.size(); i++){
-			if(new Period(formatter.parseDateTime(note_list.get(i).getNote_date()), formatter.parseDateTime(getDateTime())).getDays() > 30){
+			DateTime note_date = formatter.parseDateTime(note_list.get(i).getNote_date());
+			
+			if(note_list.get(i).getNote_status().equals("archive") && note_date.plusDays(daysDiff).isBefore(today_date)){
+				
+				Log.d(LOGCAT, "Deleting NoteId: " + note_list.get(i).getNote_id());
+				ourDatabase.delete(database_table, "noteid= " + note_list.get(i).getNote_id(), null);
+			}
+		}
+		return retrieveNotes();
+	}
+	
+	//Auto update note status
+	public ArrayList<Note> autoUpdateNoteStatus(ArrayList<Note> note_list){
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");
+		DateTime today_date = formatter.parseDateTime(getDateTime());
+		
+		for(int i = 0; i < note_list.size(); i++){
+			DateTime note_date = formatter.parseDateTime(note_list.get(i).getNote_date());
+			
+			if(note_list.get(i).getNote_status().equals("active") && note_date.plusDays(30).isBefore(today_date)){
 				ContentValues cv = new ContentValues();
 				cv.put(note_status, "archive");
 				
@@ -176,5 +202,6 @@ public class SQLiteController{
 				ourDatabase.update(database_table, cv, "noteid= " + note_list.get(i).getNote_id(), null);
 			}
 		}
+		return retrieveNotes();
 	}
 }

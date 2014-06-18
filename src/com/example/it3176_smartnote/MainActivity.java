@@ -29,26 +29,33 @@ import com.example.it3176_smartnote.model.Note;
 
 public class MainActivity extends Activity {
 	int count;
-	static ListView list;
-	static String[] cateArray;
+	ListView list;
+	String[] cateArray;
 	
 	
-	static ArrayList<Note> resultArray = new ArrayList<Note>();
-	static ArrayList<Note> tempArray = new ArrayList<Note>();
+	ArrayList<Note> resultArray = new ArrayList<Note>();
+	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       cateArray = getResources().getStringArray(R.array.category_choice);
+        cateArray = getResources().getStringArray(R.array.category_choice);
         
         SQLiteController controller = new SQLiteController(this);
         controller.open();
-        resultArray.addAll(controller.retrieveNotes());
+        //resultArray.addAll(controller.retrieveNotes());
+        ArrayList<Note> temptArray = controller.retrieveNotes();
+        temptArray = controller.autoUpdateNoteStatus(temptArray);
+        for(int i = 0; i < temptArray.size(); i++){
+        	if(temptArray.get(i).getNote_status().equals("active")){
+        		resultArray.add(temptArray.get(i));
+        	}
+        }
         controller.close();
         
-        noteList notelist = new noteList(MainActivity.this, resultArray);
-        
+        noteList notelist = new noteList(MainActivity.this, resultArray);        
         list = (ListView) findViewById(R.id.noteListView);
         list.setAdapter(notelist);
        
@@ -66,14 +73,11 @@ public class MainActivity extends Activity {
 				intent.putStringArrayListExtra("resultArray", selectedNote);
 				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
 		        startActivity(intent);
-		        
-				
 			}
         	
         });
     }
     
-   
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -125,11 +129,12 @@ public class MainActivity extends Activity {
 		switch(item.getItemId()){
 		
 		case R.id.new_icon:
-			Intent intent = new Intent(this, sqlTest.class);
+			Intent intent = new Intent(this, CreateActivity.class);
 			startActivity(intent);
 			break;
 		case R.id.action_settings:
-			Toast.makeText(getBaseContext(), "Setting!", Toast.LENGTH_LONG).show();
+			Intent settings_intent = new Intent(this, SettingsActivity.class);
+			startActivity(settings_intent);
 			break;
 		case R.id.action_adv_search:
 			MyCategoryDialog dialog = new MyCategoryDialog();
@@ -141,7 +146,7 @@ public class MainActivity extends Activity {
 	}
 
 	
-	public static class MyCategoryDialog extends DialogFragment{
+	public class MyCategoryDialog extends DialogFragment{
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {

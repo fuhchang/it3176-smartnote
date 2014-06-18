@@ -2,14 +2,12 @@ package com.example.it3176_smartnote;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
@@ -37,11 +35,6 @@ public class sqlTest extends Activity implements OnClickListener{
 			try{
 			String name = noteName.getText().toString();
 			String con = noteContent.getText().toString();
-		
-			/*mySQLLite entry = new mySQLLite(this);
-			entry.open();
-			entry.createEntry(name, con, "haha");
-			entry.close();*/
 			
 			SQLiteController controller = new SQLiteController(this);
 			controller.open();
@@ -58,12 +51,8 @@ public class sqlTest extends Activity implements OnClickListener{
 					tv.setText("success");
 					d.setContentView(tv);
 					d.show();
-					Intent refresh = new Intent(this, MainActivity.class);
-					startActivity(refresh);
-					finish();
 				}
 			}
-			
 			break;
 		}
 	}

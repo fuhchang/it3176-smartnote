@@ -1,49 +1,34 @@
 package com.example.it3176_smartnote;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import com.SQLLite.it3176.mySQLLite;
-import com.example.it3176_smartnote.model.Note;
-
-import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.text.format.DateFormat;
-import android.util.Log;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore.Images.Media;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.app.Activity;
-import android.app.AlertDialog.Builder;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images.Media;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
+import com.SQLiteController.it3176.SQLiteController;
+import com.example.it3176_smartnote.model.Note;
 
 public class CreateActivity extends Activity {
 	
@@ -179,9 +164,9 @@ public class CreateActivity extends Activity {
 		String content = noteContent.getText().toString();
 		
 		ArrayList<Note> resultArray = new ArrayList<Note>();
-		mySQLLite getEntry = new mySQLLite(this);
+		SQLiteController getEntry = new SQLiteController(this);
         getEntry.open();
-        resultArray.addAll(getEntry.selectEntry());
+        resultArray.addAll(getEntry.retrieveNotes());
         getEntry.close();
         
        String duplicateTitle="";
@@ -205,10 +190,11 @@ public class CreateActivity extends Activity {
 					boolean result = true;
 					try{
 					
+					Note note = new Note(title, content, noteCategory);
 				
-					mySQLLite entry = new mySQLLite(this);
+					SQLiteController entry = new SQLiteController(this);
 					entry.open();
-					entry.createEntry(title, content, noteCategory);
+					entry.insertNote(note);
 					entry.close();
 					}catch(Exception e){
 						result = false;
