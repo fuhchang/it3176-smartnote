@@ -39,16 +39,6 @@
         </activity>
         <activity 
             android:screenOrientation="portrait"
-            android:name="com.example.it3176_smartnote.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:icon="@drawable/ic_action_settings"
-            android:parentActivityName="com.example.it3176_smartnote.MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.it3176_smartnote.MainActivity" />
-        </activity>
-        <activity 
-            android:screenOrientation="portrait"
             android:name="com.example.it3176_smartnote.ArchiveActivity"
             android:label="@string/title_activity_archive"
             android:parentActivityName="com.example.it3176_smartnote.MainActivity" >
