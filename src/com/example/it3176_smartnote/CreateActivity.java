@@ -58,6 +58,7 @@ public class CreateActivity extends Activity {
 	TextView dateTimeCreation, categorySelection, attachment, hrTv, imageUriTv, videoUriTv;
 	static TextView categorySelectionChoice;
 	EditText noteTitle, noteContent;
+	AutoCompleteTextView suggestTitle;
 	Button btnSave;
 	
 	MediaController mc;
@@ -76,7 +77,7 @@ public class CreateActivity extends Activity {
 		setContentView(R.layout.activity_create);
 		
 		//Title, content, saveButton, imageView
-		noteTitle=(EditText)findViewById(R.id.noteTitle);
+		//noteTitle=(EditText)findViewById(R.id.noteTitle);
 		noteContent=(EditText)findViewById(R.id.noteContent);
 		btnSave=(Button)findViewById(R.id.btnSave);
 		attachment=(TextView)findViewById(R.id.attachment);
@@ -110,7 +111,7 @@ public class CreateActivity extends Activity {
 			}while(calendarEventTitleCursor.moveToNext());
 		
 
-				AutoCompleteTextView suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
+				suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
 				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, eventTitles);
 				suggestTitle.setAdapter(adapter);
 		
@@ -200,7 +201,7 @@ public class CreateActivity extends Activity {
 				startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);	
 		}
 		else if(id==R.id.saveNote){
-			String title = noteTitle.getText().toString();
+			String title = suggestTitle.getText().toString();
 			String content = noteContent.getText().toString();
 			
 			/**Get all notes in database**/
@@ -214,7 +215,8 @@ public class CreateActivity extends Activity {
 			
 	       /**Check for duplicate titles**/
 	        for(int i=0; i<resultArray.size(); i++){
-	        	if(resultArray.get(i).getNote_name().equals(noteTitle.getText().toString())){
+	        	//if(resultArray.get(i).getNote_name().equals(noteTitle.getText().toString())){
+	        	if(resultArray.get(i).getNote_name().equals(suggestTitle.getText().toString())){
 	        		duplicateTitle="yes";
 	        	}
 	        }
