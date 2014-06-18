@@ -32,6 +32,7 @@
     <!-- Delete|Archive note -->
     <string name="btn_remove">Remove</string>
     <string name="cb_remember_setting">Remember this setting?</string>
+    <string name="btn_reactivate">Reactivate</string>
     
     
 </resources>
