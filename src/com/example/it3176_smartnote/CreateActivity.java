@@ -13,11 +13,13 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.provider.MediaStore.Images.Media;
 import android.text.Html;
 import android.view.Gravity;
@@ -25,6 +27,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -62,6 +66,9 @@ public class CreateActivity extends Activity {
 
 	final Context context = this;
 	
+	private Cursor calendarEventTitleCursor;
+	ArrayList<String> eventTitles = new ArrayList<String>();
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,23 @@ public class CreateActivity extends Activity {
         mc.setAnchorView(videoView);
 		
 		getActionBar().setTitle("New Note");
+		
+		
+		calendarEventTitleCursor=getContentResolver().query(CalendarContract.Events.CONTENT_URI, new String[]{CalendarContract.Events.TITLE},null,null,null);
+		calendarEventTitleCursor.moveToFirst();
+			do{
+				
+				Toast.makeText(getApplicationContext(), calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)), Toast.LENGTH_SHORT).show();
+				eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
+			}while(calendarEventTitleCursor.moveToNext());
+		
+
+				AutoCompleteTextView suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, eventTitles);
+				suggestTitle.setAdapter(adapter);
+		
+		
+		
 		
 		//Get time of pressing "New Note"
 		dateTimeCreation = (TextView) findViewById(R.id.currentDateTimeOfCreation);		

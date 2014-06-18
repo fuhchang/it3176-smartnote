@@ -8,7 +8,7 @@
 	android:paddingTop="5dp"
 	     >
 	
-	    <EditText
+	   <!--   <EditText
 	        android:id="@+id/noteTitle"
 	        android:layout_marginLeft="5dp"
 	        android:layout_width="fill_parent"
@@ -16,7 +16,19 @@
 	        android:background="@drawable/create_note_styling"
 	        android:textSize="32sp"
 	        android:hint="Title"
-	        android:inputType="text" />
+	        android:inputType="text" />-->
+	        
+	        
+	    <AutoCompleteTextView 
+	        android:id="@+id/noteTitle"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/linear1"
+	        android:background="@drawable/create_note_styling"
+	        android:textSize="32sp"
+	        android:hint="Title"
+       		 />
 	
 	    <TextView
 	        android:id="@+id/currentDateTimeOfCreation"
