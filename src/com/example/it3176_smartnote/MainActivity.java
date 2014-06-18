@@ -26,7 +26,10 @@ import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +47,7 @@ import com.example.it3176_smartnote.model.Note;
 
 @SuppressLint("ValidFragment")
 public class MainActivity extends Activity {
-	int count;
+	int count, selected;
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
@@ -64,7 +67,6 @@ public class MainActivity extends Activity {
 
 		SQLiteController controller = new SQLiteController(this);
 		controller.open();
-		// resultArray.addAll(controller.retrieveNotes());
 		ArrayList<Note> temptArray = controller.retrieveNotes();
 		temptArray = controller.autoUpdateNoteStatus(temptArray);
 		controller.close();
@@ -84,16 +86,14 @@ public class MainActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				// TODO Auto-generated method stub
-				Intent intent = new Intent(getApplicationContext(),
-						NoteDetail.class);
+				Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
 				ArrayList<String> selectedNote = new ArrayList<String>();
 				selectedNote.add(resultArray.get(position).getNote_name());
 				selectedNote.add(resultArray.get(position).getNote_content());
 				selectedNote.add(resultArray.get(position).getNote_category());
 				selectedNote.add(resultArray.get(position).getNote_date());
 				intent.putStringArrayListExtra("resultArray", selectedNote);
-				intent.putExtra("note_id", Integer.toString(resultArray.get(
-						position).getNote_id()));
+				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
 				startActivity(intent);
 			}
 
@@ -118,8 +118,7 @@ public class MainActivity extends Activity {
 			@Override
 			public boolean onQueryTextChange(String newText) {
 				// TODO Auto-generated method stub
-				// Toast.makeText(getBaseContext(), newText,
-				// Toast.LENGTH_LONG).show();
+				//Toast.makeText(getBaseContext(), newText, Toast.LENGTH_LONG).show();
 				return false;
 			}
 
@@ -127,16 +126,15 @@ public class MainActivity extends Activity {
 			public boolean onQueryTextSubmit(String query) {
 				// TODO Auto-generated method stub
 				ArrayList<Note> searchResult = new ArrayList<Note>();
-				for (int i = 0; i < resultArray.size(); i++) {
-					if (resultArray.get(i).getNote_name().equals(query)) {
+				for(int i=0; i<resultArray.size(); i++){
+					if(resultArray.get(i).getNote_name().equals(query)){
 						searchResult.add(resultArray.get(i));
 					}
 				}
-				noteList notelist = new noteList(MainActivity.this,
-						searchResult);
+				noteList notelist = new noteList(MainActivity.this, searchResult);
 				list = (ListView) findViewById(R.id.noteListView);
-				list.setAdapter(notelist);
-
+		        list.setAdapter(notelist);
+		        
 				return false;
 			}
 
@@ -163,7 +161,53 @@ public class MainActivity extends Activity {
 			this.finish();
 			break;
 		case R.id.action_settings:
-
+			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+			String selected_setting = sp.getString("selected_setting", "YourSetting");
+			
+			//If user's had chose a preference before
+			if(selected_setting.equals("archive")){
+				selected = 0;
+			}
+			else if(selected_setting.equals("delete")){
+				selected = 1;
+			}
+			else if(selected_setting.equals("none")){
+				selected = 2;
+			}
+			
+			final CharSequence[] preferences = {"Archive", "Delete", "None"};
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Preference").setSingleChoiceItems(preferences, selected, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if(preferences[which].equals("Archive")){
+						selected = 0;
+					}
+					else if(preferences[which].equals("Delete")){
+						selected = 1;						
+					}
+					else if(preferences[which].equals("None")){
+						selected = 2;
+					}
+				}
+			});
+			builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if(preferences[selected].equals("Archive")){
+						savePreferences("selected_setting", "archive");
+					}
+					else if(preferences[selected].equals("Delete")){
+						savePreferences("selected_setting", "delete");
+					}
+					else if(preferences[selected].equals("None")){
+						savePreferences("selected_setting", "none");
+					}
+				}
+			});
+			AlertDialog prefDialog = builder.create();
+			prefDialog.show();
 			break;
 		case R.id.search_type:
 			MyCategoryDialog dialog = new MyCategoryDialog();
@@ -322,6 +366,13 @@ public class MainActivity extends Activity {
 			return builder.create();
 
 		}
+	}
+	
+	private void savePreferences(String key, String value){
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		Editor edit = sp.edit();
+		edit.putString(key, value);
+		edit.commit();
 	}
 
 }

@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,7 +63,7 @@ public class NoteDetail extends Activity {
 		if(item.getItemId() == R.id.btn_remove) {
 			
 			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-			String selected_setting = sp.getString("selected_setting", "null");
+			String selected_setting = sp.getString("selected_setting", "none");
 			
 			//User's preference is archiving note
 			if(selected_setting.equals("archive")){
@@ -113,16 +115,16 @@ public class NoteDetail extends Activity {
 				builder.setTitle("Select an action");
 				
 				//Checking whether user set preference
-				cb_remember_setting.setOnClickListener(new OnClickListener(){
+				cb_remember_setting.setOnCheckedChangeListener(new OnCheckedChangeListener(){
 					@Override
-					public void onClick(View v) {
+					public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 						if(cb_remember_setting.isChecked()){
 							savePreferences("preference", true);
 						}
 						else{
 							savePreferences("preference", false);
 						}
-					}
+					}					
 				});
 				
 				//Select action "Archive"
