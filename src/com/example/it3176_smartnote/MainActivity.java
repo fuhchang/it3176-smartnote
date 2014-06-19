@@ -18,6 +18,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -97,12 +98,16 @@ public class MainActivity extends Activity {
 				selectedNote.add(resultArray.get(position).getNote_content());
 				selectedNote.add(resultArray.get(position).getNote_category());
 				selectedNote.add(resultArray.get(position).getNote_date());
+				if(!resultArray.get(position).getNote_img().isEmpty()){
+				selectedNote.add(resultArray.get(position).getNote_img());
+				}
 				intent.putStringArrayListExtra("resultArray", selectedNote);
 				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
 				startActivity(intent);
 			}
 
 		});
+		
 	}
 
 	@Override
@@ -229,6 +234,10 @@ public class MainActivity extends Activity {
 			sortByDate sortDate = new sortByDate();
 			sortDate.show(getFragmentManager(), "sortByDate");
 			break;
+		case R.id.sort_type:
+			sortByType sortType = new sortByType();
+			sortType.show(getFragmentManager(), "sortByType");
+			break;
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -290,7 +299,7 @@ public class MainActivity extends Activity {
 				monthString = "Sep";
 				break;
 			case 10:
-				monthString = "Oc";
+				monthString = "Oct";
 				break;
 			case 11:
 				monthString = "Nov";
@@ -458,6 +467,42 @@ public class MainActivity extends Activity {
 		}
 		
 	}
+	private class sortByType extends DialogFragment{
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Sort By");
+			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					if(arg1 == 0){
+						Collections.sort(resultArray, new CategoryAscComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}else{
+						Collections.sort(resultArray, new CategoryDesComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}
+				}
+			
+			});
+			return builder.create();
+		}
+		
+	}
 	private void savePreferences(String key, String value){
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
@@ -498,6 +543,25 @@ public class MainActivity extends Activity {
 		public int compare(Note lhs, Note rhs) {
 			// TODO Auto-generated method stub
 			return rhs.getNote_date().compareTo(lhs.getNote_date());
+		}
+		
+	}
+	private class CategoryAscComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note arg0, Note arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getNote_category().compareTo(arg1.getNote_category());
+		}
+		
+	}
+	
+	private class CategoryDesComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return rhs.getNote_category().compareTo(lhs.getNote_category());
 		}
 		
 	}

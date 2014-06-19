@@ -1,17 +1,30 @@
 package com.example.it3176_smartnote;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.SQLException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore.Images.Media;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +43,9 @@ import com.example.it3176_smartnote.model.Note;
 
 public class NoteDetail extends Activity {
 	CheckBox cb_remember_setting;
-	
+	private Bitmap Image = null;
+	InputStream is = null;
+	BufferedInputStream bis = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,7 +59,22 @@ public class NoteDetail extends Activity {
 		tvCate.setText(list.get(2).toString());
 		TextView timeTV = (TextView) findViewById(R.id.txtTime);
 		timeTV.setText(list.get(3).toString());
+		ImageView imgView = (ImageView) findViewById(R.id.imgView);
 		
+		/*
+		try {
+			ImageView imgView = (ImageView) findViewById(R.id.imgView);
+			Uri myUri = Uri.parse(list.get(4));
+			Image = Media.getBitmap(this.getContentResolver(), myUri);
+			imgView.setImageBitmap(Image);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 		ActionBar actionBar	= getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 	}
