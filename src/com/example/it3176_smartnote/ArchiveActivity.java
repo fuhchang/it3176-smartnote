@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,5 +55,17 @@ public class ArchiveActivity extends Activity {
 		        startActivity(intent);
 			}
         });
+        
+		ActionBar actionBar	= getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+	}
+
+	@Override
+	public void onBackPressed() {
+		ArchiveActivity.this.finish();
+		Intent refresh = new Intent(ArchiveActivity.this, MainActivity.class);
+		startActivity(refresh);
+		
+		super.onBackPressed();
 	}
 }

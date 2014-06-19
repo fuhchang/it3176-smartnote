@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.SQLiteController.it3176.SQLiteController;
@@ -67,6 +66,7 @@ public class ArchiveDetail extends Activity {
 						System.out.println(e);
 					} finally{
 						controller.close();
+						ArchiveDetail.this.finish();
 						Intent refresh = new Intent(ArchiveDetail.this, ArchiveActivity.class);
 						startActivity(refresh);
 					}
@@ -81,5 +81,12 @@ public class ArchiveDetail extends Activity {
 		}
 		
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onBackPressed() {
+		ArchiveDetail.this.finish();
+		
+		super.onBackPressed();
 	}
 }
