@@ -47,23 +47,30 @@ public class CreateActivity extends Activity {
 	private static Bitmap Image = null;
 	private ImageView imageView;
 	private VideoView videoView;
+	private VideoView audioView;
 	
 	private static final int PICK_IMAGE = 1;
 	private static final int PICK_VIDEO=2;
+	private static final int PICK_AUDIO=3;
+	
 	static int SELECTION_CHOICE_DIALOG=1;
 	
 	static String[] selectionArray;
 	static String noteCategory="";
 	
-	TextView dateTimeCreation, categorySelection, attachment, hrTv, imageUriTv, videoUriTv;
+	TextView dateTimeCreation, categorySelection, attachment, hrTv, imageUriTv, videoUriTv, audioUriTv;
 	static TextView categorySelectionChoice;
 	EditText noteTitle, noteContent;
 	AutoCompleteTextView suggestTitle;
 	Button btnSave;
 	
-	MediaController mc;
+	MediaController videoMC;
+	MediaController audioMC;
 	
 	static String category="";
+	
+	String uriOfImage ="",uriOfVideo="", uriOfAudio="";
+	
 
 	final Context context = this;
 	
@@ -80,6 +87,9 @@ public class CreateActivity extends Activity {
 		//noteTitle=(EditText)findViewById(R.id.noteTitle);
 		noteContent=(EditText)findViewById(R.id.noteContent);
 		btnSave=(Button)findViewById(R.id.btnSave);
+		
+		
+		
 		attachment=(TextView)findViewById(R.id.attachment);
 		attachment.setVisibility(View.GONE);
 		hrTv=(TextView) findViewById(R.id.hrTv);
@@ -89,15 +99,24 @@ public class CreateActivity extends Activity {
 		videoView = (VideoView) findViewById(R.id.videoView);
 		imageUriTv = (TextView) findViewById(R.id.imageUriTv);
 		videoUriTv = (TextView) findViewById(R.id.videoUriTv);
+		audioView = (VideoView) findViewById(R.id.audioView);
+		audioUriTv = (TextView) findViewById(R.id.audioUriTv);
+		
 		
 		imageView.setVisibility(View.GONE);
 		videoView.setVisibility(View.GONE);
 		imageUriTv.setVisibility(View.GONE);
 		videoUriTv.setVisibility(View.GONE);
+		audioView.setVisibility(View.GONE);
+		audioUriTv.setVisibility(View.GONE);
+		
 		
 
-		mc = new MediaController(this);
-        mc.setAnchorView(videoView);
+		videoMC = new MediaController(this);
+        videoMC.setAnchorView(videoView);
+        
+        audioMC = new MediaController(this);
+        audioMC.setAnchorView(audioView);
 		
 		getActionBar().setTitle("New Note");
 		
@@ -106,7 +125,7 @@ public class CreateActivity extends Activity {
 		calendarEventTitleCursor.moveToFirst();
 			do{
 				
-				Toast.makeText(getApplicationContext(), calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)), Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)), Toast.LENGTH_SHORT).show();
 				eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
 			}while(calendarEventTitleCursor.moveToNext());
 		
@@ -161,7 +180,7 @@ public class CreateActivity extends Activity {
 		
 		if(id==R.id.backToMain){
 			
-			 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+			  AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		      alertDialogBuilder.setMessage("Discard Note?");
 		      alertDialogBuilder.setPositiveButton("Yes", 
 		      new DialogInterface.OnClickListener() {
@@ -187,7 +206,7 @@ public class CreateActivity extends Activity {
 		      alertDialog.show();
 		}
 		else if(id==R.id.reset){
-				noteTitle.getText().clear();
+				suggestTitle.getText().clear();
 				noteContent.getText().clear();
 				imageView.setImageResource(android.R.color.transparent);
 				noteCategory="";
@@ -203,6 +222,7 @@ public class CreateActivity extends Activity {
 		else if(id==R.id.saveNote){
 			String title = suggestTitle.getText().toString();
 			String content = noteContent.getText().toString();
+			
 			
 			/**Get all notes in database**/
 			ArrayList<Note> resultArray = new ArrayList<Note>();
@@ -234,7 +254,8 @@ public class CreateActivity extends Activity {
 						boolean result = true;
 						try{
 						
-						Note note = new Note(title, content, noteCategory);
+							Note note = new Note(title, content, noteCategory, uriOfImage, uriOfVideo, uriOfAudio);
+						//Note note = new Note(title, content, noteCategory);
 					
 						SQLiteController entry = new SQLiteController(this);
 						entry.open();
@@ -250,6 +271,9 @@ public class CreateActivity extends Activity {
 								startActivity(intent);
 								
 							}
+							else{
+								Toast.makeText(getApplicationContext(), "ERRORRRR", Toast.LENGTH_LONG).show();
+							}
 						}
 					}	
 			}
@@ -261,6 +285,17 @@ public class CreateActivity extends Activity {
 	        startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
 			
 		}
+		
+		else if(id==R.id.attachAudio){
+			 Intent intent = new Intent();
+	         intent.setType("audio/*");
+	         intent.setAction(Intent.ACTION_GET_CONTENT);
+	         startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_AUDIO);
+		}
+	/*	else if(id==R.id.captureImage){
+			Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+			startActivityForResult(intent, CAPTURE_IMAGE);
+		}*/
 		
 		
 		return super.onOptionsItemSelected(item);
@@ -334,6 +369,8 @@ public class CreateActivity extends Activity {
 						attachment.setVisibility(View.VISIBLE);
 						hrTv.setVisibility(View.VISIBLE);
 						
+						uriOfImage = mImageUri.toString();
+						
 						imageUriTv.setVisibility(View.VISIBLE);
 						String uriOfImage = "<b>Image: </b>" +mImageUri.toString();
 						imageUriTv.setText(Html.fromHtml(uriOfImage));
@@ -378,12 +415,14 @@ public class CreateActivity extends Activity {
 		            attachment.setVisibility(View.VISIBLE);
 					hrTv.setVisibility(View.VISIBLE);
 					
+					uriOfVideo = mVideoURI.toString();
+					
 					videoUriTv.setVisibility(View.VISIBLE);
 					videoView.setVisibility(View.VISIBLE);
 					String uriOfVideo = "<b>Video: </b>" + mVideoURI.toString();
 					videoUriTv.setText(Html.fromHtml(uriOfVideo));
 					videoView.setVideoURI(mVideoURI);
-					videoView.setMediaController(mc);
+					videoView.setMediaController(videoMC);
 					videoView.requestFocus();
 					videoView.setOnPreparedListener(new OnPreparedListener(){
 
@@ -391,7 +430,7 @@ public class CreateActivity extends Activity {
 						public void onPrepared(MediaPlayer mp) {
 							// TODO Auto-generated method stub
 							//videoView.start();
-							mc.show(0);
+							videoMC.show(0);
 						}
 						
 					});
@@ -433,6 +472,49 @@ public class CreateActivity extends Activity {
 				            	
 				     });*/
 
+					break;
+					
+			/*	case CAPTURE_IMAGE:
+					attachment.setVisibility(View.VISIBLE);
+					hrTv.setVisibility(View.VISIBLE);
+					imageUriTv.setVisibility(View.VISIBLE);
+					String uriOfImage = "<b>Image: </b>" +data.getData().toString();
+					imageUriTv.setText(Html.fromHtml(uriOfImage));
+					
+				
+					Bundle extras = data.getExtras();
+					Bitmap imageBitmap = (Bitmap) extras.get("data");
+					imageView.setVisibility(View.VISIBLE);
+					imageView.setImageBitmap(imageBitmap);
+					break;*/
+					
+				case PICK_AUDIO:
+					 attachment.setVisibility(View.VISIBLE);
+					 hrTv.setVisibility(View.VISIBLE);
+					 audioUriTv.setVisibility(View.VISIBLE);
+					 audioView.setVisibility(View.VISIBLE);
+					
+					 Uri mAudioURI = data.getData();  
+					
+					 
+					 uriOfAudio = mAudioURI.toString();
+					
+					 String uriOfAudio = "<b>Audio: </b>" + mAudioURI.toString();
+					 audioUriTv.setText(Html.fromHtml(uriOfAudio));
+									 
+					 audioView.setMediaController(audioMC);
+					 audioView.setVideoURI(mAudioURI);  
+					 audioView.requestFocus();
+				 
+					 audioView.setOnPreparedListener(new OnPreparedListener(){
+
+						@Override
+						public void onPrepared(MediaPlayer arg0) {
+							// TODO Auto-generated method stub
+							//audioView.start();
+							//audioMC.show(0);
+						}
+		            });		
 					break;
 			}
 		}

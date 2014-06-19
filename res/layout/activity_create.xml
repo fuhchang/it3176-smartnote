@@ -149,9 +149,7 @@
 				         android:layout_marginLeft="10dp"
 				         android:layout_marginRight="10dp"
 						/> 
-						
-				    
-				     
+
 				     <TextView
 		                 android:id="@+id/videoUriTv"
 		                 android:layout_height="wrap_content"
@@ -165,39 +163,29 @@
 				         android:layout_marginTop="5dp"
 				         android:layout_marginLeft="10dp"
 				         android:layout_marginRight="10dp"						 android:layout_gravity="center"/>
-				 
+				 	     
+				     <TextView
+				         android:id="@+id/audioUriTv"
+		                 android:layout_height="wrap_content"
+		                 android:layout_width="fill_parent"
+		                 android:layout_marginTop="5dp"/>		         
+				         
+				     <VideoView 
+				         android:id="@+id/audioView"
+				         android:layout_marginTop="5dp"
+				         android:layout_width="100dp"
+				         android:layout_height="100dp"
+				         android:layout_gravity="center"
+				         android:background="@drawable/audio"
+       					 />
+
 				     <TextView
 						 android:layout_width="fill_parent"
 				         android:layout_height="wrap_content"
 				         />
 		    	 </LinearLayout>
-	    	 
 	         </FrameLayout>
-	     
-	     </ScrollView>
-	   <!--     <View 
-	        android:id="@+id/hr3"
-	        android:layout_marginTop="5dp"
-	   	    android:layout_width="fill_parent"
-	        android:layout_height="2dp" 
-	        android:layout_above="@+id/btnSave"     
-	        android:background="#000"/>
-	     
-	     <Button
-	         android:id="@+id/btnSave"
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:layout_alignParentBottom="true"
-	         android:layout_marginBottom="5dp"
-	         android:text="Save Note"
-	         android:onClick="onClick" />
-	
-	    -->
-	     
-	     
-	    
-	    
-	    
+	     </ScrollView>    
 </RelativeLayout>
 
 
