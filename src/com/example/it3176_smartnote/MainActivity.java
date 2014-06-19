@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
 				resultArray.add(temptArray.get(i));
 			}
 		}
-
+		Collections.sort(resultArray, new DateDesComparator());
 		noteList notelist = new noteList(MainActivity.this, resultArray);
 		list = (ListView) findViewById(R.id.noteListView);
 		list.setAdapter(notelist);
