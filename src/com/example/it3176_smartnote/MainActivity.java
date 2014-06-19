@@ -3,8 +3,12 @@ package com.example.it3176_smartnote;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -58,6 +62,7 @@ public class MainActivity extends Activity {
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +163,6 @@ public class MainActivity extends Activity {
 		case R.id.action_archive:
 			Intent archive_intent = new Intent(this, ArchiveActivity.class);
 			startActivity(archive_intent);
-			this.finish();
 			break;
 		case R.id.action_settings:
 			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -216,7 +220,14 @@ public class MainActivity extends Activity {
 		case R.id.search_date:
 			MyDatePicker datepicker = new MyDatePicker();
 			datepicker.show(getFragmentManager(), "myDatePicker");
-
+			break;
+		case R.id.sort_title:
+			sortByTitle sortTitle = new sortByTitle();
+			sortTitle.show(getFragmentManager(), "sortByTitle");
+			break;
+		case R.id.sort_date:
+			sortByDate sortDate = new sortByDate();
+			sortDate.show(getFragmentManager(), "sortByDate");
 			break;
 		}
 
@@ -296,16 +307,14 @@ public class MainActivity extends Activity {
 				if (!resultArray.isEmpty()) {
 					for (int i = 0; i < resultArray.size(); i++) {
 						DateTime noteDate = formatter.parseDateTime(resultArray
-								.get(0).getNote_date());
+								.get(i).getNote_date());
 						String selectedDate = pDay + "-" + monthString + "-"
 								+ pYear;
 						String date1 = dateFormat.format(noteDate.toDate());
+						
 						if (date1.equals(selectedDate)) {
 							tempArray.add(resultArray.get(i));
-						} else {
-							Toast.makeText(getApplicationContext(), "fail",
-									Toast.LENGTH_SHORT).show();
-						}
+						} 
 					}
 				} 
 				if(!tempArray.isEmpty()){
@@ -346,9 +355,7 @@ public class MainActivity extends Activity {
 								if (resultArray.get(i).getNote_category()
 										.equals(selected)) {
 									tempArray.add(resultArray.get(i));
-								} else {
-									Log.d("result", "not found");
-								}
+								} 
 
 							}
 
@@ -359,6 +366,14 @@ public class MainActivity extends Activity {
 										R.id.noteListView);
 								list.deferNotifyDataSetChanged();
 								list.setAdapter(notelist);
+							}else{
+								Note note = new Note();
+								note.setNote_name("NO result Found please check your input. Thank you");
+								tempArray.add(note);
+								noteList notelist = new noteList(MainActivity.this,
+										tempArray);
+								list = (ListView) findViewById(R.id.noteListView);
+								list.setAdapter(notelist);
 							}
 						}
 
@@ -368,11 +383,122 @@ public class MainActivity extends Activity {
 		}
 	}
 	
+	private class sortByTitle extends DialogFragment{
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Sort By");
+			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO Auto-generated method stub
+					
+					if(which == 0){
+						Collections.sort(resultArray, new TitleAscComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+						
+					}else{
+						Collections.sort(resultArray, new TitleDesComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}
+				}
+				
+			});
+			return builder.create();
+		}
+		
+	}
+	
+	private class sortByDate extends DialogFragment{
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Sort By");
+			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					if(arg1 == 0){
+						Collections.sort(resultArray, new DateAscComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}else{
+						Collections.sort(resultArray, new DateDesComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}
+				}
+				
+			});
+			return builder.create();
+		}
+		
+	}
 	private void savePreferences(String key, String value){
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
 		edit.putString(key, value);
 		edit.commit();
 	}
+	private class TitleAscComparator implements Comparator<Note>{
 
+		@Override
+		public int compare(Note arg0, Note arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getNote_name().compareTo(arg1.getNote_name());
+		}
+		
+	}
+	
+	private class TitleDesComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return rhs.getNote_name().compareTo(lhs.getNote_name());
+		}
+		
+	}
+	private class DateAscComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return lhs.getNote_date().compareTo(rhs.getNote_date());
+		}
+		
+	}
+	private class DateDesComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return rhs.getNote_date().compareTo(lhs.getNote_date());
+		}
+		
+	}
 }
