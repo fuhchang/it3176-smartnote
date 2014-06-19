@@ -170,23 +170,6 @@ public class SQLiteController{
 		return ourDatabase.update(database_table, cv, "noteid= " + note.getNote_id(), null);
 	}
 	
-	//Auto delete note
-	public ArrayList<Note> autoDeleteNote(ArrayList<Note> note_list, int daysDiff){
-		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");
-		DateTime today_date = formatter.parseDateTime(getDateTime());
-		
-		for(int i = 0; i < note_list.size(); i++){
-			DateTime note_date = formatter.parseDateTime(note_list.get(i).getNote_date());
-			
-			if(note_list.get(i).getNote_status().equals("archive") && note_date.plusDays(daysDiff).isBefore(today_date)){
-				
-				Log.d(LOGCAT, "Deleting NoteId: " + note_list.get(i).getNote_id());
-				ourDatabase.delete(database_table, "noteid= " + note_list.get(i).getNote_id(), null);
-			}
-		}
-		return retrieveNotes();
-	}
-	
 	//Auto update note status
 	public ArrayList<Note> autoUpdateNoteStatus(ArrayList<Note> note_list){
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");

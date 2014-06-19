@@ -64,6 +64,7 @@ public class ArchiveActivity extends Activity {
 	public void onBackPressed() {
 		ArchiveActivity.this.finish();
 		Intent refresh = new Intent(ArchiveActivity.this, MainActivity.class);
+		refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(refresh);
 		
 		super.onBackPressed();
