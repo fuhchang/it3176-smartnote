@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.MediaStore.Images.Media;
+import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.Menu;
@@ -49,6 +51,7 @@ public class CreateActivity extends Activity {
 	private VideoView videoView;
 	private VideoView audioView;
 	
+	int notifyID=1088;
 	private static final int PICK_IMAGE = 1;
 	private static final int PICK_VIDEO=2;
 	private static final int PICK_AUDIO=3;
@@ -265,6 +268,7 @@ public class CreateActivity extends Activity {
 							result = false;
 						}finally{
 							if(result){
+								notifySuccess();
 								Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
 								CreateActivity.this.finish();
 								Intent intent = new Intent(this, MainActivity.class);
@@ -560,6 +564,19 @@ public class CreateActivity extends Activity {
 		categorySelectionChoice.setText(category);
 	}
 
+	
+	/**Notification for saving of note**/
+	public void notifySuccess(){
+		NotificationCompat.Builder mBuilder = 
+				new NotificationCompat.Builder(this)
+					.setSmallIcon(R.drawable.ic_launcher)
+					.setContentTitle(getString(R.string.app_name))
+					.setContentText(suggestTitle.getText().toString() + " successfully saved.");
+		
+		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(notifyID,mBuilder.build());
+	}
+	
 	
 	/**For back pressed event**/
 	@Override
