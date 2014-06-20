@@ -228,6 +228,29 @@
 				         android:background="@drawable/audio"
        					 />
 
+				    
+				     
+				     
+				     
+		              <TextView
+				         android:id="@+id/addTv"
+		                 android:layout_height="wrap_content"
+		                 android:layout_width="wrap_content"
+		                 android:layout_marginTop="5dp"
+		                 android:text="Location: "/>
+				     
+				      <TextView
+				         android:id="@+id/currentLocation"
+		                 android:layout_height="wrap_content"
+		                 android:layout_width="fill_parent"
+		                 android:layout_marginTop="5dp"
+		                 android:text="blah"
+		                 />
+		             
+				     
+				     
+				     
+				     
 				     <TextView
 						 android:layout_width="fill_parent"
 				         android:layout_height="wrap_content"
