@@ -141,11 +141,11 @@ public class CreateActivity extends Activity {
 					eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
 				}while(calendarEventTitleCursor.moveToNext());
 			
-	
+		}
 					suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
 					ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, eventTitles);
 					suggestTitle.setAdapter(adapter);
-		}
+		
 		
 		
 		
