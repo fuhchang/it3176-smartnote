@@ -188,4 +188,51 @@ public class SQLiteController{
 		}
 		return retrieveNotes();
 	}
+	
+	//Update note
+	public long updateNote(Note note){
+		ContentValues cv = new ContentValues();
+		cv.put(note_name, note.getNote_name());
+		cv.put(note_content, note.getNote_content());
+		cv.put(note_category, note.getNote_category());
+		cv.put(note_date, getDateTime());
+		cv.put(note_img, note.getNote_img());
+		cv.put(note_video, note.getNote_video());
+		cv.put(note_audio, note.getNote_audio());
+		cv.put(note_address, note.getNote_address());
+		cv.put(note_tags, note.getNote_tags());
+		cv.put(note_status, "active");
+		
+		Log.d(LOGCAT, "Updating existing note");
+		return ourDatabase.update(database_table, cv, "noteid= " + note.getNote_id(), null);
+	}
+	
+	//Retrieving note
+	public Note retrieveNote(int noteID){
+		//Cursor cursor = ourDatabase.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
+		String whereClause = "noteid = ?";
+		String[] whereArgs = new String[] {String.valueOf(noteID)};
+		Cursor cursor = ourDatabase.query(database_table, new String[] {note_id, note_name, note_content, note_category, note_date, note_img, note_video, note_audio, note_address, note_tags, note_status}, whereClause, whereArgs, null, null, null, null);
+		Note note = new Note();
+			if(cursor != null){
+				Log.d(LOGCAT, "Retrieving each note");
+				if(cursor.moveToFirst()){
+					do{
+						note.setNote_id(cursor.getInt(cursor.getColumnIndex(note_id)));
+						note.setNote_name(cursor.getString(cursor.getColumnIndex(note_name)));
+						note.setNote_content(cursor.getString(cursor.getColumnIndex(note_content)));
+						note.setNote_category(cursor.getString(cursor.getColumnIndex(note_category)));
+						note.setNote_date(cursor.getString(cursor.getColumnIndex(note_date)));
+						note.setNote_img(cursor.getString(cursor.getColumnIndex(note_img)));
+						note.setNote_video(cursor.getString(cursor.getColumnIndex(note_video)));
+						note.setNote_audio(cursor.getString(cursor.getColumnIndex(note_audio)));
+						note.setNote_address(cursor.getString(cursor.getColumnIndex(note_address)));
+						note.setNote_tags(cursor.getString(cursor.getColumnIndex(note_tags)));
+						note.setNote_status(cursor.getString(cursor.getColumnIndex(note_status)));
+					} while(cursor.moveToNext());					
+				}
+			}
+		Log.d(LOGCAT, "Retrieved all notes");
+		return note;
+	}
 }

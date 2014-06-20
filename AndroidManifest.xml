@@ -68,6 +68,11 @@
             android:name="com.example.it3176_smartnote.SearchNameActivity"
             android:label="@string/title_activity_search_name" >
         </activity>
+        <activity
+            android:name="com.example.it3176_smartnote.UpdateActivity"
+            android:label="@string/title_activity_update" 
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>
