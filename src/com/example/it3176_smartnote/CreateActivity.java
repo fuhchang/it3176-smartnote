@@ -130,18 +130,22 @@ public class CreateActivity extends Activity {
 		
 		
 		calendarEventTitleCursor=getContentResolver().query(CalendarContract.Events.CONTENT_URI, new String[]{CalendarContract.Events.TITLE},null,null,null);
-		calendarEventTitleCursor.moveToFirst();
-			do{
-				
-				//Toast.makeText(getApplicationContext(), calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)), Toast.LENGTH_SHORT).show();
-				eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
-			}while(calendarEventTitleCursor.moveToNext());
-		
-
-				suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, eventTitles);
-				suggestTitle.setAdapter(adapter);
-		
+		if (!(calendarEventTitleCursor.moveToFirst()) || calendarEventTitleCursor.getCount() ==0){
+			Toast.makeText(getApplicationContext(), "You dont have any events in calendar", Toast.LENGTH_LONG).show();
+		}
+		else{
+			calendarEventTitleCursor.moveToFirst();
+				do{
+					
+					//Toast.makeText(getApplicationContext(), calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)), Toast.LENGTH_SHORT).show();
+					eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
+				}while(calendarEventTitleCursor.moveToNext());
+			
+	
+					suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
+					ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, eventTitles);
+					suggestTitle.setAdapter(adapter);
+		}
 		
 		
 		
