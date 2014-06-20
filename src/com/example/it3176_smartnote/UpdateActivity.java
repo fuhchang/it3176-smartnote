@@ -1,10 +1,14 @@
 package com.example.it3176_smartnote;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.CreateActivity.CreateNoteDialog;
@@ -20,14 +24,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.CursorLoader;
 import android.text.Html;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,8 +74,10 @@ public class UpdateActivity extends Activity {
 	static String[] selectionArray;
 	static String noteCategory = "";
 
-	TextView dateTimeCreation, categorySelection, attachment, hrTv, imageUriTv,
-			videoUriTv, audioUriTv;
+	TextView dateTimeCreation, categorySelection,
+	attachment, hrTv, imageUriTv, videoUriTv, 
+	audioUriTv, tapToAddTags, tags,
+	addTv, currentLocation;
 	static TextView categorySelectionChoice;
 	EditText noteTitle, noteContent;
 	AutoCompleteTextView suggestTitle;
@@ -75,7 +89,17 @@ public class UpdateActivity extends Activity {
 	static String category = "";
 
 	String uriOfImage = "", uriOfVideo = "", uriOfAudio = "";
-
+	
+	static String noteTags="";
+	
+	 Location location; 
+	 Double MyLat, MyLong;
+	 float accLoc;
+	 String Address="";
+	 String City="";
+	 private boolean gps_enabled=false;
+	 private boolean network_enabled=false;
+	
 	final Context context = this;
 
 	private Cursor calendarEventTitleCursor;
@@ -89,7 +113,7 @@ public class UpdateActivity extends Activity {
 		//if(savedInstanceState != null){
 			//noteID = bundle.getInt("noteID");
 			SQLiteController getEntry = new SQLiteController(this);
-			noteID = 1;
+			noteID = 2;
 			getEntry.open();
 			note = getEntry.retrieveNote(noteID);
 			getEntry.close();
@@ -102,7 +126,7 @@ public class UpdateActivity extends Activity {
 
 		attachment = (TextView) findViewById(R.id.attachment);
 		attachment.setVisibility(View.GONE);
-		hrTv = (TextView) findViewById(R.id.hrTv);
+		hrTv=(TextView)findViewById(R.id.attachmentHr);
 		hrTv.setVisibility(View.GONE);
 
 		imageView = (ImageView) findViewById(R.id.imageView);
@@ -111,34 +135,98 @@ public class UpdateActivity extends Activity {
 		videoUriTv = (TextView) findViewById(R.id.videoUriTv);
 		audioView = (VideoView) findViewById(R.id.audioView);
 		audioUriTv = (TextView) findViewById(R.id.audioUriTv);
+		addTv=(TextView) findViewById(R.id.addTv);
+		currentLocation = (TextView) findViewById(R.id.currentLocation);
 
 		imageView.setVisibility(View.GONE);
-		videoView.setVisibility(View.GONE);
 		imageUriTv.setVisibility(View.GONE);
+		videoView.setVisibility(View.GONE);
 		videoUriTv.setVisibility(View.GONE);
 		audioView.setVisibility(View.GONE);
 		audioUriTv.setVisibility(View.GONE);
-
+		
+		addTv.setVisibility(View.GONE);
+		currentLocation.setVisibility(View.GONE);
+		
 		videoMC = new MediaController(this);
 		videoMC.setAnchorView(videoView);
 
 		audioMC = new MediaController(this);
 		audioMC.setAnchorView(audioView);
+		
+		if(!note.getNote_img().toString().equals("")){
+			attachment.setVisibility(View.VISIBLE);
+			hrTv.setVisibility(View.VISIBLE);		
+			imageView.setVisibility(View.VISIBLE);
+			imageUriTv.setVisibility(View.VISIBLE);
+			imageView.setImageURI(Uri.parse(note.getNote_img()));
+			String uriOfImage = "<b>Image: </b>" + note.getNote_img().toString();
+			imageUriTv.setText(Html.fromHtml(uriOfImage));
+		}
+		if(!note.getNote_video().toString().equals("")){
+			attachment.setVisibility(View.VISIBLE);
+			hrTv.setVisibility(View.VISIBLE);		
+			videoView.setVisibility(View.VISIBLE);
+			videoUriTv.setVisibility(View.VISIBLE);
+			String uriOfVideo = "<b>Video: </b>" + note.getNote_video().toString();
+			videoUriTv.setText(Html.fromHtml(uriOfVideo));
+			videoView.setVideoURI(Uri.parse(note.getNote_video()));
+			videoView.setMediaController(videoMC);
+			videoView.requestFocus();
+			videoView.setOnPreparedListener(new OnPreparedListener() {
+				@Override
+				public void onPrepared(MediaPlayer mp) {
+					// TODO Auto-generated method stub
+					// videoView.start();
+					videoMC.show(0);
+				}
+			});
+		}
+		System.out.println("Note audio: " + note.getNote_audio().toString());
+		if(!note.getNote_audio().toString().equals("")){
+			attachment.setVisibility(View.VISIBLE);
+			hrTv.setVisibility(View.VISIBLE);
+			audioUriTv.setVisibility(View.VISIBLE);
+			audioView.setVisibility(View.VISIBLE);
+			
+			String uriOfAudio = "<b>Audio: </b>" + note.getNote_audio().toString();
+			audioUriTv.setText(Html.fromHtml(uriOfAudio));
 
+			audioView.setMediaController(audioMC);
+			audioView.setVideoURI(Uri.parse(note.getNote_audio()));
+			audioView.requestFocus();
+
+			audioView.setOnPreparedListener(new OnPreparedListener() {
+
+				@Override
+				public void onPrepared(MediaPlayer arg0) {
+					// TODO Auto-generated method stub
+					// audioView.start();
+					audioMC.show(0);
+				}
+			});
+		}
+		
 		calendarEventTitleCursor=getContentResolver().query(CalendarContract.Events.CONTENT_URI, new String[]{CalendarContract.Events.TITLE},null,null,null);
-		calendarEventTitleCursor.moveToFirst();
-		do{
-		//There is error on this line of code
-			//Toast.makeText(getApplicationContext(),
-			//calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE), Toast.LENGTH_SHORT).show();
-			//eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
-		}while(calendarEventTitleCursor.moveToNext()); 
+		if (!(calendarEventTitleCursor.moveToFirst()) || calendarEventTitleCursor.getCount() ==0){
+			//Toast.makeText(getApplicationContext(), "You dont have any events in calendar", Toast.LENGTH_LONG).show();
+			Log.d("CALENDAR TITLE SUGGESTION", "You dont have any events in calendar for note title suggestion");
+		}
+		else{
+			calendarEventTitleCursor.moveToFirst();
+				do{
+					
+					//Toast.makeText(getApplicationContext(), calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)), Toast.LENGTH_SHORT).show();
+					eventTitles.add(calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)));
+				}while(calendarEventTitleCursor.moveToNext());
+			
+		}
 		suggestTitle= (AutoCompleteTextView) findViewById(R.id.noteTitle);
 		suggestTitle.setText(note.getNote_name());
-		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-		android.R.layout.simple_dropdown_item_1line, eventTitles);
+					
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, eventTitles);
 		suggestTitle.setAdapter(adapter);
+		
 		 
 
 		// Get time of pressing "New Note"
@@ -162,9 +250,57 @@ public class UpdateActivity extends Activity {
 				dialog.setDialogType(SELECTION_CHOICE_DIALOG);
 				dialog.show(getFragmentManager(), "CreateNoteDialog");
 			}
+		});//For adding of tags
+		tapToAddTags=(TextView)findViewById(R.id.tapToAddTags);
+		tags=(TextView)findViewById(R.id.tags);
+		tapToAddTags.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				LayoutInflater li = LayoutInflater.from(context);
+				View promptsView = li.inflate(R.layout.activity_create_input_dialog, null);
+ 
+				AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+ 
+				// set prompts.xml to alertdialog builder
+				alertDialogBuilder.setView(promptsView);
+ 
+				final EditText userInput = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput);
+ 
+				// set dialog message
+				alertDialogBuilder
+					.setCancelable(false)
+					.setPositiveButton("OK",
+					  new DialogInterface.OnClickListener() {
+					    public void onClick(DialogInterface dialog,int id) {
+						
+					   /**values to be stored for noteTags column added here**/ 	
+					   noteTags=userInput.getText().toString();
+					   
+						   if(userInput.getText().toString().equals("")){
+							   tags.setText("Tags: -");
+						   }
+						   else{
+							   tags.setText("Tags: (" + userInput.getText() + ")");
+						    }
+					   }
+					  })
+					.setNegativeButton("Cancel",
+					  new DialogInterface.OnClickListener() {
+					    public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					    }
+					  });
+ 
+				// create alert dialog
+				AlertDialog alertDialog = alertDialogBuilder.create();
+ 
+				// show it
+				alertDialog.show();
+
+			}
+			
 		});
-
-
 	}
 
 	@Override
@@ -194,9 +330,8 @@ public class UpdateActivity extends Activity {
 			Intent intent = new Intent();
 			intent.setType("image/*");
 			// intent.setType("*/*");
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			startActivityForResult(
-					Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+			intent.setAction(Intent.ACTION_PICK);
+			startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
 		} else if (id == R.id.saveNote) {
 			String title = suggestTitle.getText().toString();
 			String content = noteContent.getText().toString();
@@ -247,21 +382,39 @@ public class UpdateActivity extends Activity {
 		else if (id == R.id.uploadVideo) {
 			Intent intent = new Intent();
 			intent.setType("video/*");
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			startActivityForResult(
-					Intent.createChooser(intent, "Complete action using"),
-					PICK_VIDEO);
+			intent.setAction(Intent.ACTION_PICK);
+			startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
 
 		}
 
 		else if (id == R.id.attachAudio) {
-			Intent intent = new Intent();
-			intent.setType("audio/*");
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			startActivityForResult(
-					Intent.createChooser(intent, "Complete action using"),
-					PICK_AUDIO);
+			Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+			startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_AUDIO);
 		}
+		else if(id==R.id.attachLocation){
+			getMyCurrentLocation();
+		}	
+		
+		else if(id==R.id.addToCalendar){
+			String title = suggestTitle.getText().toString();
+			String content = noteContent.getText().toString();
+			if(title.matches("")||content.matches("")||noteCategory.matches("")){
+				Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
+			}
+				else{
+				Calendar cal = Calendar.getInstance();     
+		        Intent intent = new Intent(Intent.ACTION_EDIT);
+		        intent.setType("vnd.android.cursor.item/event");
+		        intent.putExtra("beginTime", cal.getTimeInMillis());
+		        intent.putExtra("allDay", true);
+		        //intent.putExtra("rrule", "FREQ=YEARLY");
+		        intent.putExtra("endTime", cal.getTimeInMillis()+60*60*1000);
+		        intent.putExtra("title", title);
+		        intent.putExtra("description", content);
+		        startActivity(intent);
+			}
+		}
+				
 		/*
 		 * else if(id==R.id.captureImage){ Intent intent = new
 		 * Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -329,37 +482,13 @@ public class UpdateActivity extends Activity {
 					hrTv.setVisibility(View.VISIBLE);
 
 					uriOfImage = mImageUri.toString();
-
+					
 					imageUriTv.setVisibility(View.VISIBLE);
 					String uriOfImage = "<b>Image: </b>" + mImageUri.toString();
 					imageUriTv.setText(Html.fromHtml(uriOfImage));
 					imageView.setVisibility(View.VISIBLE);
 					imageView.setImageBitmap(Image);
 
-					/** Create UI to display selected image and uri **/
-					/*
-					 * LinearLayout imagell =
-					 * (LinearLayout)findViewById(R.id.lLA); TextView imageUri =
-					 * new TextView(this);
-					 * imageUri.setText(mImageUri.toString());
-					 * LinearLayout.LayoutParams imageUriLL = new
-					 * LinearLayout.LayoutParams(
-					 * LinearLayout.LayoutParams.FILL_PARENT,
-					 * LinearLayout.LayoutParams.WRAP_CONTENT);
-					 * imageUri.setLayoutParams(imageUriLL);
-					 * 
-					 * ImageView iv = new ImageView(this);
-					 * iv.setImageBitmap(Image); LinearLayout.LayoutParams ivLL
-					 * = new LinearLayout.LayoutParams(
-					 * LinearLayout.LayoutParams.FILL_PARENT, 300);
-					 * iv.setLayoutParams(ivLL);
-					 * 
-					 * TextView tv1 = new TextView(this);
-					 * tv1.setLayoutParams(imageUriLL);
-					 * 
-					 * imagell.addView(imageUri); imagell.addView(iv);
-					 * imagell.addView(tv1);
-					 */
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -394,53 +523,7 @@ public class UpdateActivity extends Activity {
 
 				});
 
-				/** Create UI to display selected video and uri **/
-				/*
-				 * LinearLayout videoll = (LinearLayout)findViewById(R.id.lLA);
-				 * TextView videoUri = new TextView(this);
-				 * videoUri.setText(mVideoURI.toString());
-				 * LinearLayout.LayoutParams videoUriLL = new
-				 * LinearLayout.LayoutParams(
-				 * LinearLayout.LayoutParams.FILL_PARENT,
-				 * LinearLayout.LayoutParams.WRAP_CONTENT);
-				 * videoUri.setLayoutParams(videoUriLL);
-				 * 
-				 * VideoView vv = new VideoView(this);
-				 * vv.setVideoURI(mVideoURI); LinearLayout.LayoutParams vvLL =
-				 * new LinearLayout.LayoutParams(
-				 * LinearLayout.LayoutParams.FILL_PARENT, 300);
-				 * vvLL.gravity=Gravity.CENTER; vv.setLayoutParams(vvLL);
-				 * 
-				 * TextView tv2 = new TextView(this);
-				 * tv2.setLayoutParams(videoUriLL);
-				 * 
-				 * videoll.addView(videoUri); videoll.addView(vv);
-				 * videoll.addView(tv2);
-				 * 
-				 * vv.setMediaController(mc); vv.requestFocus();
-				 * vv.setOnPreparedListener(new OnPreparedListener(){
-				 * 
-				 * @Override public void onPrepared(MediaPlayer arg0) { // TODO
-				 * Auto-generated method stub //videoView.start(); mc.show(0); }
-				 * 
-				 * });
-				 */
-
 				break;
-
-			/*
-			 * case CAPTURE_IMAGE: attachment.setVisibility(View.VISIBLE);
-			 * hrTv.setVisibility(View.VISIBLE);
-			 * imageUriTv.setVisibility(View.VISIBLE); String uriOfImage =
-			 * "<b>Image: </b>" +data.getData().toString();
-			 * imageUriTv.setText(Html.fromHtml(uriOfImage));
-			 * 
-			 * 
-			 * Bundle extras = data.getExtras(); Bitmap imageBitmap = (Bitmap)
-			 * extras.get("data"); imageView.setVisibility(View.VISIBLE);
-			 * imageView.setImageBitmap(imageBitmap); break;
-			 */
-
 			case PICK_AUDIO:
 				attachment.setVisibility(View.VISIBLE);
 				hrTv.setVisibility(View.VISIBLE);
@@ -470,9 +553,9 @@ public class UpdateActivity extends Activity {
 				break;
 			}
 		}
-
+		
 	}
-
+	
 	/** Creates a dialog with title and options from array **/
 	public static class CreateNoteDialog extends DialogFragment {
 		int dialogType;
@@ -543,5 +626,79 @@ public class UpdateActivity extends Activity {
 		intent.putExtra("note_id", Integer.toString(note.getNote_id()));
 		startActivity(intent);
 	}
+	/** Check the type of GPS Provider available at that instance and  collect the location informations
+    @Output Latitude and Longitude
+   * */
+   void getMyCurrentLocation() {    
 
+       LocationManager locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        /*   if(location==null){  
+       		location=locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+           }
+	        if (location != null) {          
+	        	accLoc=location.getAccuracy();
+	            MyLat = location.getLatitude();
+	            MyLong = location.getLongitude();
+	        }  */
+       try{
+       	gps_enabled=locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+       }catch(Exception ex){
+       	
+       }
+       try{
+       	network_enabled=locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+       }catch(Exception ex){
+       	
+       }
+
+       if(gps_enabled){
+           location=locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+       }          
+
+       
+       if(network_enabled && location==null)    {
+           location=locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+       }
+
+   if (location != null) {          
+   	accLoc=location.getAccuracy();
+       MyLat = location.getLatitude();
+       MyLong = location.getLongitude();
+   } 
+   
+      try
+       {
+   	   //Getting address from found locations.
+       Geocoder geocoder;  
+       List<Address> addresses;
+       geocoder = new Geocoder(this, Locale.getDefault());
+        addresses = geocoder.getFromLocation(MyLat, MyLong, 1);
+ 
+        Address = addresses.get(0).getAddressLine(0);
+        City = addresses.get(0).getAddressLine(1);
+       }
+       catch (Exception e)
+       {
+           e.printStackTrace();
+       }
+
+      if (Address != null && !Address.isEmpty()) {
+    	  // doSomething
+          addTv.setVisibility(View.VISIBLE);
+    	  currentLocation.setVisibility(View.VISIBLE);
+    	  attachment.setVisibility(View.VISIBLE);
+    	  hrTv.setVisibility(View.VISIBLE);
+          currentLocation.setText(Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.");
+    	}
+      else{ 
+          addTv.setVisibility(View.VISIBLE);
+          attachment.setVisibility(View.VISIBLE);
+          hrTv.setVisibility(View.VISIBLE);
+          currentLocation.setVisibility(View.VISIBLE);
+          currentLocation.setText("Unavailable. Check if your GPS and Network are turned on");
+    	// Toast.makeText(getApplicationContext(), "Check if your GPS and Network are turned on", Toast.LENGTH_LONG).show();
+      }
+   }
 }
