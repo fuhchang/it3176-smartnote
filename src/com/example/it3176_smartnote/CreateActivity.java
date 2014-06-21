@@ -883,7 +883,7 @@ public class CreateActivity extends Activity {
         builder1.setTitle("On-going Calendar Event Alert");
 		builder1.setMessage(fullEventDetails);
 		builder1.setCancelable(true);
-        builder1.setPositiveButton("Yes",
+        builder1.setNegativeButton("Yes",
                 new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             	/**9**/
@@ -893,12 +893,23 @@ public class CreateActivity extends Activity {
                
             }
         });
-        builder1.setNegativeButton("No",
+        builder1.setNeutralButton("No",
                 new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                /**10**/
             	saveNoteToDB();
             }
+        });
+        
+        builder1.setPositiveButton("Cancel", new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+
+			}
+        	
         });
 
         AlertDialog alert11 = builder1.create();
