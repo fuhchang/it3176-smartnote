@@ -39,13 +39,13 @@ public class Note {
 	}
 	
 	/**FOR TESTING OF INSERTING ATTACHMENTS ONLY**/
-	public Note(String note_name, String note_content, String note_category, String note_img, String note_video, String note_audio){
+	public Note(String note_name, String note_content, String note_category, String note_img, String note_video, String note_address){
 		this.note_name = note_name;
 		this.note_content = note_content;
 		this.note_category = note_category;
 		this.note_img = note_img;
 		this.note_video = note_video;
-		this.note_audio = note_audio;
+		this.note_address = note_address;
 	}
 	
 	

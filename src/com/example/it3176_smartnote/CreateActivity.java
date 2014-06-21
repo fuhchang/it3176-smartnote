@@ -99,6 +99,7 @@ public class CreateActivity extends Activity {
 	String content="";
 	String uriOfImage ="",uriOfVideo="", uriOfAudio="";
 	static String noteCategory="";
+	String storingAddress="";
 	
 	
 	String calendarDuplicateTitle="";
@@ -329,8 +330,11 @@ public class CreateActivity extends Activity {
 		         @Override
 		         public void onClick(DialogInterface arg0, int arg1) {
 		        	 titleOfNote="";
-				     content="";
-				     noteCategory="";
+					 content="";
+					 noteCategory="";
+					 uriOfImage="";
+					 uriOfVideo="";
+					 storingAddress="";
 		        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
 		        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
 						startActivity(intent);
@@ -631,6 +635,7 @@ public class CreateActivity extends Activity {
     	  hrTv.setVisibility(View.VISIBLE);
           mLinearLayoutHeader.setVisibility(View.VISIBLE);
           currentLocation.setText(Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.");
+          storingAddress=Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.";
     	}
       else{ 
           addTv.setVisibility(View.VISIBLE);
@@ -640,6 +645,7 @@ public class CreateActivity extends Activity {
           
           currentLocation.setVisibility(View.VISIBLE);
           currentLocation.setText("Unavailable. Check if your GPS and Network are turned on");
+          storingAddress="";
     	// Toast.makeText(getApplicationContext(), "Check if your GPS and Network are turned on", Toast.LENGTH_LONG).show();
       }
    }  
@@ -655,9 +661,12 @@ public class CreateActivity extends Activity {
 			
 	         @Override
 	         public void onClick(DialogInterface arg0, int arg1) {
-	        	titleOfNote="";
-				content="";
-				noteCategory="";
+	        	 titleOfNote="";
+				 content="";
+				 noteCategory="";
+				 uriOfImage="";
+				 uriOfVideo="";
+				 storingAddress="";
 	        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
 	        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
 					startActivity(intent);
@@ -833,7 +842,7 @@ public class CreateActivity extends Activity {
 					
 					/**5**/
 					if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note (AFTER ONGOING CALENDAR EVENT)", Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "Duplicate CALENDAR EVENT TITLE AND duplicate note title found, unable to save note.", Toast.LENGTH_LONG).show();
 					}
 					
 					/***6**/
@@ -846,7 +855,7 @@ public class CreateActivity extends Activity {
 				else{
 					/**7**/
 					if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "NO DUPLICATE EVENT TITLE BUT Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "NO DUPLICATE CALENDAR EVENT TITLE BUT duplicate note title found, unable to save note", Toast.LENGTH_LONG).show();
 					}
 					/**8**/
 					else{
@@ -900,38 +909,39 @@ public class CreateActivity extends Activity {
 	
 	public void saveNoteToDB(){
 		boolean result = true;
-		try{
+			try{
+				Note note = new Note(titleOfNote, content, noteCategory, uriOfImage, uriOfVideo,storingAddress);
+			//Note note = new Note(title, content, noteCategory);
 		
-			Note note = new Note(titleOfNote, content, noteCategory, uriOfImage, uriOfVideo, uriOfAudio);
-		//Note note = new Note(title, content, noteCategory);
-	
-		SQLiteController entry = new SQLiteController(this);
-		entry.open();
-		entry.insertNote(note);
-		entry.close();
-		}catch(Exception e){
-			result = false;
-		}finally{
-			if(result){
-				notifySuccess();
-				
-				titleOfNote="";
-				content="";
-				noteCategory="";
-
-				
-				
-				
-				Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
-				CreateActivity.this.finish();
-				Intent intent = new Intent(this, MainActivity.class);
-				startActivity(intent);
-				
+				SQLiteController entry = new SQLiteController(this);
+				entry.open();
+				entry.insertNote(note);
+				entry.close();
+			}catch(Exception e){
+				result = false;
+			}finally{
+				if(result){
+					notifySuccess();
+					
+					titleOfNote="";
+					content="";
+					noteCategory="";
+					uriOfImage="";
+					uriOfVideo="";
+					storingAddress="";
+					
+					
+					
+					Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
+					CreateActivity.this.finish();
+					Intent intent = new Intent(this, MainActivity.class);
+					startActivity(intent);
+					
+				}
+				else{
+					Toast.makeText(getApplicationContext(), "Something went wrong while storing.", Toast.LENGTH_LONG).show();
+				}
 			}
-			else{
-				Toast.makeText(getApplicationContext(), "ERRORRRR", Toast.LENGTH_LONG).show();
-			}
-		}
 	}
 	
 	
