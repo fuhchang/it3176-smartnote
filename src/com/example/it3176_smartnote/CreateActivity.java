@@ -107,10 +107,7 @@ public class CreateActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_create);
-		
-		Log.i("Create New Note", "Let's begin");
-		
-		//Title, content, saveButton, imageView
+
 		//noteTitle=(EditText)findViewById(R.id.noteTitle);
 		noteContent=(EditText)findViewById(R.id.noteContent);
 		btnSave=(Button)findViewById(R.id.btnSave);	
@@ -193,7 +190,7 @@ public class CreateActivity extends Activity {
 			}
 		});
 		
-		
+		/*
 		//For adding of tags
 		tapToAddTags=(TextView)findViewById(R.id.tapToAddTags);
 		tags=(TextView)findViewById(R.id.tags);
@@ -217,10 +214,10 @@ public class CreateActivity extends Activity {
 					.setCancelable(false)
 					.setPositiveButton("OK",
 					  new DialogInterface.OnClickListener() {
-					    public void onClick(DialogInterface dialog,int id) {
+					    public void onClick(DialogInterface dialog,int id) {*/
 						
 					   /**values to be stored for noteTags column added here**/ 	
-					   noteTags=userInput.getText().toString();
+			/*		   noteTags=userInput.getText().toString();
 					   
 						   if(userInput.getText().toString().equals("")){
 							   tags.setText("Tags: -");
@@ -246,7 +243,7 @@ public class CreateActivity extends Activity {
 			}
 			
 		});
-		
+		*/
 		
 	}
 
@@ -304,7 +301,8 @@ public class CreateActivity extends Activity {
 				Intent intent = new Intent();
 				intent.setType("image/*");
 				//intent.setType("*/*");
-				intent.setAction(Intent.ACTION_GET_CONTENT);
+				//intent.setAction(Intent.ACTION_GET_CONTENT);
+				intent.setAction(Intent.ACTION_PICK);
 				startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);	
 		}
 		else if(id==R.id.saveNote){
@@ -370,17 +368,19 @@ public class CreateActivity extends Activity {
 		else if(id==R.id.uploadVideo){
 			Intent intent = new Intent();
 	        intent.setType("video/*");
-	        intent.setAction(Intent.ACTION_GET_CONTENT);
+	       // intent.setAction(Intent.ACTION_GET_CONTENT);
+	        intent.setAction(Intent.ACTION_PICK);
 	        startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
 			
 		}
 		
-		else if(id==R.id.attachAudio){
+		/*else if(id==R.id.attachAudio){
 			 Intent intent = new Intent();
 	         intent.setType("audio/*");
-	         intent.setAction(Intent.ACTION_GET_CONTENT);
+	         //intent.setAction(Intent.ACTION_GET_CONTENT);
+	         intent.setAction(Intent.ACTION_PICK);
 	         startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_AUDIO);
-		}
+		}*/
 		
 		else if(id==R.id.attachLocation){
 			getMyCurrentLocation();
