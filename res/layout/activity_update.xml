@@ -77,10 +77,7 @@
 	        android:text="Category: None Selected"
 	        android:textColor="#C35817"
 	         />
-	    
-	   
-	    
-	     <View 
+<View 
 	        android:id="@+id/hr2"
 	        android:layout_marginTop="5dp"
 	   	    android:layout_width="fill_parent"
@@ -88,12 +85,45 @@
 	        android:layout_below="@+id/categorySelectionChoice"      
 	        android:background="#000"/>
 	    
+	     
+	     
+	     
+	      <TextView
+	        android:id="@+id/tapToAddTags"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/hr2"
+	        
+	        android:textColor="#0000ff"
+	        android:text="@string/tags"
+	        />
+	     
+	     
+	      <TextView
+	        android:id="@+id/tags"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/tapToAddTags"
+	        android:text="Tags: -"
+	        android:textColor="#C35817"
+	         />
+	      
+	     
+	     <View 
+	        android:id="@+id/hr3"
+	        android:layout_marginTop="5dp"
+	   	    android:layout_width="fill_parent"
+	        android:layout_height="2dp" 
+	        android:layout_below="@+id/tags"      
+	        android:background="#000"/>
 	    
 	     <EditText
 	         android:id="@+id/noteContent"
 	         android:layout_width="fill_parent"
 	         android:layout_height="250dp"
-	         android:layout_below="@+id/hr2"
+	         android:layout_below="@+id/hr3"
 	         android:layout_marginLeft="5dp"
 	         android:layout_marginTop="5dp"
 	         android:background="@drawable/create_note_styling"
@@ -102,9 +132,25 @@
 	         android:inputType="textMultiLine" />
 	     
 	     
+	     
+	     
+	     <TextView 
+		                 android:id="@+id/attachmentHr"
+		                 android:layout_width="fill_parent"
+		        		 android:layout_height="2dp"     
+		        		 android:layout_below="@+id/noteContent"
+		   			     android:background="#000"/>
+		                 
+		             
+		         
+	     
+	     
+	     
+	     
+	     
 	     <ScrollView
 	         	android:id="@+id/sv"
-	         	android:layout_below="@+id/noteContent"
+	         	android:layout_below="@+id/attachmentHr"
 	         	android:layout_width="fill_parent"
 	         	android:layout_height="fill_parent">
 	     
@@ -120,12 +166,12 @@
 		             android:orientation="vertical"
 		             >  
 		                  
-		             <TextView 
+		            <!--   <TextView 
 		                 android:id="@+id/hrTv"
 		                 android:layout_width="fill_parent"
 		        		 android:layout_height="2dp"     
 		   			     android:background="#000"/>
-		                 
+		                 -->
 		             
 		          	 <TextView
 			             android:id="@+id/attachment"  
@@ -180,6 +226,29 @@
 				         android:background="@drawable/audio"
        					 />
 
+				    
+				     
+				     
+				     
+		              <TextView
+				         android:id="@+id/addTv"
+		                 android:layout_height="wrap_content"
+		                 android:layout_width="wrap_content"
+		                 android:layout_marginTop="5dp"
+		                 android:text="Location: "/>
+				     
+				      <TextView
+				         android:id="@+id/currentLocation"
+		                 android:layout_height="wrap_content"
+		                 android:layout_width="fill_parent"
+		                 android:layout_marginTop="5dp"
+		                 android:text="blah"
+		                 />
+		             
+				     
+				     
+				     
+				     
 				     <TextView
 						 android:layout_width="fill_parent"
 				         android:layout_height="wrap_content"
@@ -188,6 +257,4 @@
 	         </FrameLayout>
 	     </ScrollView>    
 </RelativeLayout>
-
-
 
