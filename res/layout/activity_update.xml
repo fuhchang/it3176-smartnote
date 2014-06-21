@@ -1,32 +1,17 @@
-
-<RelativeLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"
- 	xmlns:tools="http://schemas.android.com/tools"
-	tools:context=".UpdateActivity"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:paddingTop="5dp"
-	     >
-	
-	   <!--   <EditText
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+	 <AutoCompleteTextView 
 	        android:id="@+id/noteTitle"
 	        android:layout_marginLeft="5dp"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:background="@drawable/create_note_styling"
 	        android:textSize="32sp"
-	        android:hint="Title"
-	        android:inputType="text" />-->
-	        
-	        
-	    <AutoCompleteTextView 
-	        android:id="@+id/noteTitle"
-	        android:layout_marginLeft="5dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/linear1"
-	        android:background="@drawable/create_note_styling"
-	        android:textSize="32sp"
+	        android:singleLine="true"
 	        android:hint="Title"
        		 />
 	
@@ -35,34 +20,23 @@
 	        android:layout_marginLeft="5dp"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/noteTitle"
 	         />
 	
 	    <View 
 	        android:id="@+id/hr"
 	        android:layout_marginTop="5dp"
 	   	    android:layout_width="fill_parent"
-	        android:layout_height="2dp" 
-	        android:layout_below="@+id/currentDateTimeOfCreation"      
+	        android:layout_height="2dp"   
 	        android:background="#000"/>
 	    
-	   <!--   <TextView
-	        android:id="@+id/selection"
-	        android:layout_marginLeft="5dp"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Category(ies): "
-	        android:layout_below="@+id/hr"
-	         />-->
 	    
-	    <TextView
+	     <TextView
 	        android:id="@+id/categorySelection"
 	        android:layout_marginLeft="5dp"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/hr"
-	        
 	        android:textColor="#0000ff"
+	        android:textSize="16sp"
 	        android:text="@string/selection"
 	        />
 	    
@@ -73,188 +47,199 @@
 	        android:layout_marginLeft="5dp"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/categorySelection"
 	        android:text="Category: None Selected"
+	        android:textSize="16sp"
 	        android:textColor="#C35817"
 	         />
-<View 
+	    
+	   
+	    
+	     <View 
 	        android:id="@+id/hr2"
 	        android:layout_marginTop="5dp"
 	   	    android:layout_width="fill_parent"
-	        android:layout_height="2dp" 
-	        android:layout_below="@+id/categorySelectionChoice"      
+	        android:layout_height="2dp"     
 	        android:background="#000"/>
-	    
 	     
 	     
 	     
-	      <TextView
-	        android:id="@+id/tapToAddTags"
-	        android:layout_marginLeft="5dp"
+	   <LinearLayout
+	        android:id="@+id/header"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/hr2"
-	        
-	        android:textColor="#0000ff"
-	        android:text="@string/tags"
-	        />
-	     
-	     
-	      <TextView
-	        android:id="@+id/tags"
-	        android:layout_marginLeft="5dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/tapToAddTags"
-	        android:text="Tags: -"
-	        android:textColor="#C35817"
-	         />
-	      
-	     
-	     <View 
-	        android:id="@+id/hr3"
-	        android:layout_marginTop="5dp"
-	   	    android:layout_width="fill_parent"
-	        android:layout_height="2dp" 
-	        android:layout_below="@+id/tags"      
-	        android:background="#000"/>
-	    
-	     <EditText
-	         android:id="@+id/noteContent"
-	         android:layout_width="fill_parent"
-	         android:layout_height="250dp"
-	         android:layout_below="@+id/hr3"
-	         android:layout_marginLeft="5dp"
-	         android:layout_marginTop="5dp"
-	         android:background="@drawable/create_note_styling"
-	         android:gravity="top"
-	         android:hint="Content"
-	         android:inputType="textMultiLine" />
-	     
-	     
-	     
-	     
-	     <TextView 
-		                 android:id="@+id/attachmentHr"
-		                 android:layout_width="fill_parent"
-		        		 android:layout_height="2dp"     
-		        		 android:layout_below="@+id/noteContent"
-		   			     android:background="#000"/>
-		                 
-		             
-		         
-	     
-	     
-	     
-	     
-	     
-	     <ScrollView
+	        android:background="#336699"
+	        android:orientation="horizontal" >
+
+			<TextView
+			    android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="@drawable/attachment"
+				
+				/>	       
+	       
+	       <TextView
+	        	android:id="@+id/clickme"
+	        	android:layout_width="fill_parent"
+	        	android:layout_height="wrap_content"
+	        	android:textStyle="bold"
+	        	android:textSize="20sp"
+	        	android:textColor="#FFF"
+	        	android:gravity="left"
+	        	android:layout_marginBottom="5dp"
+	        	android:text="Attachment(s) - tap to view"
+	        	/>"
+	  
+   	 </LinearLayout>
+    
+    
+    
+    <FrameLayout android:layout_width="match_parent"
+    			android:layout_height="wrap_content">
+
+ 			<ScrollView
 	         	android:id="@+id/sv"
 	         	android:layout_below="@+id/attachmentHr"
 	         	android:layout_width="fill_parent"
 	         	android:layout_height="fill_parent">
-	     
-	         <FrameLayout android:layout_width="match_parent"
-    			android:layout_height="wrap_content">
-	         
-	         
-	         
-		         <LinearLayout
-		             android:id="@+id/lLA"
-		             android:layout_width="fill_parent"
-		             android:layout_height="wrap_content"
-		             android:orientation="vertical"
-		             >  
-		                  
-		            <!--   <TextView 
-		                 android:id="@+id/hrTv"
-		                 android:layout_width="fill_parent"
-		        		 android:layout_height="2dp"     
-		   			     android:background="#000"/>
-		                 -->
-		             
-		          	 <TextView
-			             android:id="@+id/attachment"  
-			             android:layout_height="wrap_content"
-			             android:layout_width="fill_parent"
-			             android:layout_marginTop="5dp"
-			             android:text="@string/attachment"
-		               />
-		           
-		           	 <TextView
-			             android:id="@+id/imageUriTv"
-			             android:layout_height="wrap_content"
-			             android:layout_width="fill_parent" 
-			             android:layout_marginTop="5dp"/>
-	   
-				     <ImageView 
-				         android:id="@+id/imageView"
-				         android:layout_width="fill_parent"
-				         android:layout_height="200dp"
-				         android:layout_marginTop="5dp"
-				         android:layout_marginLeft="10dp"
-				         android:layout_marginRight="10dp"
-						/> 
-
-				     <TextView
-		                 android:id="@+id/videoUriTv"
-		                 android:layout_height="wrap_content"
-		                 android:layout_width="fill_parent"
-		                 android:layout_marginTop="5dp"/>
+	         	
+			    <LinearLayout
+			        android:id="@+id/expandable"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:background="#336699"
+			        
+			        android:orientation="vertical" >
 				     
-				     <VideoView 
-				         android:id="@+id/videoView"
-				         android:layout_width="fill_parent"
-				         android:layout_height="200dp" 
-				         android:layout_marginTop="5dp"
-				         android:layout_marginLeft="10dp"
-				         android:layout_marginRight="10dp"
-						 android:layout_gravity="center"/>
-				 	     
-				     <TextView
-				         android:id="@+id/audioUriTv"
-		                 android:layout_height="wrap_content"
-		                 android:layout_width="fill_parent"
-		                 android:layout_marginTop="5dp"/>		         
+				      <FrameLayout android:layout_width="match_parent"
+			    			android:layout_height="wrap_content">
 				         
-				     <VideoView 
-				         android:id="@+id/audioView"
-				         android:layout_marginTop="5dp"
-				         android:layout_width="100dp"
-				         android:layout_height="100dp"
-				         android:layout_gravity="center"
-				         android:background="@drawable/audio"
-       					 />
+				         
+				         
+					         <LinearLayout
+					             android:id="@+id/lLA"
+					             android:layout_width="fill_parent"
+					             android:layout_height="wrap_content"
+					             android:orientation="vertical"
+					             >  
+					             
+					            
+					           
+					           	 <TextView
+						             android:id="@+id/imageUriTv"
+						             android:textColor="#FFF"
+						             android:layout_marginLeft="5dp"
+						             android:layout_height="wrap_content"
+						             android:layout_width="fill_parent" 
+						             android:layout_marginTop="5dp"
+						             android:text="Testing img"/>
+				   
+							    <ImageView 
+							         android:id="@+id/imageView"
+							         android:layout_width="fill_parent"
+							         android:layout_height="200dp"
+							         android:layout_marginTop="5dp"
+							         android:layout_marginLeft="10dp"
+							         android:layout_marginRight="10dp"/> 
+			
+							     <TextView
+					                 android:id="@+id/videoUriTv"
+					                 android:textColor="#FFF"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="fill_parent"
+					                 android:layout_marginTop="5dp"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="Testing video"/>
+							     
+							     <VideoView 
+							         android:id="@+id/videoView"
+							         android:layout_width="fill_parent"
+							         android:layout_height="200dp" 
+							         android:layout_marginTop="5dp"
+							         android:layout_marginLeft="10dp"
+							         android:layout_marginRight="10dp"
+									 android:layout_gravity="center"/>
+							 	     
+							     <TextView
+							         android:id="@+id/audioUriTv"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="fill_parent"
+					                 android:layout_marginTop="5dp"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="Testing audio"/>		         
+							         
+							     <VideoView 
+							         android:id="@+id/audioView"
+							         android:layout_marginTop="5dp"
+							         android:layout_width="100dp"
+							         android:layout_marginLeft="5dp"
+							         android:layout_height="100dp"
+							         android:layout_gravity="center"
+							         
+			       					 />
+			
+							    
+							     
+							     
+							     
+					              <TextView
+							         android:id="@+id/addTv"
+							         android:textColor="#FFF"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="wrap_content"
+					                 android:layout_marginTop="5dp"
+					                 android:textStyle="bold"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="Location: "/>
+							     
+							      <TextView
+							         android:id="@+id/currentLocation"
+							         android:textColor="#FFF"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="fill_parent"
+					                 android:layout_marginTop="5dp"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="blah"
+					                 />
+					             
+							     
+							     
+							     
+							     
+							     <TextView
+									 android:layout_width="fill_parent"
+							         android:layout_height="wrap_content"
+							         />
+							     
+							     
+							      <View 
+								        android:id="@+id/hr50"
+								        android:layout_marginTop="5dp"
+								   	    android:layout_width="fill_parent"
+								        android:layout_height="2dp"     
+								        android:background="#000"/>
+					    	 </LinearLayout>
+				         </FrameLayout>
+    		</LinearLayout>
+ 		</ScrollView>
+	     
+ 			
+ 			 <TextView 
+		         android:id="@+id/hrTv"
+		         android:layout_width="fill_parent"
+		         android:layout_height="2dp"     
+		   		 android:background="#000"/>
+ 			
+	      <EditText
+	         android:id="@+id/noteContent"
+	         android:layout_width="fill_parent"
+	         android:layout_height="wrap_content"
+	         android:layout_marginLeft="5dp"
+	         android:layout_marginTop="5dp"
+	         android:textSize="20sp"
+	         android:background="@drawable/create_note_styling"
+	         android:gravity="top"
+	         android:hint="Content"
+	         android:inputType="textMultiLine" />
 
-				    
-				     
-				     
-				     
-		              <TextView
-				         android:id="@+id/addTv"
-		                 android:layout_height="wrap_content"
-		                 android:layout_width="wrap_content"
-		                 android:layout_marginTop="5dp"
-		                 android:text="Location: "/>
-				     
-				      <TextView
-				         android:id="@+id/currentLocation"
-		                 android:layout_height="wrap_content"
-		                 android:layout_width="fill_parent"
-		                 android:layout_marginTop="5dp"
-		                 android:text="blah"
-		                 />
-		             
-				     
-				     
-				     
-				     
-				     <TextView
-						 android:layout_width="fill_parent"
-				         android:layout_height="wrap_content"
-				         />
-		    	 </LinearLayout>
-	         </FrameLayout>
-	     </ScrollView>    
-</RelativeLayout>
-
+    </FrameLayout>
+</LinearLayout>
