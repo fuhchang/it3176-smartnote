@@ -1,3 +1,4 @@
+/**************CREATE NOTE DONE BY KEITH**********************/
 package com.example.it3176_smartnote;
 
 import java.io.FileNotFoundException;
@@ -8,6 +9,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,6 +39,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -53,6 +57,10 @@ import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 
 public class CreateActivity extends Activity {
+	
+	LinearLayout mLinearLayout;
+	LinearLayout mLinearLayoutHeader;
+	
 	
 	private static Bitmap Image = null;
 	private ImageView imageView;
@@ -72,7 +80,7 @@ public class CreateActivity extends Activity {
 	TextView dateTimeCreation, categorySelection,
 	attachment, hrTv, imageUriTv, videoUriTv, 
 	audioUriTv, tapToAddTags, tags,
-	addTv, currentLocation;
+	addTv, currentLocation, attachments;
 	static TextView categorySelectionChoice;
 	EditText noteTitle, noteContent;
 	AutoCompleteTextView suggestTitle;
@@ -106,20 +114,16 @@ public class CreateActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_create);
-		
-		Log.i("Create New Note", "Let's begin");
-		
-		//Title, content, saveButton, imageView
+		setContentView(R.layout.create_note);
+
 		//noteTitle=(EditText)findViewById(R.id.noteTitle);
 		noteContent=(EditText)findViewById(R.id.noteContent);
 		btnSave=(Button)findViewById(R.id.btnSave);	
-		attachment=(TextView)findViewById(R.id.attachment);
+		//attachment=(TextView)findViewById(R.id.attachment);
 		//attachment=(TextView)findViewById(R.id.att);
-		attachment.setVisibility(View.GONE);
+		//attachment.setVisibility(View.GONE);
 		//hrTv=(TextView) findViewById(R.id.hrTv);
-		hrTv=(TextView)findViewById(R.id.attachmentHr);
-		hrTv.setVisibility(View.GONE);
+		
 		
 		imageView = (ImageView) findViewById(R.id.imageView);
 		videoView = (VideoView) findViewById(R.id.videoView);
@@ -193,7 +197,7 @@ public class CreateActivity extends Activity {
 			}
 		});
 		
-		
+		/*
 		//For adding of tags
 		tapToAddTags=(TextView)findViewById(R.id.tapToAddTags);
 		tags=(TextView)findViewById(R.id.tags);
@@ -217,10 +221,10 @@ public class CreateActivity extends Activity {
 					.setCancelable(false)
 					.setPositiveButton("OK",
 					  new DialogInterface.OnClickListener() {
-					    public void onClick(DialogInterface dialog,int id) {
+					    public void onClick(DialogInterface dialog,int id) {*/
 						
 					   /**values to be stored for noteTags column added here**/ 	
-					   noteTags=userInput.getText().toString();
+			/*		   noteTags=userInput.getText().toString();
 					   
 						   if(userInput.getText().toString().equals("")){
 							   tags.setText("Tags: -");
@@ -246,6 +250,37 @@ public class CreateActivity extends Activity {
 			}
 			
 		});
+		*/
+		
+		
+		
+		
+		
+		attachments=(TextView)findViewById(R.id.clickme);
+		mLinearLayout = (LinearLayout) findViewById(R.id.expandable);
+        //set visibility to GONE
+        mLinearLayout.setVisibility(View.GONE);
+        mLinearLayoutHeader = (LinearLayout) findViewById(R.id.header);
+        mLinearLayoutHeader.setVisibility(View.GONE);
+        
+        hrTv=(TextView)findViewById(R.id.hrTv);
+		hrTv.setVisibility(View.GONE);
+
+
+        mLinearLayoutHeader.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (mLinearLayout.getVisibility()==View.GONE){
+                    expand();
+                }else{
+                    collapse();
+                   
+                }
+            }
+        });
+		
 		
 		
 	}
@@ -304,7 +339,8 @@ public class CreateActivity extends Activity {
 				Intent intent = new Intent();
 				intent.setType("image/*");
 				//intent.setType("*/*");
-				intent.setAction(Intent.ACTION_GET_CONTENT);
+				//intent.setAction(Intent.ACTION_GET_CONTENT);
+				intent.setAction(Intent.ACTION_PICK);
 				startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);	
 		}
 		else if(id==R.id.saveNote){
@@ -370,17 +406,19 @@ public class CreateActivity extends Activity {
 		else if(id==R.id.uploadVideo){
 			Intent intent = new Intent();
 	        intent.setType("video/*");
-	        intent.setAction(Intent.ACTION_GET_CONTENT);
+	       // intent.setAction(Intent.ACTION_GET_CONTENT);
+	        intent.setAction(Intent.ACTION_PICK);
 	        startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
 			
 		}
 		
-		else if(id==R.id.attachAudio){
+		/*else if(id==R.id.attachAudio){
 			 Intent intent = new Intent();
 	         intent.setType("audio/*");
-	         intent.setAction(Intent.ACTION_GET_CONTENT);
+	         //intent.setAction(Intent.ACTION_GET_CONTENT);
+	         intent.setAction(Intent.ACTION_PICK);
 	         startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_AUDIO);
-		}
+		}*/
 		
 		else if(id==R.id.attachLocation){
 			getMyCurrentLocation();
@@ -418,8 +456,11 @@ public class CreateActivity extends Activity {
 					Uri mImageUri = data.getData();
 					try {
 						Image = Media.getBitmap(this.getContentResolver(), mImageUri);
-						attachment.setVisibility(View.VISIBLE);
+					//	attachment.setVisibility(View.VISIBLE);
+					//	hrTv.setVisibility(View.VISIBLE);
 						hrTv.setVisibility(View.VISIBLE);
+				        mLinearLayoutHeader.setVisibility(View.VISIBLE);
+						
 						
 						uriOfImage = mImageUri.toString();
 						
@@ -442,8 +483,11 @@ public class CreateActivity extends Activity {
 					
 				case PICK_VIDEO:
 					Uri mVideoURI = data.getData();        
-		            attachment.setVisibility(View.VISIBLE);
+		         //   attachment.setVisibility(View.VISIBLE);
+				//	hrTv.setVisibility(View.VISIBLE);
+					
 					hrTv.setVisibility(View.VISIBLE);
+			        mLinearLayoutHeader.setVisibility(View.VISIBLE);
 					
 					uriOfVideo = mVideoURI.toString();
 					
@@ -467,9 +511,9 @@ public class CreateActivity extends Activity {
 
 					break;
 					
-				case PICK_AUDIO:
+			/*	case PICK_AUDIO:
 					 attachment.setVisibility(View.VISIBLE);
-					 hrTv.setVisibility(View.VISIBLE);
+				//	 hrTv.setVisibility(View.VISIBLE);
 					 audioUriTv.setVisibility(View.VISIBLE);
 					 audioView.setVisibility(View.VISIBLE);
 					
@@ -494,7 +538,7 @@ public class CreateActivity extends Activity {
 							//audioMC.show(0);
 						}
 		            });		
-					break;
+					break;*/
 			}
 		}
 		
@@ -617,14 +661,18 @@ public class CreateActivity extends Activity {
     	  // doSomething
           addTv.setVisibility(View.VISIBLE);
     	  currentLocation.setVisibility(View.VISIBLE);
-    	  attachment.setVisibility(View.VISIBLE);
+    	//  attachment.setVisibility(View.VISIBLE);
+    //	  hrTv.setVisibility(View.VISIBLE);
     	  hrTv.setVisibility(View.VISIBLE);
+          mLinearLayoutHeader.setVisibility(View.VISIBLE);
           currentLocation.setText(Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.");
     	}
       else{ 
           addTv.setVisibility(View.VISIBLE);
-          attachment.setVisibility(View.VISIBLE);
+        //  attachment.setVisibility(View.VISIBLE);
           hrTv.setVisibility(View.VISIBLE);
+          mLinearLayoutHeader.setVisibility(View.VISIBLE);
+          
           currentLocation.setVisibility(View.VISIBLE);
           currentLocation.setText("Unavailable. Check if your GPS and Network are turned on");
     	// Toast.makeText(getApplicationContext(), "Check if your GPS and Network are turned on", Toast.LENGTH_LONG).show();
@@ -675,6 +723,84 @@ public class CreateActivity extends Activity {
 	      AlertDialog alertDialog = alertDialogBuilder.create();
 	      alertDialog.show();
 	}
+
+	private void expand() {
+	     //set Visible
+	     mLinearLayout.setVisibility(View.VISIBLE);
+	     
+	     final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+	     final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+	     mLinearLayout.measure(widthSpec, heightSpec);
+	     
+	     ValueAnimator mAnimator = slideAnimator(0, mLinearLayout.getMeasuredHeight());
+	     
+	     noteContent.setVisibility(View.GONE);
+	     attachments.setText("Attachment(s) - tap to close");
+	     
+	     mAnimator.start();
+	}
+	 
+	private void collapse() {
+	     int finalHeight = mLinearLayout.getHeight();
+
+	     ValueAnimator mAnimator = slideAnimator(finalHeight, 0);
+	     
+	     
+	     mAnimator.addListener(new Animator.AnimatorListener() {
+	    	 
+			
+			@Override
+			public void onAnimationStart(Animator animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animator animation) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				// TODO Auto-generated method stub
+				mLinearLayout.setVisibility(View.GONE);
+				 noteContent.setVisibility(View.VISIBLE);
+				 attachments.setText("Attachment(s) - tap to view");
+
+			}
+			
+			@Override
+			public void onAnimationCancel(Animator animation) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	     mAnimator.start();
+	     
+	}
+
+	private ValueAnimator slideAnimator(int start, int end) {
+		  
+	    ValueAnimator animator = ValueAnimator.ofInt(start, end);
+	  
+	    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+	         @Override
+	         public void onAnimationUpdate(ValueAnimator valueAnimator) {
+	            //Update Height
+	            int value = (Integer) valueAnimator.getAnimatedValue();
+	            ViewGroup.LayoutParams layoutParams = mLinearLayout.getLayoutParams();
+	            layoutParams.height = value;
+	            mLinearLayout.setLayoutParams(layoutParams);
+	         }
+	    });
+	    return animator;
+	}
+	
+	
+	
+	
+	
 	
 	
 	

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+	 <AutoCompleteTextView 
+	        android:id="@+id/noteTitle"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:background="@drawable/create_note_styling"
+	        android:textSize="32sp"
+	        android:singleLine="true"
+	        android:hint="Title"
+       		 />
+	
+	    <TextView
+	        android:id="@+id/currentDateTimeOfCreation"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	         />
+	
+	    <View 
+	        android:id="@+id/hr"
+	        android:layout_marginTop="5dp"
+	   	    android:layout_width="fill_parent"
+	        android:layout_height="2dp"   
+	        android:background="#000"/>
+	    
+	    
+	     <TextView
+	        android:id="@+id/categorySelection"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="#0000ff"
+	        android:textSize="16sp"
+	        android:text="@string/selection"
+	        />
+	    
+	    
+	    
+	    <TextView
+	        android:id="@+id/categorySelectionChoice"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="Category: None Selected"
+	        android:textSize="16sp"
+	        android:textColor="#C35817"
+	         />
+	    
+	   
+	    
+	     <View 
+	        android:id="@+id/hr2"
+	        android:layout_marginTop="5dp"
+	   	    android:layout_width="fill_parent"
+	        android:layout_height="2dp"     
+	        android:background="#000"/>
+	     
+	     
+	     
+	   <LinearLayout
+	        android:id="@+id/header"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:background="#336699"
+	        android:orientation="horizontal" >
+
+			<TextView
+			    android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="@drawable/attachment"
+				
+				/>	       
+	       
+	       <TextView
+	        	android:id="@+id/clickme"
+	        	android:layout_width="fill_parent"
+	        	android:layout_height="wrap_content"
+	        	android:textStyle="bold"
+	        	android:textSize="20sp"
+	        	android:textColor="#FFF"
+	        	android:gravity="left"
+	        	android:layout_marginBottom="5dp"
+	        	android:text="Attachment(s) - tap to view"
+	        	/>"
+	  
+   	 </LinearLayout>
+    
+    
+    
+    <FrameLayout android:layout_width="match_parent"
+    			android:layout_height="wrap_content">
+
+ 			<ScrollView
+	         	android:id="@+id/sv"
+	         	android:layout_below="@+id/attachmentHr"
+	         	android:layout_width="fill_parent"
+	         	android:layout_height="fill_parent">
+	         	
+			    <LinearLayout
+			        android:id="@+id/expandable"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:background="#336699"
+			        
+			        android:orientation="vertical" >
+				     
+				      <FrameLayout android:layout_width="match_parent"
+			    			android:layout_height="wrap_content">
+				         
+				         
+				         
+					         <LinearLayout
+					             android:id="@+id/lLA"
+					             android:layout_width="fill_parent"
+					             android:layout_height="wrap_content"
+					             android:orientation="vertical"
+					             >  
+					             
+					            
+					           
+					           	 <TextView
+						             android:id="@+id/imageUriTv"
+						             android:textColor="#FFF"
+						             android:layout_marginLeft="5dp"
+						             android:layout_height="wrap_content"
+						             android:layout_width="fill_parent" 
+						             android:layout_marginTop="5dp"
+						             android:text="Testing img"/>
+				   
+							    <ImageView 
+							         android:id="@+id/imageView"
+							         android:layout_width="fill_parent"
+							         android:layout_height="200dp"
+							         android:layout_marginTop="5dp"
+							         android:layout_marginLeft="10dp"
+							         android:layout_marginRight="10dp"/> 
+			
+							     <TextView
+					                 android:id="@+id/videoUriTv"
+					                 android:textColor="#FFF"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="fill_parent"
+					                 android:layout_marginTop="5dp"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="Testing video"/>
+							     
+							     <VideoView 
+							         android:id="@+id/videoView"
+							         android:layout_width="fill_parent"
+							         android:layout_height="200dp" 
+							         android:layout_marginTop="5dp"
+							         android:layout_marginLeft="10dp"
+							         android:layout_marginRight="10dp"
+									 android:layout_gravity="center"/>
+							 	     
+							     <TextView
+							         android:id="@+id/audioUriTv"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="fill_parent"
+					                 android:layout_marginTop="5dp"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="Testing audio"/>		         
+							         
+							     <VideoView 
+							         android:id="@+id/audioView"
+							         android:layout_marginTop="5dp"
+							         android:layout_width="100dp"
+							         android:layout_marginLeft="5dp"
+							         android:layout_height="100dp"
+							         android:layout_gravity="center"
+							         
+			       					 />
+			
+							    
+							     
+							     
+							     
+					              <TextView
+							         android:id="@+id/addTv"
+							         android:textColor="#FFF"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="wrap_content"
+					                 android:layout_marginTop="5dp"
+					                 android:textStyle="bold"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="Location: "/>
+							     
+							      <TextView
+							         android:id="@+id/currentLocation"
+							         android:textColor="#FFF"
+					                 android:layout_height="wrap_content"
+					                 android:layout_width="fill_parent"
+					                 android:layout_marginTop="5dp"
+					                 android:layout_marginLeft="5dp"
+					                 android:text="blah"
+					                 />
+					             
+							     
+							     
+							     
+							     
+							     <TextView
+									 android:layout_width="fill_parent"
+							         android:layout_height="wrap_content"
+							         />
+							     
+							     
+							      <View 
+								        android:id="@+id/hr50"
+								        android:layout_marginTop="5dp"
+								   	    android:layout_width="fill_parent"
+								        android:layout_height="2dp"     
+								        android:background="#000"/>
+					    	 </LinearLayout>
+				         </FrameLayout>
+    		</LinearLayout>
+ 		</ScrollView>
+	     
+ 			
+ 			 <TextView 
+		         android:id="@+id/hrTv"
+		         android:layout_width="fill_parent"
+		         android:layout_height="2dp"     
+		   		 android:background="#000"/>
+ 			
+	      <EditText
+	         android:id="@+id/noteContent"
+	         android:layout_width="fill_parent"
+	         android:layout_height="wrap_content"
+	         android:layout_marginLeft="5dp"
+	         android:layout_marginTop="5dp"
+	         android:textSize="20sp"
+	         android:background="@drawable/create_note_styling"
+	         android:gravity="top"
+	         android:hint="Content"
+	         android:inputType="textMultiLine" />
+
+    </FrameLayout>
+</LinearLayout>
