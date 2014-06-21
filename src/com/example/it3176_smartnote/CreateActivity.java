@@ -3,9 +3,11 @@ package com.example.it3176_smartnote;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,6 +35,7 @@ import android.provider.CalendarContract;
 import android.provider.MediaStore.Images.Media;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -75,7 +78,6 @@ public class CreateActivity extends Activity {
 	static int SELECTION_CHOICE_DIALOG=1;
 	
 	static String[] selectionArray;
-	static String noteCategory="";
 	
 	TextView dateTimeCreation, categorySelection,
 	attachment, hrTv, imageUriTv, videoUriTv, 
@@ -91,7 +93,15 @@ public class CreateActivity extends Activity {
 	
 	static String category="";
 	
+	
+	/**Values to be stored in database**/
+	String titleOfNote="";
+	String content="";
 	String uriOfImage ="",uriOfVideo="", uriOfAudio="";
+	static String noteCategory="";
+	
+	
+	String calendarDuplicateTitle="";
 	
 	static String noteTags="";
 	
@@ -108,6 +118,14 @@ public class CreateActivity extends Activity {
 	final Context context = this;
 	
 	private Cursor calendarEventTitleCursor;
+	private Cursor onGoingEventCursor;
+	String eventTitle;
+	String eventMatchCriteria ="";
+	long currentDateTime;
+	Long eventStartDateTime;
+	Long eventEndDateTime;
+	String calendarOnGoingEvent="";
+	String fullEventDetails="";
 	ArrayList<String> eventTitles = new ArrayList<String>();
 	
 	
@@ -310,6 +328,9 @@ public class CreateActivity extends Activity {
 				
 		         @Override
 		         public void onClick(DialogInterface arg0, int arg1) {
+		        	 titleOfNote="";
+				     content="";
+				     noteCategory="";
 		        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
 		        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
 						startActivity(intent);
@@ -328,13 +349,13 @@ public class CreateActivity extends Activity {
 		      AlertDialog alertDialog = alertDialogBuilder.create();
 		      alertDialog.show();
 		}
-		else if(id==R.id.reset){
+	/*	else if(id==R.id.reset){
 				suggestTitle.getText().clear();
 				noteContent.getText().clear();
 				imageView.setImageResource(android.R.color.transparent);
 				noteCategory="";
 				categorySelectionChoice.setText("Category: None Selected");
-		}
+		}*/
 		else if(id==R.id.uploadImage){
 				Intent intent = new Intent();
 				intent.setType("image/*");
@@ -344,63 +365,7 @@ public class CreateActivity extends Activity {
 				startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);	
 		}
 		else if(id==R.id.saveNote){
-			String title = suggestTitle.getText().toString();
-			String content = noteContent.getText().toString();
-			
-			
-			/**Get all notes in database**/
-			ArrayList<Note> resultArray = new ArrayList<Note>();
-			SQLiteController getEntry = new SQLiteController(this);
-	        getEntry.open();
-	        resultArray.addAll(getEntry.retrieveNotes());
-	        getEntry.close();
-	        
-	       String duplicateTitle="";
-			
-	       /**Check for duplicate titles**/
-	        for(int i=0; i<resultArray.size(); i++){
-	        	//if(resultArray.get(i).getNote_name().equals(noteTitle.getText().toString())){
-	        	if(resultArray.get(i).getNote_name().equals(suggestTitle.getText().toString())){
-	        		duplicateTitle="yes";
-	        	}
-	        }
-			
-			
-			if(title.matches("")||content.matches("")||noteCategory.matches("")){
-				Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
-			}
-			else
-				if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
-				}
-				else{
-					
-						boolean result = true;
-						try{
-						
-							Note note = new Note(title, content, noteCategory, uriOfImage, uriOfVideo, uriOfAudio);
-						//Note note = new Note(title, content, noteCategory);
-					
-						SQLiteController entry = new SQLiteController(this);
-						entry.open();
-						entry.insertNote(note);
-						entry.close();
-						}catch(Exception e){
-							result = false;
-						}finally{
-							if(result){
-								notifySuccess();
-								Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
-								CreateActivity.this.finish();
-								Intent intent = new Intent(this, MainActivity.class);
-								startActivity(intent);
-								
-							}
-							else{
-								Toast.makeText(getApplicationContext(), "ERRORRRR", Toast.LENGTH_LONG).show();
-							}
-						}
-					}	
+				saveNote();
 			}
 		
 		else if(id==R.id.uploadVideo){
@@ -678,22 +643,7 @@ public class CreateActivity extends Activity {
     	// Toast.makeText(getApplicationContext(), "Check if your GPS and Network are turned on", Toast.LENGTH_LONG).show();
       }
    }  
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	/**For back pressed event**/
 	@Override
 	public void onBackPressed() {
@@ -705,6 +655,9 @@ public class CreateActivity extends Activity {
 			
 	         @Override
 	         public void onClick(DialogInterface arg0, int arg1) {
+	        	titleOfNote="";
+				content="";
+				noteCategory="";
 	        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
 	        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
 					startActivity(intent);
@@ -800,8 +753,186 @@ public class CreateActivity extends Activity {
 	
 	
 	
+	public void saveNote(){
+		titleOfNote = suggestTitle.getText().toString();
+		content = noteContent.getText().toString();	
+        
+        Format df = DateFormat.getDateFormat(this);
+		Format tf = DateFormat.getTimeFormat(this);
+		
+		onGoingEventCursor=getContentResolver().query(CalendarContract.Events.CONTENT_URI, new String[]{CalendarContract.Events.TITLE,CalendarContract.Events.DTSTART,CalendarContract.Events.DTEND},null,null,null);
+		if (!(onGoingEventCursor.moveToFirst()) || onGoingEventCursor.getCount() ==0){
+			//Toast.makeText(getApplicationContext(), "You dont have any events in calendar", Toast.LENGTH_LONG).show();
+		}
+		else{
+		onGoingEventCursor.moveToFirst();
+		
+			do{
+
+				eventTitle = onGoingEventCursor.getString(onGoingEventCursor.getColumnIndex(CalendarContract.Events.TITLE));
+							
+				eventStartDateTime = onGoingEventCursor.getLong(onGoingEventCursor.getColumnIndex(CalendarContract.Events.DTSTART));
+				eventEndDateTime=onGoingEventCursor.getLong(onGoingEventCursor.getColumnIndex(CalendarContract.Events.DTEND));
+				
+				//Toast.makeText(getApplicationContext(), df.format(eventEndDateTime), Toast.LENGTH_LONG).show();
+				
+					long currentDateTime = new Date().getTime();
+
+				if(eventStartDateTime<currentDateTime){
+					if(currentDateTime<eventEndDateTime){
+				//	Toast.makeText(getApplicationContext(), "Event on " + df.format(eventStartDateTime) + " at " + tf.format(eventStartDateTime) + " is currently happening. Today is " + df.format(currentDateTime) + " " +tf.format(currentDateTime), Toast.LENGTH_LONG).show();
+					
+					eventMatchCriteria = eventTitle;
+					calendarOnGoingEvent = "MATCH";
+					//replaceTitle();
+					fullEventDetails="Event: " + eventTitle + ". \nStart: " + df.format(eventStartDateTime) + ", " + tf.format(eventStartDateTime) + ". \nEnd: " + df.format(eventEndDateTime) + ", " + tf.format(eventEndDateTime) + ". \n\nCurrent date and time: " +  df.format(currentDateTime) + ", " +tf.format(currentDateTime) +". \n\nReplace the current note title with event title?"  ;
+					}
+				}
+				/*
+				else if(eventStartDateTime>currentDateTime){
+					Toast.makeText(getApplicationContext(), "Event on " + df.format(eventStartDateTime) + " at " + tf.format(eventStartDateTime) + " has yet to happen. Today is " + df.format(currentDateTime) + " " +tf.format(currentDateTime), Toast.LENGTH_LONG).show();
+				}*/
+			}while(onGoingEventCursor.moveToNext());
+		}
+		
+		/**Get all notes in database**/
+		ArrayList<Note> resultArray = new ArrayList<Note>();
+		SQLiteController getEntry = new SQLiteController(this);
+        getEntry.open();
+        resultArray.addAll(getEntry.retrieveNotes());
+        getEntry.close();
+        
+       String duplicateTitle="";
+		
+       
+       
+       /**Check for duplicate titles**/
+        for(int i=0; i<resultArray.size(); i++){
+        	//if(resultArray.get(i).getNote_name().equals(noteTitle.getText().toString())){
+        	if(resultArray.get(i).getNote_name().equals(suggestTitle.getText().toString())){
+        		duplicateTitle="yes";
+        	}
+        	else if(resultArray.get(i).getNote_name().equals(eventMatchCriteria)){
+        		calendarDuplicateTitle="yes";
+        	}
+        }
+		
+        
+		
+		if(titleOfNote.matches("")||content.matches("")||noteCategory.matches("")){
+			Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
+		}
+		else{ 
+			/**1-2**/
+			if(calendarOnGoingEvent.equals("MATCH")){
+			
+				/***3***/
+				if(calendarDuplicateTitle.matches("yes")){					
+					//Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note. \n(On-going calendar event)", Toast.LENGTH_LONG).show();
+				
+					
+					/**5**/
+					if(duplicateTitle.matches("yes")){
+						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note (AFTER ONGOING CALENDAR EVENT)", Toast.LENGTH_LONG).show();
+					}
+					
+					/***6**/
+					else{
+					//	Toast.makeText(getApplicationContext(), "AFTER ONGOING CALENDAR EVENT, NO DUPLICATE TITLE", Toast.LENGTH_LONG).show();
+						saveNoteToDB();
+					}
+				}
+				/**4**/
+				else{
+					/**7**/
+					if(duplicateTitle.matches("yes")){
+						Toast.makeText(getApplicationContext(), "NO DUPLICATE EVENT TITLE BUT Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+					}
+					/**8**/
+					else{
+					//	Toast.makeText(getApplicationContext(), "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
+						replaceTitle();
+					}
+				}
+			}
+			else{
+				if(duplicateTitle.matches("yes")){
+						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+				}
+				else{
+					saveNoteToDB();	
+				}	
+			}
+		}
+	}
 	
 	
+	public void replaceTitle(){
+		
+		AlertDialog.Builder builder1 = new AlertDialog.Builder(CreateActivity.this);
+       // builder1.setMessage("Event: " + eventMatchCriteria + " is currently on going, replace the current note title with event title?");
+        builder1.setTitle("On-going Calendar Event Alert");
+		builder1.setMessage(fullEventDetails);
+		builder1.setCancelable(true);
+        builder1.setPositiveButton("Yes",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            	/**9**/
+            	titleOfNote = eventMatchCriteria;
+            	// Toast.makeText(getApplicationContext(), "Note title replaced.", Toast.LENGTH_LONG).show();
+            	saveNoteToDB();
+               
+            }
+        });
+        builder1.setNegativeButton("No",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+               /**10**/
+            	saveNoteToDB();
+            }
+        });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+	}
+	
+	
+	
+	public void saveNoteToDB(){
+		boolean result = true;
+		try{
+		
+			Note note = new Note(titleOfNote, content, noteCategory, uriOfImage, uriOfVideo, uriOfAudio);
+		//Note note = new Note(title, content, noteCategory);
+	
+		SQLiteController entry = new SQLiteController(this);
+		entry.open();
+		entry.insertNote(note);
+		entry.close();
+		}catch(Exception e){
+			result = false;
+		}finally{
+			if(result){
+				notifySuccess();
+				
+				titleOfNote="";
+				content="";
+				noteCategory="";
+
+				
+				
+				
+				Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
+				CreateActivity.this.finish();
+				Intent intent = new Intent(this, MainActivity.class);
+				startActivity(intent);
+				
+			}
+			else{
+				Toast.makeText(getApplicationContext(), "ERRORRRR", Toast.LENGTH_LONG).show();
+			}
+		}
+	}
 	
 	
 	
