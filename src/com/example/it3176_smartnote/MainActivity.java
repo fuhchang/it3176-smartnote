@@ -92,17 +92,10 @@ public class MainActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				// TODO Auto-generated method stub
+				
+				
 				Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
-				ArrayList<String> selectedNote = new ArrayList<String>();
-				selectedNote.add(resultArray.get(position).getNote_name());
-				selectedNote.add(resultArray.get(position).getNote_content());
-				selectedNote.add(resultArray.get(position).getNote_category());
-				selectedNote.add(resultArray.get(position).getNote_date());
-				if(!resultArray.get(position).getNote_img().isEmpty()){
-				selectedNote.add(resultArray.get(position).getNote_img());
-				}
-				intent.putStringArrayListExtra("resultArray", selectedNote);
-				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
+				intent.putExtra("noteID", resultArray.get(position).getNote_id());
 				startActivity(intent);
 			}
 
