@@ -19,6 +19,7 @@
  	<string name="sort_title">Sort By Title</string>
  	<string name="sort_type">Sort By Type</string>
  	<string name="sort_date">Sort By Date</string>
+ 	<string name="sort_location">Sort By Address</string>
     <string name="action_settings">Settings</string>
     <string name="action_archive">Archive</string>
 

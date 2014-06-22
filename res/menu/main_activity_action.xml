@@ -41,6 +41,11 @@
         android:showAsAction="never"
         android:title="@string/sort_date"/>
 	<item
+        android:id="@+id/sort_location"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/sort_location"/>
+	<item
         android:id="@+id/search_type"
         android:orderInCategory="100"
         android:showAsAction="never"
@@ -50,5 +55,6 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/search_date"/>
+	
 	
 </menu>

@@ -231,6 +231,9 @@ public class MainActivity extends Activity {
 			sortByType sortType = new sortByType();
 			sortType.show(getFragmentManager(), "sortByType");
 			break;
+		case R.id.sort_location:
+			sortByAddress sortAddress = new sortByAddress();
+			sortAddress.show(getFragmentManager(), "sortByAdress");
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -496,6 +499,43 @@ public class MainActivity extends Activity {
 		}
 		
 	}
+	
+	private class sortByAddress extends DialogFragment{
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Sort By");
+			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {
+					// TODO Auto-generated method stub
+					if(arg1 == 0){
+						Collections.sort(resultArray, new AddressAscComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}else{
+						Collections.sort(resultArray, new AddressDesComparator());
+						noteList notelist = new noteList(getActivity(),
+								resultArray);
+						list = (ListView) getActivity().findViewById(
+								R.id.noteListView);
+						list.deferNotifyDataSetChanged();
+						list.setAdapter(notelist);
+					}
+				}
+			
+			});
+			return builder.create();
+		}
+		
+	}
 	private void savePreferences(String key, String value){
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
@@ -555,6 +595,25 @@ public class MainActivity extends Activity {
 		public int compare(Note lhs, Note rhs) {
 			// TODO Auto-generated method stub
 			return rhs.getNote_category().compareTo(lhs.getNote_category());
+		}
+		
+	}
+	private class AddressAscComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note arg0, Note arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getNote_address().compareTo(arg1.getNote_address());
+		}
+		
+	}
+	
+	private class AddressDesComparator implements Comparator<Note>{
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return 0;
 		}
 		
 	}
