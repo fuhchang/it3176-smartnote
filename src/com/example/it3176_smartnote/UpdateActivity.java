@@ -4,15 +4,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.CreateActivity.CreateNoteDialog;
 import com.example.it3176_smartnote.model.Note;
+import com.example.it3176_smartnote.util.ImageFullScreenActivity;
+import com.example.it3176_smartnote.util.VideoPlayerActivity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -40,11 +44,14 @@ import android.provider.MediaStore.Images.Media;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.CursorLoader;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -79,7 +86,6 @@ public class UpdateActivity extends Activity {
 	static int SELECTION_CHOICE_DIALOG = 1;
 
 	static String[] selectionArray;
-	static String noteCategory = "";
 
 	TextView dateTimeCreation, categorySelection,
 	attachment, hrTv, imageUriTv, videoUriTv, 
@@ -92,10 +98,17 @@ public class UpdateActivity extends Activity {
 
 	MediaController videoMC;
 	MediaController audioMC;
-
+	
+	/**Values to be stored in database**/
+	String titleOfNote="";
+	String content="";
+	String uriOfImage ="",uriOfVideo="", uriOfAudio="";
+	static String noteCategory="";
+	String storingAddress="";
+	
+	
+	String calendarDuplicateTitle="";
 	static String category = "";
-
-	String uriOfImage = "", uriOfVideo = "", uriOfAudio = "";
 	
 	static String noteTags="";
 	
@@ -108,23 +121,43 @@ public class UpdateActivity extends Activity {
 	 private boolean network_enabled=false;
 	
 	final Context context = this;
-
 	private Cursor calendarEventTitleCursor;
+	private Cursor onGoingEventCursor;
+	String eventTitle;
+	String eventMatchCriteria ="";
+	long currentDateTime;
+	Long eventStartDateTime;
+	Long eventEndDateTime;
+	String calendarOnGoingEvent="";
+	String fullEventDetails="";
 	ArrayList<String> eventTitles = new ArrayList<String>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_update);
-		Bundle bundle = getIntent().getExtras();
-		//if(savedInstanceState != null){
-			//noteID = bundle.getInt("noteID");
+		
+		try{
+			noteID = getIntent().getIntExtra("noteID", 0);
 			SQLiteController getEntry = new SQLiteController(this);
-			noteID = 2;
 			getEntry.open();
 			note = getEntry.retrieveNote(noteID);
 			getEntry.close();
-		//}
+		}
+		catch(Exception ex){
+			Toast.makeText(this, "Unable to retrieve note. Please try again.", Toast.LENGTH_LONG).show();
+			// TODO Auto-generated method stub
+		   	titleOfNote="";
+			content="";
+			noteCategory="";
+			uriOfImage="";
+			uriOfVideo="";
+			storingAddress="";
+			Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
+			intent.putExtra("noteID", note.getNote_id());
+			startActivity(intent);
+			UpdateActivity.this.finish();
+		}
 		
 		noteContent = (EditText) findViewById(R.id.noteContent);
 		noteContent.setText(note.getNote_content());
@@ -141,18 +174,12 @@ public class UpdateActivity extends Activity {
 		currentLocation = (TextView) findViewById(R.id.currentLocation);
 
 		imageView.setVisibility(View.GONE);
-		imageUriTv.setVisibility(View.GONE);
 		videoView.setVisibility(View.GONE);
-		videoUriTv.setVisibility(View.GONE);
 		audioView.setVisibility(View.GONE);
-		audioUriTv.setVisibility(View.GONE);
 		
 		addTv.setVisibility(View.GONE);
 		currentLocation.setVisibility(View.GONE);
 		
-		videoMC = new MediaController(this);
-		videoMC.setAnchorView(videoView);
-
 		audioMC = new MediaController(this);
 		audioMC.setAnchorView(audioView);
 		
@@ -185,21 +212,44 @@ public class UpdateActivity extends Activity {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			imageView.setVisibility(View.VISIBLE);
-			imageUriTv.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
-			String uriOfImage = "<b>Image: </b>" + note.getNote_img().toString();
-			imageUriTv.setText(Html.fromHtml(uriOfImage));
+			imageView.setOnTouchListener(new OnTouchListener(){
+                @Override
+                public boolean onTouch(View arg0, MotionEvent event) {
+                    int action = event.getAction();
+                    switch (action) {
+                    case MotionEvent.ACTION_UP:
+                        Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
+                        reviewImageFullScreen.putExtra("uri", note.getNote_img());
+                        startActivity(reviewImageFullScreen);
+                        break;
+                    }
+                    return true;
+                }
+            }); 
+			uriOfImage = note.getNote_img();
+			
 		}
 		if(!note.getNote_video().toString().equals("")){
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);		
 			videoView.setVisibility(View.VISIBLE);
-			videoUriTv.setVisibility(View.VISIBLE);
-			String uriOfVideo = "<b>Video: </b>" + note.getNote_video().toString();
-			videoUriTv.setText(Html.fromHtml(uriOfVideo));
+			
+			uriOfVideo = note.getNote_video();
+
 			videoView.setVideoURI(Uri.parse(note.getNote_video()));
-			videoView.setMediaController(videoMC);
-			videoView.requestFocus();
+
+			videoView.setOnTouchListener(new OnTouchListener(){
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					// TODO Auto-generated method stub
+					Intent videoAudioPlayer = new Intent(UpdateActivity.this,VideoPlayerActivity.class);
+					videoAudioPlayer.putExtra("uri", uriOfVideo);
+					startActivity(videoAudioPlayer);
+					return false;
+				}
+			});
+			/*videoView.setMediaController(videoMC);
 			videoView.setOnPreparedListener(new OnPreparedListener() {
 				@Override
 				public void onPrepared(MediaPlayer mp) {
@@ -207,23 +257,25 @@ public class UpdateActivity extends Activity {
 					// videoView.start();
 					videoMC.show(0);
 				}
-			});
+			});*/
 		}
-		System.out.println("Note audio: " + note.getNote_audio().toString());
 		if(!note.getNote_audio().toString().equals("")){
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
-			audioUriTv.setVisibility(View.VISIBLE);
 			audioView.setVisibility(View.VISIBLE);
 			
-			String uriOfAudio = "<b>Audio: </b>" + note.getNote_audio().toString();
-			audioUriTv.setText(Html.fromHtml(uriOfAudio));
+			uriOfAudio = note.getNote_audio();
 
-			audioView.setMediaController(audioMC);
+			//audioView.setMediaController(audioMC);
 			audioView.setVideoURI(Uri.parse(note.getNote_audio()));
-			audioView.requestFocus();
+			audioView.setOnTouchListener(new OnTouchListener(){
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
 
-			audioView.setOnPreparedListener(new OnPreparedListener() {
+					return false;
+				}
+			});
+			/*audioView.setOnPreparedListener(new OnPreparedListener() {
 
 				@Override
 				public void onPrepared(MediaPlayer arg0) {
@@ -231,7 +283,14 @@ public class UpdateActivity extends Activity {
 					// audioView.start();
 					audioMC.show(0);
 				}
-			});
+			});*/
+		}
+		if(!note.getNote_address().toString().equals("") && (note.getNote_address() != null)){
+		          addTv.setVisibility(View.VISIBLE);
+		    	  currentLocation.setVisibility(View.VISIBLE);
+		    	  hrTv.setVisibility(View.VISIBLE);
+		          mLinearLayoutHeader.setVisibility(View.VISIBLE);
+		          currentLocation.setText(note.getNote_address().toString());
 		}
 		
 		calendarEventTitleCursor=getContentResolver().query(CalendarContract.Events.CONTENT_URI, new String[]{CalendarContract.Events.TITLE},null,null,null);
@@ -282,6 +341,14 @@ public class UpdateActivity extends Activity {
 	}
 
 	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		videoView.seekTo(10000);
+	}
+
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -295,7 +362,15 @@ public class UpdateActivity extends Activity {
 		// TODO Auto-generated method stub
 		int id = item.getItemId();
 		if (id == R.id.backToMain) {
-			Intent intent = new Intent(UpdateActivity.this, MainActivity.class);
+       	 	titleOfNote="";
+			content="";
+			noteCategory="";
+			uriOfImage="";
+			uriOfVideo="";
+			uriOfAudio="";
+			storingAddress="";
+			Intent intent = new Intent(UpdateActivity.this, NoteDetail.class);
+			intent.putExtra("noteID", note.getNote_id());
 			startActivity(intent);
 			UpdateActivity.this.finish();
 		} else if (id == R.id.reset) {
@@ -311,50 +386,7 @@ public class UpdateActivity extends Activity {
 			intent.setAction(Intent.ACTION_PICK);
 			startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
 		} else if (id == R.id.saveNote) {
-			String title = suggestTitle.getText().toString();
-			String content = noteContent.getText().toString();
-
-			/** Get all notes in database **/
-			ArrayList<Note> resultArray = new ArrayList<Note>();
-			SQLiteController getEntry = new SQLiteController(this);
-			getEntry.open();
-			resultArray.addAll(getEntry.retrieveNotes());
-			getEntry.close();
-
-			if (title.matches("") || content.matches("")
-					|| noteCategory.matches("")) {
-				Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
-			} 
-			else {
-
-				boolean result = true;
-				try {
-
-					Note note = new Note(title, content, noteCategory,
-							uriOfImage, uriOfVideo, uriOfAudio);
-					// Note note = new Note(title, content, noteCategory);
-					note.setNote_id(noteID);
-					SQLiteController entry = new SQLiteController(this);
-					entry.open();
-					entry.updateNote(note);
-					entry.close();
-				} catch (Exception e) {
-					result = false;
-				} finally {
-					if (result) {
-						notifySuccess();
-						Toast.makeText(getApplicationContext(), "Note Saved",
-								Toast.LENGTH_LONG).show();
-						UpdateActivity.this.finish();
-						Intent intent = new Intent(this, MainActivity.class);
-						startActivity(intent);
-
-					} else {
-						Toast.makeText(getApplicationContext(), "ERRORRRR",
-								Toast.LENGTH_LONG).show();
-					}
-				}
-			}
+			saveNote();
 		}
 
 		else if (id == R.id.uploadVideo) {
@@ -459,13 +491,24 @@ public class UpdateActivity extends Activity {
 					hrTv.setVisibility(View.VISIBLE);
 			        mLinearLayoutHeader.setVisibility(View.VISIBLE);
 
-					uriOfImage = mImageUri.toString();
-					
-					imageUriTv.setVisibility(View.VISIBLE);
-					String uriOfImage = "<b>Image: </b>" + mImageUri.toString();
-					imageUriTv.setText(Html.fromHtml(uriOfImage));
+					uriOfImage = getRealPathFromURI(mImageUri);
+
 					imageView.setVisibility(View.VISIBLE);
 					imageView.setImageBitmap(Image);
+					imageView.setOnTouchListener(new OnTouchListener(){
+                        @Override
+                        public boolean onTouch(View arg0, MotionEvent event) {
+                            int action = event.getAction();
+                            switch (action) {
+                            case MotionEvent.ACTION_UP:
+                                Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
+                                reviewImageFullScreen.putExtra("uri", note.getNote_img());
+                                startActivity(reviewImageFullScreen);
+                                break;
+                            }
+                            return true;
+                        }
+                    }); 
 
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -481,39 +524,30 @@ public class UpdateActivity extends Activity {
 				hrTv.setVisibility(View.VISIBLE);
 		        mLinearLayoutHeader.setVisibility(View.VISIBLE);
 
-				uriOfVideo = mVideoURI.toString();
+				uriOfVideo = getRealPathFromURI(mVideoURI);
 
-				videoUriTv.setVisibility(View.VISIBLE);
 				videoView.setVisibility(View.VISIBLE);
-				String uriOfVideo = "<b>Video: </b>" + mVideoURI.toString();
-				videoUriTv.setText(Html.fromHtml(uriOfVideo));
+				
 				videoView.setVideoURI(mVideoURI);
-				videoView.setMediaController(videoMC);
-				videoView.requestFocus();
-				videoView.setOnPreparedListener(new OnPreparedListener() {
-
+				videoView.setOnTouchListener(new OnTouchListener(){
 					@Override
-					public void onPrepared(MediaPlayer mp) {
+					public boolean onTouch(View v, MotionEvent event) {
 						// TODO Auto-generated method stub
-						// videoView.start();
-						videoMC.show(0);
+						Intent videoAudioPlayer = new Intent(UpdateActivity.this,VideoPlayerActivity.class);
+						videoAudioPlayer.putExtra("uri", uriOfVideo);
+						startActivity(videoAudioPlayer);
+						return false;
 					}
-
 				});
-
 				break;
 			case PICK_AUDIO:
 				hrTv.setVisibility(View.VISIBLE);
 		        mLinearLayoutHeader.setVisibility(View.VISIBLE);
-				audioUriTv.setVisibility(View.VISIBLE);
 				audioView.setVisibility(View.VISIBLE);
 
 				Uri mAudioURI = data.getData();
 
-				uriOfAudio = mAudioURI.toString();
-
-				String uriOfAudio = "<b>Audio: </b>" + mAudioURI.toString();
-				audioUriTv.setText(Html.fromHtml(uriOfAudio));
+				uriOfAudio = getRealPathFromURI(mAudioURI);
 
 				audioView.setMediaController(audioMC);
 				audioView.setVideoURI(mAudioURI);
@@ -532,6 +566,23 @@ public class UpdateActivity extends Activity {
 			}
 		}
 		
+	}
+	
+	
+	// And to convert the image URI to the direct file system path of the image file
+	public String getRealPathFromURI(Uri contentUri) {
+
+	        // can post image
+	        String [] proj={MediaStore.Images.Media.DATA};
+	        Cursor cursor = managedQuery( contentUri,
+	                        proj, // Which columns to return
+	                        null,       // WHERE clause; which rows to return (all rows)
+	                        null,       // WHERE clause selection arguments (none)
+	                        null); // Order-by clause (ascending by name)
+	        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+	        cursor.moveToFirst();
+
+	        return cursor.getString(column_index);
 	}
 	
 	/** Creates a dialog with title and options from array **/
@@ -591,18 +642,16 @@ public class UpdateActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
+	   	titleOfNote="";
+		content="";
+		noteCategory="";
+		uriOfImage="";
+		uriOfVideo="";
+		storingAddress="";
 		Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
-		ArrayList<String> selectedNote = new ArrayList<String>();
-		selectedNote.add(note.getNote_name());
-		selectedNote.add(note.getNote_content());
-		selectedNote.add(note.getNote_category());
-		selectedNote.add(note.getNote_date());
-		if(!note.getNote_img().isEmpty()){
-			selectedNote.add(note.getNote_img());
-		}
-		intent.putStringArrayListExtra("resultArray", selectedNote);
-		intent.putExtra("note_id", Integer.toString(note.getNote_id()));
+		intent.putExtra("noteID", note.getNote_id());
 		startActivity(intent);
+		UpdateActivity.this.finish();
 	}
 	
 	/** Check the type of GPS Provider available at that instance and  collect the location informations
@@ -756,5 +805,168 @@ public class UpdateActivity extends Activity {
 	         }
 	    });
 	    return animator;
+	}
+	
+	public void saveNote(){
+		titleOfNote = suggestTitle.getText().toString();
+		content = noteContent.getText().toString();	
+        
+        Format df = DateFormat.getDateFormat(this);
+		Format tf = DateFormat.getTimeFormat(this);
+		
+		onGoingEventCursor=getContentResolver().query(CalendarContract.Events.CONTENT_URI, new String[]{CalendarContract.Events.TITLE,CalendarContract.Events.DTSTART,CalendarContract.Events.DTEND},null,null,null);
+		if (!(onGoingEventCursor.moveToFirst()) || onGoingEventCursor.getCount() ==0){
+			//Toast.makeText(getApplicationContext(), "You dont have any events in calendar", Toast.LENGTH_LONG).show();
+		}
+		else{
+		onGoingEventCursor.moveToFirst();
+		
+			do{
+
+				eventTitle = onGoingEventCursor.getString(onGoingEventCursor.getColumnIndex(CalendarContract.Events.TITLE));
+							
+				eventStartDateTime = onGoingEventCursor.getLong(onGoingEventCursor.getColumnIndex(CalendarContract.Events.DTSTART));
+				eventEndDateTime=onGoingEventCursor.getLong(onGoingEventCursor.getColumnIndex(CalendarContract.Events.DTEND));
+				
+				//Toast.makeText(getApplicationContext(), df.format(eventEndDateTime), Toast.LENGTH_LONG).show();
+				
+					long currentDateTime = new Date().getTime();
+
+				if(eventStartDateTime<currentDateTime){
+					if(currentDateTime<eventEndDateTime){
+				//	Toast.makeText(getApplicationContext(), "Event on " + df.format(eventStartDateTime) + " at " + tf.format(eventStartDateTime) + " is currently happening. Today is " + df.format(currentDateTime) + " " +tf.format(currentDateTime), Toast.LENGTH_LONG).show();
+					
+					eventMatchCriteria = eventTitle;
+					calendarOnGoingEvent = "MATCH";
+					//replaceTitle();
+					fullEventDetails="Event: " + eventTitle + ". \nStart: " + df.format(eventStartDateTime) + ", " + tf.format(eventStartDateTime) + ". \nEnd: " + df.format(eventEndDateTime) + ", " + tf.format(eventEndDateTime) + ". \n\nCurrent date and time: " +  df.format(currentDateTime) + ", " +tf.format(currentDateTime) +". \n\nReplace the current note title with event title?"  ;
+					}
+				}
+				/*
+				else if(eventStartDateTime>currentDateTime){
+					Toast.makeText(getApplicationContext(), "Event on " + df.format(eventStartDateTime) + " at " + tf.format(eventStartDateTime) + " has yet to happen. Today is " + df.format(currentDateTime) + " " +tf.format(currentDateTime), Toast.LENGTH_LONG).show();
+				}*/
+			}while(onGoingEventCursor.moveToNext());
+		}
+		
+		/**Get all notes in database**/
+		ArrayList<Note> resultArray = new ArrayList<Note>();
+		SQLiteController getEntry = new SQLiteController(this);
+        getEntry.open();
+        resultArray.addAll(getEntry.retrieveNotes());
+        getEntry.close();
+        
+       String duplicateTitle="";
+		
+               
+		
+		if(titleOfNote.matches("")||content.matches("")||noteCategory.matches("")){
+			Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
+		}
+		else{ 
+			/**1-2**/
+			if(calendarOnGoingEvent.equals("MATCH")){
+			
+				/***3***/
+				if(calendarDuplicateTitle.matches("yes")){					
+					//Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note. \n(On-going calendar event)", Toast.LENGTH_LONG).show();
+
+					//	Toast.makeText(getApplicationContext(), "AFTER ONGOING CALENDAR EVENT, NO DUPLICATE TITLE", Toast.LENGTH_LONG).show();
+						saveNoteToDB();
+				}
+				/**4**/
+				else{
+					/**7**/
+					//	Toast.makeText(getApplicationContext(), "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
+						replaceTitle();
+				}
+			}
+			else{
+					saveNoteToDB();		
+			}
+		}
+	}
+	
+	
+	public void replaceTitle(){
+		
+		AlertDialog.Builder builder1 = new AlertDialog.Builder(UpdateActivity.this);
+       // builder1.setMessage("Event: " + eventMatchCriteria + " is currently on going, replace the current note title with event title?");
+        builder1.setTitle("On-going Calendar Event Alert");
+		builder1.setMessage(fullEventDetails);
+		builder1.setCancelable(true);
+        builder1.setNegativeButton("Yes",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            	/**9**/
+            	titleOfNote = eventMatchCriteria;
+            	// Toast.makeText(getApplicationContext(), "Note title replaced.", Toast.LENGTH_LONG).show();
+            	saveNoteToDB();
+               
+            }
+        });
+        builder1.setNeutralButton("No",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+               /**10**/
+            	saveNoteToDB();
+            }
+        });
+        
+        builder1.setPositiveButton("Cancel", new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+
+			}
+        	
+        });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+	}
+	
+	
+	
+	public void saveNoteToDB(){
+		boolean result = true;
+			try{
+				Note note = new Note(titleOfNote, content, noteCategory, uriOfImage, uriOfVideo,storingAddress);
+			//Note note = new Note(title, content, noteCategory);
+				note.setNote_id(noteID);
+				note.setNote_audio(uriOfAudio);
+				SQLiteController entry = new SQLiteController(this);
+				entry.open();
+				entry.updateNote(note);
+				entry.close();
+			}catch(Exception e){
+				result = false;
+				e.printStackTrace();
+			}finally{
+				if(result){
+					notifySuccess();
+					
+					titleOfNote="";
+					content="";
+					noteCategory="";
+					uriOfImage="";
+					uriOfVideo="";
+					uriOfAudio="";
+					storingAddress="";
+					
+					
+					
+					Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
+					UpdateActivity.this.finish();
+					Intent intent = new Intent(this, MainActivity.class);
+					startActivity(intent);
+					
+				}
+				else{
+					Toast.makeText(getApplicationContext(), "Something went wrong while storing.", Toast.LENGTH_LONG).show();
+				}
+			}
 	}
 }
