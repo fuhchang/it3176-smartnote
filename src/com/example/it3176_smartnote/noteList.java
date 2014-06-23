@@ -4,10 +4,14 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.it3176_smartnote.model.Note;
@@ -15,12 +19,13 @@ import com.example.it3176_smartnote.model.Note;
 public class noteList extends ArrayAdapter<Note>{
 	private final Activity context;
 	private ArrayList<Note> resultArray = new ArrayList<Note>();
-	
-	public noteList(Context context, ArrayList<Note> resultArray2) {
+	private Integer[] imageId;
+	public noteList(Context context, ArrayList<Note> resultArray2, Integer[] imageId) {
 		super(context, R.layout.note_single,resultArray2);
 		// TODO Auto-generated constructor stub
 		this.context = (Activity) context;
 		this.resultArray = resultArray2;
+		this.imageId = imageId;
 	}
 
 	@Override
@@ -34,13 +39,24 @@ public class noteList extends ArrayAdapter<Note>{
 				TextView txtTitle = (TextView) rowView.findViewById(R.id.noteTitle);
 				TextView txtCate = (TextView) rowView.findViewById(R.id.noteType);
 				TextView txtDate = (TextView) rowView.findViewById(R.id.noteDate);
+				ImageView imgView = (ImageView) rowView.findViewById(R.id.noteImg);
+				
 				//setting text to widgets
 				txtTitle.setText(resultArray.get(position).getNote_name());
 				txtCate.setText(resultArray.get(position).getNote_category());
 				txtDate.setText(resultArray.get(position).getNote_date());
-				
+				imgView.setImageResource(imageId[position]);
+				if(resultArray.get(position).getNote_category().equals("Meeting Notes")){
+					imgView.setImageResource(imageId[1]);
+				}else if(resultArray.get(position).getNote_category().equals("Personal")){
+					imgView.setImageResource(imageId[2]);
+				}else{
+					imgView.setImageResource(imageId[0]);
+				}
 				return rowView;
 	}
+
+	
 
 	
 

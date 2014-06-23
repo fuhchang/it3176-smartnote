@@ -45,7 +45,8 @@ public class ArchiveActivity extends Activity {
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
-	
+	Integer[] imageId = { R.drawable.client, R.drawable.meeting,
+			R.drawable.personnel };
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
@@ -67,7 +68,7 @@ public class ArchiveActivity extends Activity {
         	}
         }
 		Collections.sort(resultArray, new DateDesComparator());
-		noteList notelist = new noteList(ArchiveActivity.this, resultArray);
+		noteList notelist = new noteList(ArchiveActivity.this, resultArray, imageId);
 		list = (ListView) findViewById(R.id.noteListView);
 		list.setAdapter(notelist);
         
@@ -118,7 +119,7 @@ public class ArchiveActivity extends Activity {
 						searchResult.add(resultArray.get(i));
 					}
 				}
-				noteList notelist = new noteList(ArchiveActivity.this, searchResult);
+				noteList notelist = new noteList(ArchiveActivity.this, searchResult, imageId);
 				list = (ListView) findViewById(R.id.noteListView);
 		        list.setAdapter(notelist);
 		        
@@ -286,14 +287,14 @@ public class ArchiveActivity extends Activity {
 					}
 				} 
 				if(!tempArray.isEmpty()){
-				noteList notelist = new noteList(ArchiveActivity.this, tempArray);
+				noteList notelist = new noteList(ArchiveActivity.this, tempArray, imageId);
 				list = (ListView) findViewById(R.id.noteListView);
 				list.setAdapter(notelist);
 				}else{
 					Note note = new Note();
 					note.setNote_name("NO result Found please check your input. Thank you");
 					tempArray.add(note);
-					noteList notelist = new noteList(ArchiveActivity.this, tempArray);
+					noteList notelist = new noteList(ArchiveActivity.this, tempArray, imageId);
 					list = (ListView) findViewById(R.id.noteListView);
 					list.setAdapter(notelist);
 				}
@@ -327,7 +328,7 @@ public class ArchiveActivity extends Activity {
 
 							if (!tempArray.isEmpty()) {
 								noteList notelist = new noteList(getActivity(),
-										tempArray);
+										tempArray, imageId);
 								list = (ListView) getActivity().findViewById(
 										R.id.noteListView);
 								list.deferNotifyDataSetChanged();
@@ -337,7 +338,7 @@ public class ArchiveActivity extends Activity {
 								note.setNote_name("NO result Found please check your input. Thank you");
 								tempArray.add(note);
 								noteList notelist = new noteList(ArchiveActivity.this,
-										tempArray);
+										tempArray, imageId);
 								list = (ListView) findViewById(R.id.noteListView);
 								list.setAdapter(notelist);
 							}
@@ -365,7 +366,7 @@ public class ArchiveActivity extends Activity {
 					if(which == 0){
 						Collections.sort(resultArray, new TitleAscComparator());
 						noteList notelist = new noteList(getActivity(),
-								resultArray);
+								resultArray, imageId);
 						list = (ListView) getActivity().findViewById(
 								R.id.noteListView);
 						list.deferNotifyDataSetChanged();
@@ -374,7 +375,7 @@ public class ArchiveActivity extends Activity {
 					}else{
 						Collections.sort(resultArray, new TitleDesComparator());
 						noteList notelist = new noteList(getActivity(),
-								resultArray);
+								resultArray, imageId);
 						list = (ListView) getActivity().findViewById(
 								R.id.noteListView);
 						list.deferNotifyDataSetChanged();
@@ -401,7 +402,7 @@ public class ArchiveActivity extends Activity {
 					if(arg1 == 0){
 						Collections.sort(resultArray, new DateAscComparator());
 						noteList notelist = new noteList(getActivity(),
-								resultArray);
+								resultArray, imageId);
 						list = (ListView) getActivity().findViewById(
 								R.id.noteListView);
 						list.deferNotifyDataSetChanged();
@@ -409,7 +410,7 @@ public class ArchiveActivity extends Activity {
 					}else{
 						Collections.sort(resultArray, new DateDesComparator());
 						noteList notelist = new noteList(getActivity(),
-								resultArray);
+								resultArray, imageId);
 						list = (ListView) getActivity().findViewById(
 								R.id.noteListView);
 						list.deferNotifyDataSetChanged();
@@ -437,7 +438,7 @@ public class ArchiveActivity extends Activity {
 					if(arg1 == 0){
 						Collections.sort(resultArray, new CategoryAscComparator());
 						noteList notelist = new noteList(getActivity(),
-								resultArray);
+								resultArray, imageId);
 						list = (ListView) getActivity().findViewById(
 								R.id.noteListView);
 						list.deferNotifyDataSetChanged();
@@ -445,7 +446,7 @@ public class ArchiveActivity extends Activity {
 					}else{
 						Collections.sort(resultArray, new CategoryDesComparator());
 						noteList notelist = new noteList(getActivity(),
-								resultArray);
+								resultArray, imageId);
 						list = (ListView) getActivity().findViewById(
 								R.id.noteListView);
 						list.deferNotifyDataSetChanged();

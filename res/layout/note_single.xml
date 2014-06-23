@@ -3,12 +3,12 @@
     android:layout_height="fill_parent" >
 	  <ImageView 
         android:id="@+id/noteImg"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="6dp"
-        android:src="@drawable/ic_launcher"
+       
         />
 	<TextView 
 	    android:id="@+id/noteTitle"
