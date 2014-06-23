@@ -32,9 +32,9 @@
     <string name="attachment"><b><u>Attachment(s):</u></b></string>
     
     <string-array name="category_choice">
-        <item>Work</item>
-        <item>Business</item>
-        <item>School</item>
+        <item>Personal</item>
+        <item>Meeting Notes</item>
+        <item>Client</item>
     </string-array>
     
     
