@@ -3,6 +3,7 @@ package com.example.it3176_smartnote;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -69,32 +71,46 @@ import android.widget.VideoView;
 
 public class UpdateActivity extends Activity {
 
-	LinearLayout mLinearLayout;
-	LinearLayout mLinearLayoutHeader;
+	static LinearLayout mLinearLayout;
+	static LinearLayout mLinearLayoutHeader;
 	
 	private static Bitmap Image = null;
-	private ImageView imageView;
-	private VideoView videoView;
+	private static ImageView imageView;
+	private static VideoView videoView;
 	private VideoView audioView;
 	
 	private int noteID;
 	private Note note;
 	
-	int notifyID = 1088;
+	/***Request Code**/
+	int notifyID=1088;
 	private static final int PICK_IMAGE = 1;
-	private static final int PICK_VIDEO = 2;
-	private static final int PICK_AUDIO = 3;
-
-	static int SELECTION_CHOICE_DIALOG = 1;
-
+	private static final int CAPTURE_PHOTO=100;
+	private static final int PICK_VIDEO=2;
+	private static final int CAPTURE_VIDEO=200;
+	private static final int PICK_AUDIO=3;
+	
+	/***Dialogs***/
+	static int SELECTION_CHOICE_DIALOG=1;
+	static int REMOVAL_CHOICE_DIALOG=2;
+	
 	static String[] selectionArray;
+	static String[] attachmentArray;
 
 	TextView dateTimeCreation, categorySelection,
-	attachment, hrTv, imageUriTv, videoUriTv, 
-	audioUriTv, tapToAddTags, tags,
-	addTv, currentLocation, attachments;
+	attachment;
+	static TextView hrTv;
+	static TextView imageUriTv;
+	static TextView videoUriTv;
+	TextView audioUriTv;
+	TextView tapToAddTags;
+	TextView tags;
+	static TextView addTv;
+	static TextView currentLocation;
+	TextView attachments;
 	static TextView categorySelectionChoice;
-	EditText noteTitle, noteContent;
+	EditText noteTitle;
+	static EditText noteContent;
 	AutoCompleteTextView suggestTitle;
 	Button btnSave;
 
@@ -104,9 +120,11 @@ public class UpdateActivity extends Activity {
 	/**Values to be stored in database**/
 	String titleOfNote="";
 	String content="";
-	String uriOfImage ="",uriOfVideo="", uriOfAudio="";
+	static String uriOfImage ="";
+	static String uriOfVideo="";
+	String uriOfAudio="";
 	static String noteCategory="";
-	String storingAddress="";
+	static String storingAddress="";
 	
 	
 	String calendarDuplicateTitle="";
@@ -134,7 +152,9 @@ public class UpdateActivity extends Activity {
 	String fullEventDetails="";
 	ArrayList<String> eventTitles = new ArrayList<String>();
 
-	TextView imageFilePathTextView,videoFilePathTextView;	
+	static TextView imageFilePathTextView;
+	static TextView videoFilePathTextView;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -350,6 +370,9 @@ public class UpdateActivity extends Activity {
 			// intent.setType("*/*");
 			intent.setAction(Intent.ACTION_PICK);
 			startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+		} else if(id==R.id.captureImage){
+			Intent intentPicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			startActivityForResult(intentPicture,CAPTURE_PHOTO); 
 		} else if (id == R.id.saveNote) {
 			saveNote();
 		}
@@ -361,9 +384,25 @@ public class UpdateActivity extends Activity {
 			startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
 
 		}
+		
+		else if(id==R.id.captureVideo){
+			Intent intent = new Intent(android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
+			startActivityForResult(intent, CAPTURE_VIDEO);
+
+		}
+		
+		
 		else if(id==R.id.attachLocation){
 			getMyCurrentLocation();
 		}	
+		
+		else if(id==R.id.removeAtt){
+			attachmentArray=getResources().getStringArray(R.array.attachment_choice);
+			
+			CreateNoteDialog dialog = new CreateNoteDialog();
+			dialog.setDialogType(REMOVAL_CHOICE_DIALOG);
+			dialog.show(getFragmentManager(), "CreateNoteDialog");
+		}
 		
 		else if(id==R.id.addToCalendar){
 			String title = suggestTitle.getText().toString();
@@ -452,9 +491,10 @@ public class UpdateActivity extends Activity {
 			        mLinearLayoutHeader.setVisibility(View.VISIBLE);
 
 					uriOfImage = getRealPathFromURI(mImageUri);
-
+					imageFilePathTextView.setVisibility(View.VISIBLE);
 					imageView.setVisibility(View.VISIBLE);
 					imageView.setImageBitmap(Image);
+					imageFilePathTextView.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 					imageView.setOnTouchListener(new OnTouchListener(){
 		                @Override
 		                public boolean onTouch(View arg0, MotionEvent event) {
@@ -478,7 +518,39 @@ public class UpdateActivity extends Activity {
 					e.printStackTrace();
 				}
 				break;
-
+				
+			case CAPTURE_PHOTO:	
+					Uri capturedImageUri = data.getData();
+				       InputStream imageStream = null;
+				       try {
+				           imageStream = getContentResolver().openInputStream(capturedImageUri);
+				       } catch (FileNotFoundException e) {
+				           // TODO Auto-generated catch block
+				           e.printStackTrace();
+				       }
+				       Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
+				       hrTv.setVisibility(View.VISIBLE);
+				       mLinearLayoutHeader.setVisibility(View.VISIBLE);
+				       uriOfImage = getRealPathFromURI(capturedImageUri);				
+				       imageFilePathTextView.setVisibility(View.VISIBLE);
+				       imageFilePathTextView.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
+				       imageView.setVisibility(View.VISIBLE);
+					   imageView.setImageBitmap(yourSelectedImage);
+					   imageView.setOnTouchListener(new OnTouchListener(){
+			                @Override
+			                public boolean onTouch(View arg0, MotionEvent event) {
+			                    int action = event.getAction();
+			                    switch (action) {
+			                    case MotionEvent.ACTION_UP:
+			                        Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
+			                        reviewImageFullScreen.putExtra("uri", uriOfImage);
+			                        startActivity(reviewImageFullScreen);
+			                        break;
+			                    }
+			                    return true;
+			                }
+			            }); 
+				break;
 			case PICK_VIDEO:
 				Uri mVideoURI = data.getData();
 				hrTv.setVisibility(View.VISIBLE);
@@ -487,7 +559,8 @@ public class UpdateActivity extends Activity {
 				uriOfVideo = getRealPathFromURI(mVideoURI);
 
 				videoView.setVisibility(View.VISIBLE);
-				
+				videoFilePathTextView.setVisibility(View.VISIBLE);
+				videoFilePathTextView.setText(uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()));
 				videoView.setVideoURI(mVideoURI);
 				videoView.setOnTouchListener(new OnTouchListener(){
 					@Override
@@ -500,6 +573,37 @@ public class UpdateActivity extends Activity {
 						return false;
 					}
 				});
+				break;
+				
+			case CAPTURE_VIDEO:
+				try{
+					Uri capturedVideoURI = data.getData();        			
+					hrTv.setVisibility(View.VISIBLE);
+			        mLinearLayoutHeader.setVisibility(View.VISIBLE);			
+					//uriOfVideo = capturedVideoURI.toString();
+			        uriOfVideo = getRealPathFromURI(capturedVideoURI);
+			        videoFilePathTextView.setVisibility(View.VISIBLE);
+					videoView.setVisibility(View.VISIBLE);
+					//String uriOfVideo = "<b>Video: </b>" + capturedVideoURI.toString();
+					//videoUriTv.setText(Html.fromHtml(uriOfVideo));
+					videoFilePathTextView.setText(uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()));
+					videoView.setVideoURI(capturedVideoURI);
+					videoView.setOnTouchListener(new OnTouchListener(){
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
+							// TODO Auto-generated method stub
+		                	
+							Intent videoAudioPlayer = new Intent(UpdateActivity.this,VideoPlayerActivity.class);
+							videoAudioPlayer.putExtra("uri", uriOfVideo);
+							startActivity(videoAudioPlayer);
+							return false;
+						}
+					});
+				}
+				catch(NullPointerException e) {
+				           // TODO Auto-generated catch block
+				           e.printStackTrace();
+				}
 				break;
 			}
 		}
@@ -547,6 +651,96 @@ public class UpdateActivity extends Activity {
 								updateChoice();
 							}
 						});
+			}
+			if(dialogType==REMOVAL_CHOICE_DIALOG){
+				builder.setTitle("Which attachment do you want to remove?");
+				builder.setItems(R.array.attachment_choice, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						if(which==0){							
+							if(uriOfImage.equals("")){
+								Toast.makeText(getActivity(), "You do not have any image attachment.", Toast.LENGTH_SHORT).show();							
+							}
+							else{
+								imageFilePathTextView.setVisibility(View.GONE);
+								uriOfImage = "";
+								imageView.setVisibility(View.GONE);
+														
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+						else if(which==1){
+							if(uriOfVideo.equals("")){
+								Toast.makeText(getActivity(), "You do not have any video attachment.", Toast.LENGTH_SHORT).show();
+							}
+							else{
+								uriOfVideo = "";
+								videoFilePathTextView.setVisibility(View.GONE);
+								videoView.setVisibility(View.GONE);
+	
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+						else if(which==2){
+							
+							if(currentLocation.getText().toString().equals("")){
+								Toast.makeText(getActivity(), "You do not have any location attachment.", Toast.LENGTH_SHORT).show();
+							}
+							else{
+								addTv.setVisibility(View.GONE);
+								currentLocation.setVisibility(View.GONE);
+								currentLocation.setText("");
+								storingAddress="";
+	
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+						else if(which ==3){
+							if((uriOfImage.equals("")) && (uriOfVideo.equals("")) && (currentLocation.getText().toString().equals(""))){
+								Toast.makeText(getActivity(), "You do not have any attachment.", Toast.LENGTH_SHORT).show();
+							}
+							else{
+								imageFilePathTextView.setVisibility(View.GONE);
+								uriOfImage = "";
+								imageView.setVisibility(View.GONE);
+								
+								uriOfVideo = "";
+								videoFilePathTextView.setVisibility(View.GONE);
+								videoView.setVisibility(View.GONE);
+								
+								addTv.setVisibility(View.GONE);
+								currentLocation.setVisibility(View.GONE);
+								currentLocation.setText("");
+								storingAddress="";
+								
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+					}
+				});
+
 			}
 			return builder.create();
 		}
@@ -654,21 +848,23 @@ public class UpdateActivity extends Activity {
     	  // doSomething
           addTv.setVisibility(View.VISIBLE);
     	  currentLocation.setVisibility(View.VISIBLE);
-    	//  attachment.setVisibility(View.VISIBLE);
-    //	  hrTv.setVisibility(View.VISIBLE);
     	  hrTv.setVisibility(View.VISIBLE);
           mLinearLayoutHeader.setVisibility(View.VISIBLE);
           currentLocation.setText(Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.");
+          storingAddress=Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.";
     	}
       else{ 
-          addTv.setVisibility(View.VISIBLE);
-        //  attachment.setVisibility(View.VISIBLE);
-          hrTv.setVisibility(View.VISIBLE);
-          mLinearLayoutHeader.setVisibility(View.VISIBLE);
-          
-          currentLocation.setVisibility(View.VISIBLE);
-          currentLocation.setText("Unavailable. Check if your GPS and Network are turned on");
-    	// Toast.makeText(getApplicationContext(), "Check if your GPS and Network are turned on", Toast.LENGTH_LONG).show();
+         AlertDialog.Builder builder1 = new AlertDialog.Builder(UpdateActivity.this);
+         builder1.setTitle("Service Unavailable");
+   		 builder1.setMessage("Unable to get your location, check if your GPS and Network are turned on.");
+   		 builder1.setCancelable(true);
+         builder1.setNegativeButton("OK",new DialogInterface.OnClickListener() {
+               public void onClick(DialogInterface dialog, int id) {
+            	   dialog.cancel();
+               }
+           });
+           AlertDialog alert11 = builder1.create();
+           alert11.show();
       }
    }  
    
