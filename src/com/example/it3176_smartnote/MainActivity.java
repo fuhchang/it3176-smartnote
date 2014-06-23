@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
 	private DatePickerDialog datePicker;
 	private DatePickerDialog.OnDateSetListener dateListener;
 	Integer[] imageId = { R.drawable.client, R.drawable.meeting,
-			R.drawable.personnel };
+			R.drawable.personnel, R.drawable.ic_launcher };
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();

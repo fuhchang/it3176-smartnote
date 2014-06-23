@@ -50,8 +50,10 @@ public class noteList extends ArrayAdapter<Note>{
 					imgView.setImageResource(imageId[1]);
 				}else if(resultArray.get(position).getNote_category().equals("Personal")){
 					imgView.setImageResource(imageId[2]);
-				}else{
+				}else if(resultArray.get(position).getNote_category().equals("Client")){
 					imgView.setImageResource(imageId[0]);
+				}else{
+					imgView.setImageResource(imageId[3]);
 				}
 				return rowView;
 	}
