@@ -401,6 +401,8 @@ public class CreateActivity extends Activity {
 						imageUriTv.setVisibility(View.VISIBLE);
 						//String uriOfImage = "<b>Image: </b>" +mImageUri.toString();
 						//imageUriTv.setText(Html.fromHtml(uriOfImage));
+						//String img = "<u>Image: " + uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()) + "</u>";
+						//imageUriTv.setText(Html.fromHtml(img));
 						imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 						imageView.setVisibility(View.VISIBLE);
 						imageView.setImageBitmap(Image);
@@ -443,6 +445,8 @@ public class CreateActivity extends Activity {
 					       mLinearLayoutHeader.setVisibility(View.VISIBLE);
 					       uriOfImage = getRealPathFromURI(capturedImageUri);				
 					       imageUriTv.setVisibility(View.VISIBLE);
+					       //String img = "<u>Image: " + uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()) + "</u>";
+						   //imageUriTv.setText(Html.fromHtml(img));
 					       imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 					       imageView.setVisibility(View.VISIBLE);
 						   imageView.setImageBitmap(yourSelectedImage);
@@ -471,9 +475,11 @@ public class CreateActivity extends Activity {
 					uriOfVideo = getRealPathFromURI(mVideoURI);
 					videoUriTv.setVisibility(View.VISIBLE);
 					videoView.setVisibility(View.VISIBLE);
-				//	String uriOfVideo = "<b>Video: </b>" + mVideoURI.toString();
-				//	videoUriTv.setText(Html.fromHtml(uriOfVideo));
+				    //String uriOfVideo = "<b>Video: </b>" + mVideoURI.toString();
+				    //videoUriTv.setText(Html.fromHtml(uriOfVideo));
 					videoUriTv.setText(uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()));
+					//String vid="<u>Video: "+uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()) + "</u>";
+					//videoUriTv.setText(Html.fromHtml(vid));
 					videoView.setVideoURI(mVideoURI);
 					videoView.setOnTouchListener(new OnTouchListener(){
 						@Override
@@ -504,6 +510,8 @@ public class CreateActivity extends Activity {
 						//String uriOfVideo = "<b>Video: </b>" + capturedVideoURI.toString();
 						//videoUriTv.setText(Html.fromHtml(uriOfVideo));
 						videoUriTv.setText(uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()));
+						//String vid="<u>Video: "+uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()) + "</u>";
+						//videoUriTv.setText(Html.fromHtml(vid));
 						videoView.setVideoURI(capturedVideoURI);
 						videoView.setOnTouchListener(new OnTouchListener(){
 							@Override

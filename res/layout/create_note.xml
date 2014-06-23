@@ -114,8 +114,8 @@
 			    			android:layout_height="wrap_content">
 				         
 				         
-				         
-					      <!--   <LinearLayout
+				         <!--  
+					         <LinearLayout
 					             android:id="@+id/lLA"
 					             android:layout_width="fill_parent"
 					             android:layout_height="wrap_content"
@@ -131,6 +131,7 @@
 						             android:layout_height="wrap_content"
 						             android:layout_width="fill_parent" 
 						             android:layout_marginTop="5dp"
+						             android:gravity="center"
 						             android:text="Testing img"/>
 				   
 							    <ImageView 
@@ -151,6 +152,7 @@
 					                 android:layout_width="fill_parent"
 					                 android:layout_marginTop="5dp"
 					                 android:layout_marginLeft="5dp"
+					                 android:gravity="center"
 					                 android:text="Testing video"/>
 							     
 							     <VideoView 
@@ -204,9 +206,9 @@
 								   	    android:layout_width="fill_parent"
 								        android:layout_height="2dp"     
 								        android:background="#000"/>
-								        -->
+								  -->      
 								        
-								        
+							 	        
 							<LinearLayout
 					             android:id="@+id/lLA"
 					             android:layout_width="fill_parent"
