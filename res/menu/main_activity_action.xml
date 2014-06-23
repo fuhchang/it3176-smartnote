@@ -15,6 +15,12 @@
 	    android:showAsAction="always"
       	android:actionViewClass="android.widget.SearchView"
 	    />
+	<item 
+	    android:id="@+id/refresh_icon"
+	    android:icon="@drawable/ic_action_refresh"
+	    android:title="@string/refresh_title"
+	    android:showAsAction="always"
+	    />
 	<item
         android:id="@+id/action_archive"
         android:orderInCategory="100"

@@ -39,6 +39,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.DatePicker;
@@ -128,7 +129,6 @@ public class MainActivity extends Activity {
 			@Override
 			public boolean onQueryTextSubmit(String query) {
 				// TODO Auto-generated method stub
-				ArrayList<Note> searchResult = new ArrayList<Note>();
 				for(int i=0; i<resultArray.size(); i++){
 					if(resultArray.get(i).getNote_name().equals(query)){
 						searchResult.add(resultArray.get(i));
@@ -137,6 +137,18 @@ public class MainActivity extends Activity {
 				noteList notelist = new noteList(MainActivity.this, searchResult);
 				list = (ListView) findViewById(R.id.noteListView);
 		        list.setAdapter(notelist);
+		        list.setOnItemClickListener(new OnItemClickListener(){
+
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int position, long arg3) {
+						// TODO Auto-generated method stub
+						Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
+						intent.putExtra("noteID", searchResult.get(position).getNote_id());
+						startActivity(intent);
+					}
+		        	
+		        });
 		        
 				return false;
 			}
@@ -234,6 +246,12 @@ public class MainActivity extends Activity {
 		case R.id.sort_location:
 			sortByAddress sortAddress = new sortByAddress();
 			sortAddress.show(getFragmentManager(), "sortByAdress");
+			break;
+		case R.id.refresh_icon:
+			Intent refresh = new Intent(this, MainActivity.class);
+			startActivity(refresh);
+			this.finish();
+			break;
 		}
 
 		return super.onOptionsItemSelected(item);

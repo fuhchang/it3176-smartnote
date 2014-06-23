@@ -57,6 +57,7 @@ public class NoteDetail extends Activity {
 	CheckBox cb_remember_setting;
 	LinearLayout mLinearLayout;
 	LinearLayout mLinearLayoutHeader;
+	
 	private ImageView imageView;
 	private VideoView videoView;
 	private VideoView audioView;
@@ -114,9 +115,6 @@ public class NoteDetail extends Activity {
 		videoMC = new MediaController(this);
 		videoMC.setAnchorView(videoView);
 
-		audioMC = new MediaController(this);
-		audioMC.setAnchorView(audioView);
-
 		attachments = (TextView) findViewById(R.id.clickme);
 		mLinearLayout = (LinearLayout) findViewById(R.id.expandable);
 		// set visibility to GONE
@@ -139,7 +137,7 @@ public class NoteDetail extends Activity {
 				}
 			}
 		});
-		
+		//check and display if there is image
 		if (!note.getNote_img().equals("")) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
@@ -148,7 +146,7 @@ public class NoteDetail extends Activity {
 			imageUriTv.setText(Html.fromHtml(uriOfImage));
 			imageUriTv.setVisibility(View.VISIBLE);
 		}
-		
+		//check and display if there is video
 		if(!note.getNote_video().equals("")){
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);		
@@ -159,40 +157,9 @@ public class NoteDetail extends Activity {
 			videoView.setVideoURI(Uri.parse(note.getNote_video()));
 			videoView.setMediaController(videoMC);
 			videoView.requestFocus();
-			videoView.setOnPreparedListener(new OnPreparedListener() {
-				@Override
-				public void onPrepared(MediaPlayer mp) {
-					// TODO Auto-generated method stub
-					// videoView.start();
-					videoMC.show(0);
-				}
-			});
-		}
-		/*
-		if(!note.getNote_audio().equals("")){
-			mLinearLayoutHeader.setVisibility(View.VISIBLE);
-			hrTv.setVisibility(View.VISIBLE);
-			audioUriTv.setVisibility(View.VISIBLE);
-			audioView.setVisibility(View.VISIBLE);
 			
-			String uriOfAudio = "<b>Audio: </b>" + note.getNote_audio();
-			audioUriTv.setText(Html.fromHtml(uriOfAudio));
-
-			audioView.setMediaController(audioMC);
-			audioView.setVideoURI(Uri.parse(note.getNote_audio()));
-			audioView.requestFocus();
-
-			audioView.setOnPreparedListener(new OnPreparedListener() {
-
-				@Override
-				public void onPrepared(MediaPlayer arg0) {
-					// TODO Auto-generated method stub
-					// audioView.start();
-					audioMC.show(0);
-				}
-			});
 		}
-		*/
+		
 		if(!note.getNote_address().equals("")){
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
