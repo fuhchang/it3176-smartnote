@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-	 <TextView 
+	 <AutoCompleteTextView 
 	        android:id="@+id/noteTitle"
 	        android:layout_marginLeft="5dp"
 	        android:layout_width="fill_parent"
@@ -28,6 +28,19 @@
 	   	    android:layout_width="fill_parent"
 	        android:layout_height="2dp"   
 	        android:background="#000"/>
+	    
+	    
+	     <TextView
+	        android:id="@+id/categorySelection"
+	        android:layout_marginLeft="5dp"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="#0000ff"
+	        android:textSize="16sp"
+	        android:text="@string/selection"
+	        />
+	    
+	    
 	    
 	    <TextView
 	        android:id="@+id/categorySelectionChoice"
@@ -94,6 +107,7 @@
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 			        android:background="#336699"
+			        
 			        android:orientation="vertical" >
 				     
 				      <FrameLayout android:layout_width="match_parent"
@@ -105,19 +119,20 @@
 					             android:id="@+id/lLA"
 					             android:layout_width="fill_parent"
 					             android:layout_height="wrap_content"
-					             android:orientation="vertical"
+					             android:orientation="horizontal"
 					             >  
 					             
 
-							     <ImageView 
+							    <ImageView 
 							         android:id="@+id/imageView"
 							         android:layout_width="80dp"
 							         android:layout_height="100dp"
 							         android:layout_marginTop="5dp"
 							         android:layout_marginLeft="10dp"
 							         android:layout_marginRight="10dp"/> 
-
-							    <VideoView 
+			
+							     
+							     <VideoView 
 							         android:id="@+id/videoView"
 							         android:layout_width="80dp"
 							         android:layout_height="100dp" 
@@ -125,17 +140,18 @@
 							         android:layout_marginLeft="10dp"
 							         android:layout_marginRight="10dp"
 									 android:layout_gravity="center"/>
-							 	     
-
-					              <TextView
+	         
+							         
+							    
+							     <TextView
 							         android:id="@+id/addTv"
+							         android:layout_width="wrap_content"
+							         android:layout_height="wrap_content"
+							         android:layout_marginLeft="5dp"
+							         android:layout_marginTop="5dp"
+							         android:text="Location: "
 							         android:textColor="#FFF"
-					                 android:layout_height="wrap_content"
-					                 android:layout_width="wrap_content"
-					                 android:layout_marginTop="5dp"
-					                 android:textStyle="bold"
-					                 android:layout_marginLeft="5dp"
-					                 android:text="Location: "/>
+							         android:textStyle="bold" />
 							     
 							      <TextView
 							         android:id="@+id/currentLocation"
@@ -146,7 +162,11 @@
 					                 android:layout_marginLeft="5dp"
 					                 android:text="blah"
 					                 />
-		     
+					             
+							     
+							     
+							     
+							     
 							     <TextView
 									 android:layout_width="fill_parent"
 							         android:layout_height="wrap_content"

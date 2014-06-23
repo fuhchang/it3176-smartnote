@@ -35,7 +35,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -52,6 +54,8 @@ import android.widget.VideoView;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
+import com.example.it3176_smartnote.util.ImageFullScreenActivity;
+import com.example.it3176_smartnote.util.VideoPlayerActivity;
 
 public class NoteDetail extends Activity {
 	CheckBox cb_remember_setting;
@@ -135,6 +139,23 @@ public class NoteDetail extends Activity {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
 			imageView.setVisibility(View.VISIBLE);
+			imageView.setOnTouchListener(new OnTouchListener(){
+
+				@Override
+				public boolean onTouch(View arg0, MotionEvent event) {
+					// TODO Auto-generated method stub
+					int action = event.getAction();
+					switch(action){
+					case MotionEvent.ACTION_UP:
+					Intent reviewImageFullScreen = new Intent(NoteDetail.this,ImageFullScreenActivity.class);
+					reviewImageFullScreen.putExtra("uri", note.getNote_img());
+					 startActivity(reviewImageFullScreen);
+					 break;
+					}
+					return true;
+				}
+				
+			});
 		}
 		//check and display if there is video
 		if(!note.getNote_video().equals("")){
@@ -143,7 +164,18 @@ public class NoteDetail extends Activity {
 			videoView.setVisibility(View.VISIBLE);
 			videoView.setVideoURI(Uri.parse(note.getNote_video()));
 			videoView.setMediaController(videoMC);
-			videoView.requestFocus();
+			videoView.setOnTouchListener(new OnTouchListener(){
+
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					// TODO Auto-generated method stub
+					Intent videoAudioPlayer = new Intent(NoteDetail.this,VideoPlayerActivity.class);
+					videoAudioPlayer.putExtra("uri", note.getNote_video());
+					startActivity(videoAudioPlayer);
+					return false;
+				}
+				
+			});
 			
 		}
 		
