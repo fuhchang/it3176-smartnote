@@ -62,8 +62,7 @@ public class MainActivity extends Activity {
 
 	private DatePickerDialog datePicker;
 	private DatePickerDialog.OnDateSetListener dateListener;
-	Integer[] imageId = { R.drawable.client, R.drawable.meeting,
-			R.drawable.personnel, R.drawable.ic_launcher };
+	Integer[] imageId = { R.drawable.client, R.drawable.meeting, R.drawable.personnel, R.drawable.ic_launcher };
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
@@ -85,8 +84,7 @@ public class MainActivity extends Activity {
 			}
 		}
 		Collections.sort(resultArray, new DateDesComparator());
-		noteList notelist = new noteList(MainActivity.this, resultArray,
-				imageId);
+		noteList notelist = new noteList(MainActivity.this, resultArray, imageId);
 		list = (ListView) findViewById(R.id.noteListView);
 		list.setAdapter(notelist);
 
@@ -97,10 +95,8 @@ public class MainActivity extends Activity {
 					int position, long arg3) {
 				// TODO Auto-generated method stub
 
-				Intent intent = new Intent(getApplicationContext(),
-						NoteDetail.class);
-				intent.putExtra("noteID", resultArray.get(position)
-						.getNote_id());
+				Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
+				intent.putExtra("noteID", resultArray.get(position).getNote_id());
 				startActivity(intent);
 			}
 
@@ -114,11 +110,9 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main_activity_action, menu);
 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView = (SearchView) menu.findItem(R.id.search_icon)
-				.getActionView();
+		SearchView searchView = (SearchView) menu.findItem(R.id.search_icon).getActionView();
 		if (searchView != null) {
-			searchView.setSearchableInfo(searchManager
-					.getSearchableInfo(getComponentName()));
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		}
 
 		searchView.setOnQueryTextListener(new OnQueryTextListener() {
@@ -139,8 +133,7 @@ public class MainActivity extends Activity {
 						searchResult.add(resultArray.get(i));
 					}
 				}
-				noteList notelist = new noteList(MainActivity.this,
-						searchResult, imageId);
+				noteList notelist = new noteList(MainActivity.this,	searchResult, imageId);
 				list = (ListView) findViewById(R.id.noteListView);
 				list.setAdapter(notelist);
 				list.setOnItemClickListener(new OnItemClickListener() {
@@ -149,10 +142,8 @@ public class MainActivity extends Activity {
 					public void onItemClick(AdapterView<?> arg0, View arg1,
 							int position, long arg3) {
 						// TODO Auto-generated method stub
-						Intent intent = new Intent(getApplicationContext(),
-								NoteDetail.class);
-						intent.putExtra("noteID", searchResult.get(position)
-								.getNote_id());
+						Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
+						intent.putExtra("noteID", searchResult.get(position).getNote_id());
 						startActivity(intent);
 					}
 
@@ -183,10 +174,8 @@ public class MainActivity extends Activity {
 			startActivity(archive_intent);
 			break;
 		case R.id.action_settings:
-			final SharedPreferences sp = PreferenceManager
-					.getDefaultSharedPreferences(this);
-			String selected_setting = sp.getString("selected_setting",
-					"YourSetting");
+			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+			String selected_setting = sp.getString("selected_setting", "YourSetting");
 
 			// If user's had chose a preference before
 			if (selected_setting.equals("archive")) {
@@ -200,32 +189,30 @@ public class MainActivity extends Activity {
 			final CharSequence[] preferences = { "Archive", "Delete", "None" };
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Preference").setSingleChoiceItems(preferences,
-					selected, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (preferences[which].equals("Archive")) {
-								selected = 0;
-							} else if (preferences[which].equals("Delete")) {
-								selected = 1;
-							} else if (preferences[which].equals("None")) {
-								selected = 2;
-							}
-						}
-					});
-			builder.setPositiveButton("Ok",
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (preferences[selected].equals("Archive")) {
-								savePreferences("selected_setting", "archive");
-							} else if (preferences[selected].equals("Delete")) {
-								savePreferences("selected_setting", "delete");
-							} else if (preferences[selected].equals("None")) {
-								savePreferences("selected_setting", "none");
-							}
-						}
-					});
+			builder.setTitle("Preference").setSingleChoiceItems(preferences, selected, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (preferences[which].equals("Archive")) {
+						selected = 0;
+					} else if (preferences[which].equals("Delete")) {
+						selected = 1;
+					} else if (preferences[which].equals("None")) {
+						selected = 2;
+					}
+				}
+			});
+			builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if (preferences[selected].equals("Archive")) {
+						savePreferences("selected_setting", "archive");
+					} else if (preferences[selected].equals("Delete")) {
+						savePreferences("selected_setting", "delete");
+					} else if (preferences[selected].equals("None")) {
+						savePreferences("selected_setting", "none");
+					}
+				}
+			});
 			AlertDialog prefDialog = builder.create();
 			prefDialog.show();
 			break;
@@ -263,8 +250,7 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	private class MyDatePicker extends DialogFragment implements
-			DatePickerDialog.OnDateSetListener {
+	private class MyDatePicker extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 		int pYear;
 		int pDay;
 		int pMonth;
@@ -281,8 +267,7 @@ public class MainActivity extends Activity {
 		}
 
 		@Override
-		public void onDateSet(DatePicker view, int year, int monthOfYear,
-				int dayOfMonth) {
+		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 			// TODO Auto-generated method stub
 			pYear = year;
 			pDay = dayOfMonth;
@@ -328,17 +313,14 @@ public class MainActivity extends Activity {
 				monthString = "Dec";
 				break;
 			}
-			DateTimeFormatter formatter = DateTimeFormat
-					.forPattern("dd-MMM-yyyy HH:mm:ss");
+			DateTimeFormatter formatter = DateTimeFormat.forPattern("dd-MMM-yyyy HH:mm:ss");
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 			tempArray.clear();
 			if (pYear > 0 || pDay > 0 || pMonth > 0) {
 				if (!resultArray.isEmpty()) {
 					for (int i = 0; i < resultArray.size(); i++) {
-						DateTime noteDate = formatter.parseDateTime(resultArray
-								.get(i).getNote_date());
-						String selectedDate = pDay + "-" + monthString + "-"
-								+ pYear;
+						DateTime noteDate = formatter.parseDateTime(resultArray.get(i).getNote_date());
+						String selectedDate = pDay + "-" + monthString + "-" + pYear;
 						String date1 = dateFormat.format(noteDate.toDate());
 
 						if (date1.equals(selectedDate)) {
@@ -347,16 +329,14 @@ public class MainActivity extends Activity {
 					}
 				}
 				if (!tempArray.isEmpty()) {
-					noteList notelist = new noteList(MainActivity.this,
-							tempArray, imageId);
+					noteList notelist = new noteList(MainActivity.this,	tempArray, imageId);
 					list = (ListView) findViewById(R.id.noteListView);
 					list.setAdapter(notelist);
 				} else {
 					Note note = new Note();
 					note.setNote_name("NO result Found please check your input. Thank you");
 					tempArray.add(note);
-					noteList notelist = new noteList(MainActivity.this,
-							tempArray, imageId);
+					noteList notelist = new noteList(MainActivity.this, tempArray, imageId);
 					list = (ListView) findViewById(R.id.noteListView);
 					list.setAdapter(notelist);
 				}
@@ -371,8 +351,7 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle("Select The Type");
-			builder.setItems(R.array.category_choice,
-					new DialogInterface.OnClickListener() {
+			builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {

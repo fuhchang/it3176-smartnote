@@ -45,8 +45,8 @@ public class ArchiveActivity extends Activity {
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
-	Integer[] imageId = { R.drawable.client, R.drawable.meeting,
-			R.drawable.personnel };
+	
+	Integer[] imageId = { R.drawable.client, R.drawable.meeting, R.drawable.personnel };
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
@@ -76,14 +76,8 @@ public class ArchiveActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 				Intent intent = new Intent(getApplicationContext(), ArchiveDetail.class);
-				ArrayList<String> selectedNote = new ArrayList<String>();
-				selectedNote.add(resultArray.get(position).getNote_name());
-				selectedNote.add(resultArray.get(position).getNote_content());
-				selectedNote.add(resultArray.get(position).getNote_category());
-				selectedNote.add(resultArray.get(position).getNote_date());
-				intent.putStringArrayListExtra("resultArray", selectedNote);
-				intent.putExtra("note_id", Integer.toString(resultArray.get(position).getNote_id()));
-		        startActivity(intent);
+				intent.putExtra("noteID", resultArray.get(position).getNote_id());
+				startActivity(intent);
 			}
         });
         
@@ -97,11 +91,9 @@ public class ArchiveActivity extends Activity {
 		getMenuInflater().inflate(R.menu.archive_activity, menu);
 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView = (SearchView) menu.findItem(R.id.search_icon)
-				.getActionView();
+		SearchView searchView = (SearchView) menu.findItem(R.id.search_icon).getActionView();
 		if (searchView != null) {
-			searchView.setSearchableInfo(searchManager
-					.getSearchableInfo(getComponentName()));
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		}
 
 		searchView.setOnQueryTextListener(new OnQueryTextListener() {
@@ -113,15 +105,26 @@ public class ArchiveActivity extends Activity {
 
 			@Override
 			public boolean onQueryTextSubmit(String query) {
-				ArrayList<Note> searchResult = new ArrayList<Note>();
-				for(int i=0; i<resultArray.size(); i++){
-					if(resultArray.get(i).getNote_name().equals(query)){
+				for (int i = 0; i < resultArray.size(); i++) {
+					if (resultArray.get(i).getNote_name().equals(query)) {
 						searchResult.add(resultArray.get(i));
 					}
 				}
-				noteList notelist = new noteList(ArchiveActivity.this, searchResult, imageId);
+				noteList notelist = new noteList(ArchiveActivity.this,	searchResult, imageId);
 				list = (ListView) findViewById(R.id.noteListView);
-		        list.setAdapter(notelist);
+				list.setAdapter(notelist);
+				list.setOnItemClickListener(new OnItemClickListener() {
+
+					@Override
+					public void onItemClick(AdapterView<?> arg0, View arg1,
+							int position, long arg3) {
+						// TODO Auto-generated method stub
+						Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
+						intent.putExtra("noteID", searchResult.get(position).getNote_id());
+						startActivity(intent);
+					}
+
+				});
 		        
 				return false;
 			}
@@ -205,18 +208,28 @@ public class ArchiveActivity extends Activity {
 			sortByType sortType = new sortByType();
 			sortType.show(getFragmentManager(), "sortByType");
 			break;
+		case R.id.sort_location:
+			sortByAddress sortAddress = new sortByAddress();
+			sortAddress.show(getFragmentManager(), "sortByAdress");
+			break;
+		case R.id.refresh_icon:
+			Intent refresh = new Intent(this, ArchiveActivity.class);
+			startActivity(refresh);
+			this.finish();
+			break;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	private class MyDatePicker extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 		int pYear;
 		int pDay;
 		int pMonth;
-		
+
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
 			final Calendar c = Calendar.getInstance();
 			int year = c.get(Calendar.YEAR);
 			int month = c.get(Calendar.MONTH);
@@ -227,10 +240,11 @@ public class ArchiveActivity extends Activity {
 
 		@Override
 		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+			// TODO Auto-generated method stub
 			pYear = year;
 			pDay = dayOfMonth;
 			pMonth = monthOfYear + 1;
-			
+
 			String monthString = null;
 
 			switch (pMonth) {
@@ -280,17 +294,17 @@ public class ArchiveActivity extends Activity {
 						DateTime noteDate = formatter.parseDateTime(resultArray.get(i).getNote_date());
 						String selectedDate = pDay + "-" + monthString + "-" + pYear;
 						String date1 = dateFormat.format(noteDate.toDate());
-						
+
 						if (date1.equals(selectedDate)) {
 							tempArray.add(resultArray.get(i));
-						} 
+						}
 					}
-				} 
-				if(!tempArray.isEmpty()){
-				noteList notelist = new noteList(ArchiveActivity.this, tempArray, imageId);
-				list = (ListView) findViewById(R.id.noteListView);
-				list.setAdapter(notelist);
-				}else{
+				}
+				if (!tempArray.isEmpty()) {
+					noteList notelist = new noteList(ArchiveActivity.this,	tempArray, imageId);
+					list = (ListView) findViewById(R.id.noteListView);
+					list.setAdapter(notelist);
+				} else {
 					Note note = new Note();
 					note.setNote_name("NO result Found please check your input. Thank you");
 					tempArray.add(note);
@@ -306,11 +320,10 @@ public class ArchiveActivity extends Activity {
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle("Select The Type");
-			builder.setItems(R.array.category_choice,
-					new DialogInterface.OnClickListener() {
+			builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -322,7 +335,7 @@ public class ArchiveActivity extends Activity {
 								if (resultArray.get(i).getNote_category()
 										.equals(selected)) {
 									tempArray.add(resultArray.get(i));
-								} 
+								}
 
 							}
 
@@ -333,12 +346,12 @@ public class ArchiveActivity extends Activity {
 										R.id.noteListView);
 								list.deferNotifyDataSetChanged();
 								list.setAdapter(notelist);
-							}else{
+							} else {
 								Note note = new Note();
 								note.setNote_name("NO result Found please check your input. Thank you");
 								tempArray.add(note);
-								noteList notelist = new noteList(ArchiveActivity.this,
-										tempArray, imageId);
+								noteList notelist = new noteList(
+										ArchiveActivity.this, tempArray, imageId);
 								list = (ListView) findViewById(R.id.noteListView);
 								list.setAdapter(notelist);
 							}
@@ -346,118 +359,170 @@ public class ArchiveActivity extends Activity {
 
 					});
 			return builder.create();
+
 		}
-		
 	}
-	
-	private class sortByTitle extends DialogFragment{
+
+	private class sortByTitle extends DialogFragment {
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-
+			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle("Sort By");
-			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+			builder.setItems(R.array.sort_choice,
+					new DialogInterface.OnClickListener() {
 
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
-					
-					if(which == 0){
-						Collections.sort(resultArray, new TitleAscComparator());
-						noteList notelist = new noteList(getActivity(),
-								resultArray, imageId);
-						list = (ListView) getActivity().findViewById(
-								R.id.noteListView);
-						list.deferNotifyDataSetChanged();
-						list.setAdapter(notelist);
-						
-					}else{
-						Collections.sort(resultArray, new TitleDesComparator());
-						noteList notelist = new noteList(getActivity(),
-								resultArray, imageId);
-						list = (ListView) getActivity().findViewById(
-								R.id.noteListView);
-						list.deferNotifyDataSetChanged();
-						list.setAdapter(notelist);
-					}
-				}
-				
-			});
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+
+							if (which == 0) {
+								Collections.sort(resultArray,
+										new TitleAscComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+
+							} else {
+								Collections.sort(resultArray,
+										new TitleDesComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							}
+						}
+
+					});
 			return builder.create();
 		}
+
 	}
-	
-	private class sortByDate extends DialogFragment{
+
+	private class sortByDate extends DialogFragment {
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle("Sort By");
-			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+			builder.setItems(R.array.sort_choice,
+					new DialogInterface.OnClickListener() {
 
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-					// TODO Auto-generated method stub
-					if(arg1 == 0){
-						Collections.sort(resultArray, new DateAscComparator());
-						noteList notelist = new noteList(getActivity(),
-								resultArray, imageId);
-						list = (ListView) getActivity().findViewById(
-								R.id.noteListView);
-						list.deferNotifyDataSetChanged();
-						list.setAdapter(notelist);
-					}else{
-						Collections.sort(resultArray, new DateDesComparator());
-						noteList notelist = new noteList(getActivity(),
-								resultArray, imageId);
-						list = (ListView) getActivity().findViewById(
-								R.id.noteListView);
-						list.deferNotifyDataSetChanged();
-						list.setAdapter(notelist);
-					}
-				}
-				
-			});
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							// TODO Auto-generated method stub
+							if (arg1 == 0) {
+								Collections.sort(resultArray,
+										new DateAscComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							} else {
+								Collections.sort(resultArray,
+										new DateDesComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							}
+						}
+
+					});
 			return builder.create();
 		}
-		
+
 	}
 
-	private class sortByType extends DialogFragment{
+	private class sortByType extends DialogFragment {
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			builder.setTitle("Sort By");
-			builder.setItems(R.array.sort_choice, new DialogInterface.OnClickListener(){
+			builder.setItems(R.array.sort_choice,
+					new DialogInterface.OnClickListener() {
 
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-					// TODO Auto-generated method stub
-					if(arg1 == 0){
-						Collections.sort(resultArray, new CategoryAscComparator());
-						noteList notelist = new noteList(getActivity(),
-								resultArray, imageId);
-						list = (ListView) getActivity().findViewById(
-								R.id.noteListView);
-						list.deferNotifyDataSetChanged();
-						list.setAdapter(notelist);
-					}else{
-						Collections.sort(resultArray, new CategoryDesComparator());
-						noteList notelist = new noteList(getActivity(),
-								resultArray, imageId);
-						list = (ListView) getActivity().findViewById(
-								R.id.noteListView);
-						list.deferNotifyDataSetChanged();
-						list.setAdapter(notelist);
-					}
-				}
-			
-			});
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							// TODO Auto-generated method stub
+							if (arg1 == 0) {
+								Collections.sort(resultArray,
+										new CategoryAscComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							} else {
+								Collections.sort(resultArray,
+										new CategoryDesComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							}
+						}
+
+					});
 			return builder.create();
 		}
-		
+
+	}
+
+	private class sortByAddress extends DialogFragment {
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("Sort By");
+			builder.setItems(R.array.sort_choice,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface arg0, int arg1) {
+							// TODO Auto-generated method stub
+							if (arg1 == 0) {
+								Collections.sort(resultArray,
+										new AddressAscComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							} else {
+								Collections.sort(resultArray,
+										new AddressDesComparator());
+								noteList notelist = new noteList(getActivity(),
+										resultArray, imageId);
+								list = (ListView) getActivity().findViewById(
+										R.id.noteListView);
+								list.deferNotifyDataSetChanged();
+								list.setAdapter(notelist);
+							}
+						}
+
+					});
+			return builder.create();
+		}
+
 	}
 
 	@Override
@@ -476,52 +541,84 @@ public class ArchiveActivity extends Activity {
 		edit.putString(key, value);
 		edit.commit();
 	}
-	
-	private class TitleAscComparator implements Comparator<Note>{
+
+	private class TitleAscComparator implements Comparator<Note> {
 
 		@Override
 		public int compare(Note arg0, Note arg1) {
+			// TODO Auto-generated method stub
 			return arg0.getNote_name().compareTo(arg1.getNote_name());
-		}		
+		}
+
 	}
-	
-	private class TitleDesComparator implements Comparator<Note>{
+
+	private class TitleDesComparator implements Comparator<Note> {
 
 		@Override
 		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
 			return rhs.getNote_name().compareTo(lhs.getNote_name());
-		}		
+		}
+
 	}
-	
-	private class DateAscComparator implements Comparator<Note>{
-		
-		@Override
-		public int compare(Note lhs, Note rhs) {
-			return lhs.getNote_date().compareTo(rhs.getNote_date());
-		}		
-	}
-	
-	private class DateDesComparator implements Comparator<Note>{
-		
-		@Override
-		public int compare(Note lhs, Note rhs) {
-			return rhs.getNote_date().compareTo(lhs.getNote_date());
-		}		
-	}
-	
-	private class CategoryAscComparator implements Comparator<Note>{
+
+	private class DateAscComparator implements Comparator<Note> {
 
 		@Override
-		public int compare(Note arg0, Note arg1) {			
-			return arg0.getNote_category().compareTo(arg1.getNote_category());
-		}		
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return lhs.getNote_date().compareTo(rhs.getNote_date());
+		}
+
 	}
-	
-	private class CategoryDesComparator implements Comparator<Note>{
-		
+
+	private class DateDesComparator implements Comparator<Note> {
+
 		@Override
 		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return rhs.getNote_date().compareTo(lhs.getNote_date());
+		}
+
+	}
+
+	private class CategoryAscComparator implements Comparator<Note> {
+
+		@Override
+		public int compare(Note arg0, Note arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getNote_category().compareTo(arg1.getNote_category());
+		}
+
+	}
+
+	private class CategoryDesComparator implements Comparator<Note> {
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
 			return rhs.getNote_category().compareTo(lhs.getNote_category());
-		}		
+		}
+
+	}
+
+	private class AddressAscComparator implements Comparator<Note> {
+
+		@Override
+		public int compare(Note arg0, Note arg1) {
+			// TODO Auto-generated method stub
+			return arg0.getNote_address().compareTo(arg1.getNote_address());
+		}
+
+	}
+
+	private class AddressDesComparator implements Comparator<Note> {
+
+		@Override
+		public int compare(Note lhs, Note rhs) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
 	}
 }

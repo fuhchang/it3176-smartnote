@@ -68,13 +68,11 @@ public class NoteDetail extends Activity {
 	
 	private Cursor calendarEventTitleCursor;
 	
-	TextView dateTimeCreation, categorySelection, attachment, hrTv,
-	tapToAddTags, tags, addTv, currentLocation,
-			attachments, noteTitle, noteContent;
+	TextView dateTimeCreation, categorySelection, attachment, hrTv,	tapToAddTags, tags, addTv, currentLocation,	attachments, noteTitle, noteContent;
 	Note note;
 	MediaController videoMC;
 	MediaController audioMC;
-	int noteID;
+	int noteID, selected;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -204,190 +202,201 @@ public class NoteDetail extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-		if (item.getItemId() == R.id.btn_remove) {
+		switch(item.getItemId()){
+		
+		case R.id.action_settings:
 
-			final SharedPreferences sp = PreferenceManager
-					.getDefaultSharedPreferences(this);
-			String selected_setting = sp.getString("selected_setting", "none");
+			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+			String selected_setting = sp.getString("selected_setting", "YourSetting");
+			
+			//If user's had chose a preference before
+			if(selected_setting.equals("archive")){
+				selected = 0;
+			}
+			else if(selected_setting.equals("delete")){
+				selected = 1;
+			}
+			else if(selected_setting.equals("none")){
+				selected = 2;
+			}
+			
+			final CharSequence[] preferences = {"Archive", "Delete", "None"};
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Preference").setSingleChoiceItems(preferences, selected, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if(preferences[which].equals("Archive")){
+						selected = 0;
+					}
+					else if(preferences[which].equals("Delete")){
+						selected = 1;						
+					}
+					else if(preferences[which].equals("None")){
+						selected = 2;
+					}
+				}
+			});
+			builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					if(preferences[selected].equals("Archive")){
+						savePreferences("selected_setting", "archive");
+					}
+					else if(preferences[selected].equals("Delete")){
+						savePreferences("selected_setting", "delete");
+					}
+					else if(preferences[selected].equals("None")){
+						savePreferences("selected_setting", "none");
+					}
+				}
+			});
+			AlertDialog prefDialog = builder.create();
+			prefDialog.show();
+			break;
+			
+		case R.id.btn_remove:
+			final SharedPreferences rsp = PreferenceManager.getDefaultSharedPreferences(this);
+			String rselected_setting = rsp.getString("selected_setting", "none");
 
 			// User's preference is archiving note
-			if (selected_setting.equals("archive")) {
+			if (rselected_setting.equals("archive")) {
 				// Prompt for archive confirmation
-				AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
-						NoteDetail.this);
-				archiveBuilder.setTitle("Archive").setMessage(
-						"This note will be archived.");
+				AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(NoteDetail.this);
+				archiveBuilder.setTitle("Archive").setMessage("This note will be archived.");
 
-				archiveBuilder.setPositiveButton("Ok",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								archiveNote();
-							}
-						});
-				archiveBuilder.setNegativeButton("Cancel",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-							}
-						});
+				archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,	int which) {
+						archiveNote();
+					}
+				});
+				archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which) {
+					}
+				});
 				AlertDialog deleteDialog = archiveBuilder.create();
 				deleteDialog.show();
 			}
 
 			// User's preference is deleting note
-			else if (selected_setting.equals("delete")) {
+			else if (rselected_setting.equals("delete")) {
 				// Prompt for delete confirmation
-				AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(
-						NoteDetail.this);
-				deleteBuilder.setTitle("Delete").setMessage(
-						"This note will be deleted.");
+				AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(NoteDetail.this);
+				deleteBuilder.setTitle("Delete").setMessage("This note will be deleted.");
 
-				deleteBuilder.setPositiveButton("Ok",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								deleteNote();
-							}
-						});
-				deleteBuilder.setNegativeButton("Cancel",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-							}
-						});
+				deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,	int which) {
+						deleteNote();
+					}
+				});
+				deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,
+							int which) {
+					}
+				});
 				AlertDialog deleteDialog = deleteBuilder.create();
 				deleteDialog.show();
 			}
+			
 			// User did not set preference
 			else {
 				LayoutInflater inflater = LayoutInflater.from(this);
-				final View setting_view = inflater.inflate(
-						R.layout.setting_dialog, null);
-				cb_remember_setting = (CheckBox) setting_view
-						.findViewById(R.id.cb_remember_setting);
+				final View setting_view = inflater.inflate(R.layout.setting_dialog, null);
+				cb_remember_setting = (CheckBox) setting_view.findViewById(R.id.cb_remember_setting);
 				savePreferences("preference", false);
 
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setView(setting_view);
-				builder.setTitle("Select an action");
+				AlertDialog.Builder optionBuilder = new AlertDialog.Builder(this);
+				optionBuilder.setView(setting_view);
+				optionBuilder.setTitle("Select an action");
 
 				// Checking whether user set preference
-				cb_remember_setting
-						.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-							@Override
-							public void onCheckedChanged(CompoundButton arg0,
-									boolean arg1) {
-								if (cb_remember_setting.isChecked()) {
-									savePreferences("preference", true);
-								} else {
-									savePreferences("preference", false);
-								}
-							}
-						});
+				cb_remember_setting.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean arg1) {
+						if (cb_remember_setting.isChecked()) {
+							savePreferences("preference", true);
+						} else {
+							savePreferences("preference", false);
+						}
+					}
+				});
 
 				// Select action "Archive"
-				builder.setNegativeButton("Archive",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								// Prompt for archive confirmation
-								AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
-										NoteDetail.this);
-								archiveBuilder.setTitle("Archive").setMessage(
-										"This note will be archived.");
+				optionBuilder.setNegativeButton("Archive", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// Prompt for archive confirmation
+						AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(NoteDetail.this);
+						archiveBuilder.setTitle("Archive").setMessage("This note will be archived.");
 
-								archiveBuilder.setPositiveButton("Ok",
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(
-													DialogInterface dialog,
-													int which) {
-												if (sp.getBoolean("preference",
-														true)) {
-													savePreferences(
-															"selected_setting",
-															"archive");
-												}
-												archiveNote();
-											}
-										});
-								archiveBuilder.setNegativeButton("Cancel",
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(
-													DialogInterface dialog,
-													int which) {
-											}
-										});
-								AlertDialog deleteDialog = archiveBuilder
-										.create();
-								deleteDialog.show();
+						archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (rsp.getBoolean("preference",	true)) {
+									savePreferences("selected_setting", "archive");
+								}
+								archiveNote();
 							}
 						});
+						archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,	int which) {
+							}
+						});
+						AlertDialog deleteDialog = archiveBuilder.create();
+						deleteDialog.show();
+					}
+				});
 
 				// Select action "Delete"
-				builder.setPositiveButton("Delete",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								// Prompt for delete confirmation
-								AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
-										NoteDetail.this);
-								archiveBuilder.setTitle("Delete").setMessage(
-										"This note will be deleted.");
+				optionBuilder.setPositiveButton("Delete",	new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,	int which) {
+						// Prompt for delete confirmation
+						AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(NoteDetail.this);
+						archiveBuilder.setTitle("Delete").setMessage("This note will be deleted.");
 
-								archiveBuilder.setPositiveButton("Ok",
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(
-													DialogInterface dialog,
-													int which) {
-												if (sp.getBoolean("preference",
-														true)) {
-													savePreferences(
-															"selected_setting",
-															"delete");
-												}
-												deleteNote();
-											}
-										});
-								archiveBuilder.setNegativeButton("Cancel",
-										new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(
-													DialogInterface dialog,
-													int which) {
-											}
-										});
-								AlertDialog deleteDialog = archiveBuilder
-										.create();
-								deleteDialog.show();
+						archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,	int which) {
+								if (rsp.getBoolean("preference",	true)) {
+									savePreferences("selected_setting", "delete");
+								}
+								deleteNote();
 							}
 						});
-
-				AlertDialog dialog = builder.create();
+						archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,	int which) {
+							}
+						});
+						AlertDialog deleteDialog = archiveBuilder.create();
+						deleteDialog.show();
+					}
+				});
+				AlertDialog dialog = optionBuilder.create();
 				dialog.show();
 			}
-
-		}else if(item.getItemId() == R.id.btn_edit){
+			break;
+		case R.id.btn_edit:
 			Intent intent = new Intent(getApplicationContext(), UpdateActivity.class);
 			intent.putExtra("noteID", noteID);
 			startActivity(intent);
 			this.finish();
+			break;
 		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 
 	private void archiveNote() {
-		Note note = new Note(Integer.parseInt(getIntent().getStringExtra(
-				"note_id")));
+		note = new Note(getIntent().getIntExtra("noteID", 0));
 		SQLiteController controller = new SQLiteController(NoteDetail.this);
 		try {
 			controller.open();
@@ -398,14 +407,12 @@ public class NoteDetail extends Activity {
 			controller.close();
 			Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note archived", Toast.LENGTH_LONG)
-					.show();
+			Toast.makeText(getBaseContext(), "Note archived", Toast.LENGTH_LONG).show();
 		}
 	}
 
 	private void deleteNote() {
-		Note note = new Note(Integer.parseInt(getIntent().getStringExtra(
-				"note_id")));
+		note = new Note(getIntent().getIntExtra("noteID", 0));
 		SQLiteController controller = new SQLiteController(NoteDetail.this);
 		try {
 			controller.open();
@@ -416,27 +423,34 @@ public class NoteDetail extends Activity {
 			controller.close();
 			Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note deleted", Toast.LENGTH_LONG)
-					.show();
+			Toast.makeText(getBaseContext(), "Note deleted", Toast.LENGTH_LONG).show();
 		}
 	}
 
 	private void savePreferences(String key, boolean value) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
 		edit.putBoolean(key, value);
 		edit.commit();
 	}
 
 	private void savePreferences(String key, String value) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
 		edit.putString(key, value);
 		edit.commit();
 	}
 	
+	@Override
+	public void onBackPressed() {
+		NoteDetail.this.finish();
+		Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
+		refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(refresh);
+		
+		super.onBackPressed();
+	}
+
 	private void expand() {
 	     //set Visible
 	     mLinearLayout.setVisibility(View.VISIBLE);
