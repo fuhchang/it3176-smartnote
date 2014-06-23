@@ -35,6 +35,16 @@
         <item>Business</item>
         <item>School</item>
     </string-array>
+    
+    
+    <string-array name="attachment_choice">
+        <item>Remove Image</item>
+        <item>Remove Video</item>
+        <item>Remove Location</item>
+        <item>All</item>
+    </string-array>
+    
+    
 	<string-array name="sort_choice">
         <item>Ascending</item>
         <item>Descending</item>
