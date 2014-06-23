@@ -45,9 +45,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -61,6 +63,8 @@ import android.widget.Toast;
 import android.widget.VideoView;
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
+import com.example.it3176_smartnote.util.ImageFullScreenActivity;
+import com.example.it3176_smartnote.util.VideoPlayerActivity;
 
 public class CreateActivity extends Activity {
 	
@@ -246,6 +250,13 @@ public class CreateActivity extends Activity {
 			}
 		});
 	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		videoView.seekTo(10000);
+	}
 
 	/**Menu items**/
 	@Override
@@ -393,7 +404,21 @@ public class CreateActivity extends Activity {
 						imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 						imageView.setVisibility(View.VISIBLE);
 						imageView.setImageBitmap(Image);
-		
+						imageView.setOnTouchListener(new OnTouchListener(){
+			                @Override
+			                public boolean onTouch(View arg0, MotionEvent event) {
+			                    int action = event.getAction();
+			                    switch (action) {
+			                    case MotionEvent.ACTION_UP:
+			                    	
+			                        Intent reviewImageFullScreen = new Intent(CreateActivity.this,ImageFullScreenActivity.class);
+			                        reviewImageFullScreen.putExtra("uri", uriOfImage);
+			                        startActivity(reviewImageFullScreen);
+			                        break;
+			                    }
+			                    return true;
+			                }
+			            });
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();			
@@ -435,15 +460,15 @@ public class CreateActivity extends Activity {
 				//	videoUriTv.setText(Html.fromHtml(uriOfVideo));
 					videoUriTv.setText(uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()));
 					videoView.setVideoURI(mVideoURI);
-					videoView.setMediaController(videoMC);
-					videoView.requestFocus();
-					videoView.setOnPreparedListener(new OnPreparedListener(){
+					videoView.setOnTouchListener(new OnTouchListener(){
 						@Override
-						public void onPrepared(MediaPlayer mp) {
+						public boolean onTouch(View v, MotionEvent event) {
 							// TODO Auto-generated method stub
-							//videoView.start();
-							//videoMC.show(0);
-						}	
+							Intent videoAudioPlayer = new Intent(CreateActivity.this,VideoPlayerActivity.class);
+							videoAudioPlayer.putExtra("uri", uriOfVideo);
+							startActivity(videoAudioPlayer);
+							return false;
+						}
 					});
 					}
 					catch(NullPointerException e) {

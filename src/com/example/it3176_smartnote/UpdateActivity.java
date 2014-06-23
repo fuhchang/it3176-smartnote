@@ -44,7 +44,9 @@ import android.provider.MediaStore.Images.Media;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.CursorLoader;
 import android.text.Html;
+import android.text.SpannableString;
 import android.text.format.DateFormat;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -132,6 +134,7 @@ public class UpdateActivity extends Activity {
 	String fullEventDetails="";
 	ArrayList<String> eventTitles = new ArrayList<String>();
 
+	TextView imageFilePathTextView,videoFilePathTextView;	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -168,20 +171,19 @@ public class UpdateActivity extends Activity {
 		videoView = (VideoView) findViewById(R.id.videoView);
 		imageUriTv = (TextView) findViewById(R.id.imageUriTv);
 		videoUriTv = (TextView) findViewById(R.id.videoUriTv);
-		audioView = (VideoView) findViewById(R.id.audioView);
-		audioUriTv = (TextView) findViewById(R.id.audioUriTv);
 		addTv=(TextView) findViewById(R.id.addTv);
 		currentLocation = (TextView) findViewById(R.id.currentLocation);
-
+		imageFilePathTextView = (TextView) findViewById(R.id.imageFilePathTextView);
+		videoFilePathTextView = (TextView) findViewById(R.id.videoFilePathTextView);
+		
 		imageView.setVisibility(View.GONE);
 		videoView.setVisibility(View.GONE);
-		audioView.setVisibility(View.GONE);
+		imageFilePathTextView.setVisibility(View.GONE);
+		videoFilePathTextView.setVisibility(View.GONE);
 		
 		addTv.setVisibility(View.GONE);
 		currentLocation.setVisibility(View.GONE);
 		
-		audioMC = new MediaController(this);
-		audioMC.setAnchorView(audioView);
 		
 		attachments=(TextView)findViewById(R.id.clickme);
 		mLinearLayout = (LinearLayout) findViewById(R.id.expandable);
@@ -213,12 +215,15 @@ public class UpdateActivity extends Activity {
 			hrTv.setVisibility(View.VISIBLE);
 			imageView.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
+			imageFilePathTextView.setVisibility(View.VISIBLE);
+			imageFilePathTextView.setText(note.getNote_img().substring(note.getNote_img().lastIndexOf("/") + 1,note.getNote_img().length()));
 			imageView.setOnTouchListener(new OnTouchListener(){
                 @Override
                 public boolean onTouch(View arg0, MotionEvent event) {
                     int action = event.getAction();
                     switch (action) {
                     case MotionEvent.ACTION_UP:
+                    	
                         Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
                         reviewImageFullScreen.putExtra("uri", note.getNote_img());
                         startActivity(reviewImageFullScreen);
@@ -234,7 +239,8 @@ public class UpdateActivity extends Activity {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);		
 			videoView.setVisibility(View.VISIBLE);
-			
+			videoFilePathTextView.setVisibility(View.VISIBLE);
+			videoFilePathTextView.setText(note.getNote_video().substring(note.getNote_video().lastIndexOf("/") + 1,note.getNote_video().length()));
 			uriOfVideo = note.getNote_video();
 
 			videoView.setVideoURI(Uri.parse(note.getNote_video()));
@@ -249,41 +255,6 @@ public class UpdateActivity extends Activity {
 					return false;
 				}
 			});
-			/*videoView.setMediaController(videoMC);
-			videoView.setOnPreparedListener(new OnPreparedListener() {
-				@Override
-				public void onPrepared(MediaPlayer mp) {
-					// TODO Auto-generated method stub
-					// videoView.start();
-					videoMC.show(0);
-				}
-			});*/
-		}
-		if(!note.getNote_audio().toString().equals("")){
-			mLinearLayoutHeader.setVisibility(View.VISIBLE);
-			hrTv.setVisibility(View.VISIBLE);
-			audioView.setVisibility(View.VISIBLE);
-			
-			uriOfAudio = note.getNote_audio();
-
-			//audioView.setMediaController(audioMC);
-			audioView.setVideoURI(Uri.parse(note.getNote_audio()));
-			audioView.setOnTouchListener(new OnTouchListener(){
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-
-					return false;
-				}
-			});
-			/*audioView.setOnPreparedListener(new OnPreparedListener() {
-
-				@Override
-				public void onPrepared(MediaPlayer arg0) {
-					// TODO Auto-generated method stub
-					// audioView.start();
-					audioMC.show(0);
-				}
-			});*/
 		}
 		if(!note.getNote_address().toString().equals("") && (note.getNote_address() != null)){
 		          addTv.setVisibility(View.VISIBLE);
@@ -352,7 +323,7 @@ public class UpdateActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.create, menu);
+		getMenuInflater().inflate(R.menu.update, menu);
 		return true;
 	}
 
@@ -373,12 +344,6 @@ public class UpdateActivity extends Activity {
 			intent.putExtra("noteID", note.getNote_id());
 			startActivity(intent);
 			UpdateActivity.this.finish();
-		} else if (id == R.id.reset) {
-			suggestTitle.getText().clear();
-			noteContent.getText().clear();
-			imageView.setImageResource(android.R.color.transparent);
-			noteCategory = "";
-			categorySelectionChoice.setText("Category: None Selected");
 		} else if (id == R.id.uploadImage) {
 			Intent intent = new Intent();
 			intent.setType("image/*");
@@ -395,11 +360,6 @@ public class UpdateActivity extends Activity {
 			intent.setAction(Intent.ACTION_PICK);
 			startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_VIDEO);
 
-		}
-
-		else if (id == R.id.attachAudio) {
-			Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-			startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_AUDIO);
 		}
 		else if(id==R.id.attachLocation){
 			getMyCurrentLocation();
@@ -496,19 +456,19 @@ public class UpdateActivity extends Activity {
 					imageView.setVisibility(View.VISIBLE);
 					imageView.setImageBitmap(Image);
 					imageView.setOnTouchListener(new OnTouchListener(){
-                        @Override
-                        public boolean onTouch(View arg0, MotionEvent event) {
-                            int action = event.getAction();
-                            switch (action) {
-                            case MotionEvent.ACTION_UP:
-                                Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
-                                reviewImageFullScreen.putExtra("uri", note.getNote_img());
-                                startActivity(reviewImageFullScreen);
-                                break;
-                            }
-                            return true;
-                        }
-                    }); 
+		                @Override
+		                public boolean onTouch(View arg0, MotionEvent event) {
+		                    int action = event.getAction();
+		                    switch (action) {
+		                    case MotionEvent.ACTION_UP:
+		                        Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
+		                        reviewImageFullScreen.putExtra("uri", note.getNote_img());
+		                        startActivity(reviewImageFullScreen);
+		                        break;
+		                    }
+		                    return true;
+		                }
+		            }); 
 
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -533,33 +493,11 @@ public class UpdateActivity extends Activity {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 						// TODO Auto-generated method stub
+	                	
 						Intent videoAudioPlayer = new Intent(UpdateActivity.this,VideoPlayerActivity.class);
 						videoAudioPlayer.putExtra("uri", uriOfVideo);
 						startActivity(videoAudioPlayer);
 						return false;
-					}
-				});
-				break;
-			case PICK_AUDIO:
-				hrTv.setVisibility(View.VISIBLE);
-		        mLinearLayoutHeader.setVisibility(View.VISIBLE);
-				audioView.setVisibility(View.VISIBLE);
-
-				Uri mAudioURI = data.getData();
-
-				uriOfAudio = getRealPathFromURI(mAudioURI);
-
-				audioView.setMediaController(audioMC);
-				audioView.setVideoURI(mAudioURI);
-				audioView.requestFocus();
-
-				audioView.setOnPreparedListener(new OnPreparedListener() {
-
-					@Override
-					public void onPrepared(MediaPlayer arg0) {
-						// TODO Auto-generated method stub
-						// audioView.start();
-						// audioMC.show(0);
 					}
 				});
 				break;
