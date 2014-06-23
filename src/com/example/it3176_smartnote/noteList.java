@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,18 +44,22 @@ public class noteList extends ArrayAdapter<Note>{
 				
 				//setting text to widgets
 				txtTitle.setText(resultArray.get(position).getNote_name());
+				if(!resultArray.get(position).getNote_name().equals("NO result Found please check your input. Thank you")){
+					Log.d("test", resultArray.get(position).getNote_name());
 				txtCate.setText(resultArray.get(position).getNote_category());
 				txtDate.setText(resultArray.get(position).getNote_date());
-				imgView.setImageResource(imageId[position]);
 				if(resultArray.get(position).getNote_category().equals("Meeting Notes")){
 					imgView.setImageResource(imageId[1]);
 				}else if(resultArray.get(position).getNote_category().equals("Personal")){
 					imgView.setImageResource(imageId[2]);
 				}else if(resultArray.get(position).getNote_category().equals("Client")){
 					imgView.setImageResource(imageId[0]);
+				}
 				}else{
 					imgView.setImageResource(imageId[3]);
 				}
+				
+				
 				return rowView;
 	}
 

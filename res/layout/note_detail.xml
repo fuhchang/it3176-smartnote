@@ -3,255 +3,236 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-	 <TextView 
-	        android:id="@+id/noteTitle"
-	        android:layout_marginLeft="5dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:background="@drawable/create_note_styling"
-	        android:textSize="32sp"
-	        android:singleLine="true"
-	        android:hint="Title"
-       		 />
-	
-	    <TextView
-	        android:id="@+id/currentDateTimeOfCreation"
-	        android:layout_marginLeft="5dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	         />
-	
-	    <View 
-	        android:id="@+id/hr"
-	        android:layout_marginTop="5dp"
-	   	    android:layout_width="fill_parent"
-	        android:layout_height="2dp"   
-	        android:background="#000"/>
-	    
-	  
-	    
-	    
-	    
-	    <TextView
-	        android:id="@+id/categorySelectionChoice"
-	        android:layout_marginLeft="5dp"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:text="Category: None Selected"
-	        android:textSize="16sp"
-	        android:textColor="#C35817"
-	         />
-	    
-	   
-	    
-	     <View 
-	        android:id="@+id/hr2"
-	        android:layout_marginTop="5dp"
-	   	    android:layout_width="fill_parent"
-	        android:layout_height="2dp"     
-	        android:background="#000"/>
-	     
-	     
-	     
-	   <LinearLayout
-	        android:id="@+id/header"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:background="#336699"
-	        android:orientation="horizontal" >
 
-			<TextView
-			    android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:background="@drawable/attachment"
-				
-				/>	       
-	       
-	       <TextView
-	        	android:id="@+id/clickme"
-	        	android:layout_width="fill_parent"
-	        	android:layout_height="wrap_content"
-	        	android:textStyle="bold"
-	        	android:textSize="20sp"
-	        	android:textColor="#FFF"
-	        	android:gravity="left"
-	        	android:layout_marginBottom="5dp"
-	        	android:text="Attachment(s) - tap to view"
-	        	/>"
-	  
-   	 </LinearLayout>
-    
-    
-    
-    <FrameLayout android:layout_width="match_parent"
-    			android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/noteTitle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/create_note_styling"
+        android:hint="Title"
+        android:singleLine="true"
+        android:textSize="32sp" />
 
- 				<ScrollView
-	         	android:id="@+id/sv"
-	         	android:layout_below="@+id/attachmentHr"
-	         	android:layout_width="fill_parent"
-	         	android:layout_height="fill_parent">
-	         	
-			    <LinearLayout
-			        android:id="@+id/expandable"
-			        android:layout_width="match_parent"
-			        android:layout_height="wrap_content"
-			        android:background="#336699"
-			        
-			        android:orientation="vertical" >
-				     
-				      <FrameLayout android:layout_width="match_parent"
-			    			android:layout_height="wrap_content">
-				         
-				         
-				         
-					         <LinearLayout
-					             android:id="@+id/lLA"
-					             android:layout_width="fill_parent"
-					             android:layout_height="wrap_content"
-					             android:orientation="horizontal"
-					             >  
-					             
+    <TextView
+        android:id="@+id/currentDateTimeOfCreation"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp" />
 
-							    <ImageView 
-							         android:id="@+id/imageView"
-							         android:layout_width="140dp"
-							         android:layout_height="100dp"
-							         android:layout_marginTop="5dp"
-							         android:layout_marginLeft="10dp"
-							         android:layout_marginRight="10dp"/> 
-			
-							     
-							     <VideoView 
-							         android:id="@+id/videoView"
-							         android:layout_width="140dp"
-							         android:layout_height="100dp" 
-							         android:layout_marginTop="5dp"
-							         android:layout_marginLeft="10dp"
-							         android:layout_marginRight="10dp"
-									 android:layout_gravity="center"/>
-							     
-							     <TextView
-									 android:layout_width="fill_parent"
-							         android:layout_height="wrap_content"
-							         />
-							     
-							     
-							      <View 
-								        android:id="@+id/hr50"
-								        android:layout_marginTop="5dp"
-								   	    android:layout_width="fill_parent"
-								        android:layout_height="2dp"     
-								        android:background="#000"/>
-					    	 </LinearLayout>
-							 <LinearLayout
-					             android:id="@+id/lLA2"
-					             android:layout_marginTop="110dp"
-					             android:layout_width="fill_parent"
-					             android:layout_height="wrap_content"
-					             android:orientation="horizontal"
-					             >  
-					             
-							    <TextView
-							        android:id="@+id/imageFilePathTextView"
-							        android:layout_width="140dp"
-							        android:layout_height="100dp"
-							        android:layout_gravity="center_horizontal"
-							        android:layout_marginLeft="10dp"
-							        android:layout_marginRight="10dp"
-							        android:layout_marginTop="5dp"
-							        android:textColor="#FFF" />
-							     
-							     <TextView
-							         android:id="@+id/videoFilePathTextView"
-							         android:layout_width="140dp"
-							         android:layout_height="100dp"
-							         android:layout_gravity="center_horizontal"
-							         android:layout_marginLeft="10dp"
-							         android:layout_marginRight="10dp"
-							         android:layout_marginTop="5dp"
-							         android:textColor="#FFF" />
-							     
-							     <TextView
-									 android:layout_width="fill_parent"
-							         android:layout_height="wrap_content"
-							         />
-							     
-							     
-							      <View 
-								        android:id="@+id/hr50"
-								        android:layout_marginTop="5dp"
-								   	    android:layout_width="fill_parent"
-								        android:layout_height="2dp"     
-								        android:background="#000"/>
-					    	 </LinearLayout>
-							 <LinearLayout
-					             android:id="@+id/lLA2"
-					             android:layout_marginTop="150dp"
-					             android:layout_width="fill_parent"
-					             android:layout_height="wrap_content"
-					             android:orientation="horizontal"
-					             >  
-							     <TextView
-							         android:id="@+id/addTv"
-							         android:layout_width="wrap_content"
-							         android:layout_height="wrap_content"
-							         android:layout_marginLeft="5dp"
-							         android:layout_marginTop="5dp"
-							         android:text="Location: "
-							         android:textColor="#FFF"
-							         android:textStyle="bold" />
-							     
-							      <TextView
-							         android:id="@+id/currentLocation"
-							         android:textColor="#FFF"
-					                 android:layout_height="wrap_content"
-					                 android:layout_width="fill_parent"
-					                 android:layout_marginTop="5dp"
-					                 android:layout_marginLeft="5dp"
-					                 android:text="blah"
-					                 />
-					             
-							     
-							     
-							     
-							     
-							     <TextView
-									 android:layout_width="fill_parent"
-							         android:layout_height="wrap_content"
-							         />
-							     
-							     
-							      <View 
-								        android:id="@+id/hr50"
-								        android:layout_marginTop="5dp"
-								   	    android:layout_width="fill_parent"
-								        android:layout_height="2dp"     
-								        android:background="#000"/>
-					    	 </LinearLayout>
-				         </FrameLayout>
-    		</LinearLayout>
- 		</ScrollView>
-	     
- 			
- 			 <TextView 
-		         android:id="@+id/hrTv"
-		         android:layout_width="fill_parent"
-		         android:layout_height="2dp"     
-		   		 android:background="#000"/>
- 			
-	      <TextView
-	         android:id="@+id/noteContent"
-	         android:layout_width="fill_parent"
-	         android:layout_height="wrap_content"
-	         android:layout_marginLeft="5dp"
-	         android:layout_marginTop="5dp"
-	         android:textSize="20sp"
-	         android:background="@drawable/create_note_styling"
-	         android:gravity="top"
-	         android:hint="Content"
-	         android:inputType="textMultiLine" />
+    <View
+        android:id="@+id/hr"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:background="#000" />
 
+    <TextView
+        android:id="@+id/categorySelectionChoice"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="Category: None Selected"
+        android:textColor="#C35817"
+        android:textSize="16sp" />
+
+    <View
+        android:id="@+id/hr2"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:background="#000" />
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#336699"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/attachment" />
+
+        <TextView
+            android:id="@+id/clickme"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:gravity="left"
+            android:text="Attachment(s) - tap to view"
+            android:textColor="#FFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+"
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ScrollView
+            android:id="@+id/sv"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/attachmentHr" >
+
+            <LinearLayout
+                android:id="@+id/expandable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#336699"
+                android:orientation="vertical" >
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <LinearLayout
+                        android:id="@+id/lLA"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/imageUriTv"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp" />
+
+                        <ImageView
+                            android:id="@+id/imageView"
+                            android:layout_width="140dp"
+                            android:layout_height="100dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginTop="5dp" />
+
+                        <TextView
+                            android:id="@+id/videoUriTv"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp" />
+
+                        <VideoView
+                            android:id="@+id/videoView"
+                            android:layout_width="140dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginTop="5dp" />
+
+                        <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content" />
+
+                        <View
+                            android:id="@+id/hr50"
+                            android:layout_width="fill_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="5dp"
+                            android:background="#000" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lLA2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="110dp"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/imageFilePathTextView"
+                            android:layout_width="140dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginTop="5dp"
+                            android:textColor="#FFF" />
+
+                        <TextView
+                            android:id="@+id/videoFilePathTextView"
+                            android:layout_width="140dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginTop="5dp"
+                            android:textColor="#FFF" />
+
+                        <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content" />
+
+                        <View
+                            android:id="@+id/hr50"
+                            android:layout_width="fill_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="5dp"
+                            android:background="#000" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lLA2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="150dp"
+                        android:orientation="horizontal" >
+
+                        <TextView
+                            android:id="@+id/addTv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginTop="5dp"
+                            android:text="Location: "
+                            android:textColor="#FFF"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/currentLocation"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginTop="5dp"
+                            android:text="blah"
+                            android:textColor="#FFF" />
+
+                        <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content" />
+
+                        <View
+                            android:id="@+id/hr50"
+                            android:layout_width="fill_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="5dp"
+                            android:background="#000" />
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/hrTv"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:background="#000" />
+
+        <TextView
+            android:id="@+id/noteContent"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/create_note_styling"
+            android:gravity="top"
+            android:hint="Content"
+            android:inputType="textMultiLine"
+            android:textSize="20sp" />
     </FrameLayout>
+
 </LinearLayout>
