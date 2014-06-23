@@ -502,7 +502,7 @@ public class UpdateActivity extends Activity {
 		                    switch (action) {
 		                    case MotionEvent.ACTION_UP:
 		                        Intent reviewImageFullScreen = new Intent(UpdateActivity.this,ImageFullScreenActivity.class);
-		                        reviewImageFullScreen.putExtra("uri", note.getNote_img());
+		                        reviewImageFullScreen.putExtra("uri", uriOfImage);
 		                        startActivity(reviewImageFullScreen);
 		                        break;
 		                    }
