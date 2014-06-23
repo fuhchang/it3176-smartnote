@@ -64,8 +64,8 @@ public class NoteDetail extends Activity {
 	
 	private Cursor calendarEventTitleCursor;
 	
-	TextView dateTimeCreation, categorySelection, attachment, hrTv, imageUriTv,
-			videoUriTv, audioUriTv, tapToAddTags, tags, addTv, currentLocation,
+	TextView dateTimeCreation, categorySelection, attachment, hrTv,
+	tapToAddTags, tags, addTv, currentLocation,
 			attachments, noteTitle, noteContent;
 	Note note;
 	MediaController videoMC;
@@ -93,21 +93,14 @@ public class NoteDetail extends Activity {
 		dateTimeCreation.setText(note.getNote_date());
 
 		imageView = (ImageView) findViewById(R.id.imageView);
-		imageUriTv = (TextView) findViewById(R.id.imageUriTv);
 		videoView = (VideoView) findViewById(R.id.videoView);
-		videoUriTv = (TextView) findViewById(R.id.videoUriTv);
 		audioView = (VideoView) findViewById(R.id.audioView);
-		audioUriTv = (TextView) findViewById(R.id.audioUriTv);
 		addTv=(TextView) findViewById(R.id.addTv);
 		currentLocation = (TextView) findViewById(R.id.currentLocation);
 		
 		
 		imageView.setVisibility(View.GONE);
-		imageUriTv.setVisibility(View.GONE);
 		videoView.setVisibility(View.GONE);
-		videoUriTv.setVisibility(View.GONE);
-		audioView.setVisibility(View.GONE);
-		audioUriTv.setVisibility(View.GONE);
 
 		addTv.setVisibility(View.GONE);
 		currentLocation.setVisibility(View.GONE);
@@ -142,18 +135,12 @@ public class NoteDetail extends Activity {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
 			imageView.setVisibility(View.VISIBLE);
-			String uriOfImage = "<b>Image: </b>" + note.getNote_img();
-			imageUriTv.setText(Html.fromHtml(uriOfImage));
-			imageUriTv.setVisibility(View.VISIBLE);
 		}
 		//check and display if there is video
 		if(!note.getNote_video().equals("")){
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);		
 			videoView.setVisibility(View.VISIBLE);
-			videoUriTv.setVisibility(View.VISIBLE);
-			String uriOfVideo = "<b>Video: </b>" + note.getNote_video();
-			videoUriTv.setText(Html.fromHtml(uriOfVideo));
 			videoView.setVideoURI(Uri.parse(note.getNote_video()));
 			videoView.setMediaController(videoMC);
 			videoView.requestFocus();
