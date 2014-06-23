@@ -446,6 +446,21 @@ public class CreateActivity extends Activity {
 					       imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 					       imageView.setVisibility(View.VISIBLE);
 						   imageView.setImageBitmap(yourSelectedImage);
+						   imageView.setOnTouchListener(new OnTouchListener(){
+				                @Override
+				                public boolean onTouch(View arg0, MotionEvent event) {
+				                    int action = event.getAction();
+				                    switch (action) {
+				                    case MotionEvent.ACTION_UP:
+				                    	
+				                        Intent reviewImageFullScreen = new Intent(CreateActivity.this,ImageFullScreenActivity.class);
+				                        reviewImageFullScreen.putExtra("uri", uriOfImage);
+				                        startActivity(reviewImageFullScreen);
+				                        break;
+				                    }
+				                    return true;
+				                }
+				            });
 					break;
 		
 				case PICK_VIDEO:
@@ -490,8 +505,18 @@ public class CreateActivity extends Activity {
 						//videoUriTv.setText(Html.fromHtml(uriOfVideo));
 						videoUriTv.setText(uriOfVideo.substring(uriOfVideo.lastIndexOf("/") + 1,uriOfVideo.length()));
 						videoView.setVideoURI(capturedVideoURI);
-						videoView.setMediaController(videoMC);
-						videoView.requestFocus();
+						videoView.setOnTouchListener(new OnTouchListener(){
+							@Override
+							public boolean onTouch(View v, MotionEvent event) {
+								// TODO Auto-generated method stub
+								Intent videoAudioPlayer = new Intent(CreateActivity.this,VideoPlayerActivity.class);
+								videoAudioPlayer.putExtra("uri", uriOfVideo);
+								startActivity(videoAudioPlayer);
+								return false;
+							}
+						});
+			/*			videoView.setMediaController(videoMC);
+					videoView.requestFocus();
 						videoView.setOnPreparedListener(new OnPreparedListener(){
 							@Override
 							public void onPrepared(MediaPlayer mp) {
@@ -500,7 +525,7 @@ public class CreateActivity extends Activity {
 								//videoMC.show(0);
 							}
 							
-						});
+						});*/
 					}
 					catch(NullPointerException e) {
 					           // TODO Auto-generated catch block
