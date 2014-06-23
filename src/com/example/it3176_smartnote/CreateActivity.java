@@ -715,8 +715,8 @@ public class CreateActivity extends Activity {
     	  hrTv.setVisibility(View.VISIBLE);
           mLinearLayoutHeader.setVisibility(View.VISIBLE);
           currentLocation.setText(Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.");
-          storingAddress=Address  +"\n" + City + ". \n(Co-ordinates:" + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.";
-    	}
+          storingAddress=Address  +"\n" + City + ". \n(Co-ordinates: " + MyLat + ", " + MyLong + "). \nAccuracy: "+accLoc + " meters from actual location.";
+      }
       else{ 
          AlertDialog.Builder builder1 = new AlertDialog.Builder(CreateActivity.this);
          builder1.setTitle("Service Unavailable");
