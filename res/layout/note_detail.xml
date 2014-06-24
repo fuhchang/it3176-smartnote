@@ -95,11 +95,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal" >
 
-                        <TextView
-                            android:id="@+id/imageUriTv"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp" />
 
                         <ImageView
                             android:id="@+id/imageView"
@@ -109,11 +104,6 @@
                             android:layout_marginRight="10dp"
                             android:layout_marginTop="5dp" />
 
-                        <TextView
-                            android:id="@+id/videoUriTv"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp" />
 
                         <VideoView
                             android:id="@+id/videoView"

@@ -1,37 +1,22 @@
 package com.example.it3176_smartnote;
 
-import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
+
 import android.database.SQLException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.CalendarContract;
-import android.provider.MediaStore.Images.Media;
-import android.text.Html;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,11 +25,11 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -61,18 +46,18 @@ public class NoteDetail extends Activity {
 	CheckBox cb_remember_setting;
 	LinearLayout mLinearLayout;
 	LinearLayout mLinearLayoutHeader;
-	
+
 	private ImageView imageView;
 	private VideoView videoView;
-	private VideoView audioView;
-	
-	private Cursor calendarEventTitleCursor;
-	
-	TextView dateTimeCreation, categorySelection, attachment, hrTv,	tapToAddTags, tags, addTv, currentLocation,	attachments, noteTitle, noteContent;
+
+	TextView dateTimeCreation, categorySelection, attachment, hrTv,
+			tapToAddTags, tags, addTv, currentLocation, attachments, noteTitle,
+			noteContent, imageFilePathTextView, videoFilePathTextView;
 	Note note;
 	MediaController videoMC;
 	MediaController audioMC;
 	int noteID, selected;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -82,9 +67,7 @@ public class NoteDetail extends Activity {
 		getEntry.open();
 		note = getEntry.retrieveNote(noteID);
 		getEntry.close();
-		
-		
-		
+
 		noteTitle = (TextView) findViewById(R.id.noteTitle);
 		noteTitle.setText(note.getNote_name());
 		noteContent = (TextView) findViewById(R.id.noteContent);
@@ -96,13 +79,17 @@ public class NoteDetail extends Activity {
 
 		imageView = (ImageView) findViewById(R.id.imageView);
 		videoView = (VideoView) findViewById(R.id.videoView);
-		audioView = (VideoView) findViewById(R.id.audioView);
-		addTv=(TextView) findViewById(R.id.addTv);
+
+		imageFilePathTextView = (TextView) findViewById(R.id.imageFilePathTextView);
+		videoFilePathTextView = (TextView) findViewById(R.id.videoFilePathTextView);
+		addTv = (TextView) findViewById(R.id.addTv);
 		currentLocation = (TextView) findViewById(R.id.currentLocation);
-		
-		
+
 		imageView.setVisibility(View.GONE);
 		videoView.setVisibility(View.GONE);
+
+		imageFilePathTextView.setVisibility(View.GONE);
+		videoFilePathTextView.setVisibility(View.GONE);
 
 		addTv.setVisibility(View.GONE);
 		currentLocation.setVisibility(View.GONE);
@@ -132,60 +119,69 @@ public class NoteDetail extends Activity {
 				}
 			}
 		});
-		//check and display if there is image
+		// check and display if there is image
 		if (!note.getNote_img().equals("")) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
 			imageView.setVisibility(View.VISIBLE);
-			imageView.setOnTouchListener(new OnTouchListener(){
+			imageFilePathTextView.setText(note.getNote_img().substring(
+					note.getNote_img().lastIndexOf("/") + 1,
+					note.getNote_img().length()));
+			imageFilePathTextView.setVisibility(View.VISIBLE);
+			imageView.setOnTouchListener(new OnTouchListener() {
 
 				@Override
 				public boolean onTouch(View arg0, MotionEvent event) {
 					// TODO Auto-generated method stub
 					int action = event.getAction();
-					switch(action){
+					switch (action) {
 					case MotionEvent.ACTION_UP:
-					Intent reviewImageFullScreen = new Intent(NoteDetail.this,ImageFullScreenActivity.class);
-					reviewImageFullScreen.putExtra("uri", note.getNote_img());
-					 startActivity(reviewImageFullScreen);
-					 break;
+						Intent reviewImageFullScreen = new Intent(
+								NoteDetail.this, ImageFullScreenActivity.class);
+						reviewImageFullScreen.putExtra("uri",
+								note.getNote_img());
+						startActivity(reviewImageFullScreen);
+						break;
 					}
 					return true;
 				}
-				
+
 			});
 		}
-		//check and display if there is video
-		if(!note.getNote_video().equals("")){
+		// check and display if there is video
+		if (!note.getNote_video().equals("")) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
-			hrTv.setVisibility(View.VISIBLE);		
+			hrTv.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.VISIBLE);
 			videoView.setVideoURI(Uri.parse(note.getNote_video()));
 			videoView.setMediaController(videoMC);
-			videoView.setOnTouchListener(new OnTouchListener(){
+			videoFilePathTextView.setText(note.getNote_video().substring(
+					note.getNote_video().lastIndexOf("/") + 1,
+					note.getNote_video().length()));
+			videoFilePathTextView.setVisibility(View.VISIBLE);
+			videoView.setOnTouchListener(new OnTouchListener() {
 
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					// TODO Auto-generated method stub
-					Intent videoAudioPlayer = new Intent(NoteDetail.this,VideoPlayerActivity.class);
+					Intent videoAudioPlayer = new Intent(NoteDetail.this,
+							VideoPlayerActivity.class);
 					videoAudioPlayer.putExtra("uri", note.getNote_video());
 					startActivity(videoAudioPlayer);
 					return false;
 				}
-				
+
 			});
-			
+
 		}
-		
-		if(!note.getNote_address().equals("")){
+
+		if (!note.getNote_address().equals("")) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			addTv.setVisibility(View.VISIBLE);
 			addTv.setText(note.getNote_address());
 		}
-		
-		
-		
+
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 	}
@@ -202,81 +198,86 @@ public class NoteDetail extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
-		switch(item.getItemId()){
-		
+		switch (item.getItemId()) {
+
 		case R.id.action_settings:
 
-			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-			String selected_setting = sp.getString("selected_setting", "YourSetting");
-			
-			//If user's had chose a preference before
-			if(selected_setting.equals("archive")){
+			final SharedPreferences sp = PreferenceManager
+					.getDefaultSharedPreferences(this);
+			String selected_setting = sp.getString("selected_setting",
+					"YourSetting");
+
+			// If user's had chose a preference before
+			if (selected_setting.equals("archive")) {
 				selected = 0;
-			}
-			else if(selected_setting.equals("delete")){
+			} else if (selected_setting.equals("delete")) {
 				selected = 1;
-			}
-			else if(selected_setting.equals("none")){
+			} else if (selected_setting.equals("none")) {
 				selected = 2;
 			}
-			
-			final CharSequence[] preferences = {"Archive", "Delete", "None"};
-			
+
+			final CharSequence[] preferences = { "Archive", "Delete", "None" };
+
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Preference").setSingleChoiceItems(preferences, selected, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if(preferences[which].equals("Archive")){
-						selected = 0;
-					}
-					else if(preferences[which].equals("Delete")){
-						selected = 1;						
-					}
-					else if(preferences[which].equals("None")){
-						selected = 2;
-					}
-				}
-			});
-			builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if(preferences[selected].equals("Archive")){
-						savePreferences("selected_setting", "archive");
-					}
-					else if(preferences[selected].equals("Delete")){
-						savePreferences("selected_setting", "delete");
-					}
-					else if(preferences[selected].equals("None")){
-						savePreferences("selected_setting", "none");
-					}
-				}
-			});
+			builder.setTitle("Preference").setSingleChoiceItems(preferences,
+					selected, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (preferences[which].equals("Archive")) {
+								selected = 0;
+							} else if (preferences[which].equals("Delete")) {
+								selected = 1;
+							} else if (preferences[which].equals("None")) {
+								selected = 2;
+							}
+						}
+					});
+			builder.setPositiveButton("Ok",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (preferences[selected].equals("Archive")) {
+								savePreferences("selected_setting", "archive");
+							} else if (preferences[selected].equals("Delete")) {
+								savePreferences("selected_setting", "delete");
+							} else if (preferences[selected].equals("None")) {
+								savePreferences("selected_setting", "none");
+							}
+						}
+					});
 			AlertDialog prefDialog = builder.create();
 			prefDialog.show();
 			break;
-			
+
 		case R.id.btn_remove:
-			final SharedPreferences rsp = PreferenceManager.getDefaultSharedPreferences(this);
-			String rselected_setting = rsp.getString("selected_setting", "none");
+			final SharedPreferences rsp = PreferenceManager
+					.getDefaultSharedPreferences(this);
+			String rselected_setting = rsp
+					.getString("selected_setting", "none");
 
 			// User's preference is archiving note
 			if (rselected_setting.equals("archive")) {
 				// Prompt for archive confirmation
-				AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(NoteDetail.this);
-				archiveBuilder.setTitle("Archive").setMessage("This note will be archived.");
+				AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
+						NoteDetail.this);
+				archiveBuilder.setTitle("Archive").setMessage(
+						"This note will be archived.");
 
-				archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,	int which) {
-						archiveNote();
-					}
-				});
-				archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,
-							int which) {
-					}
-				});
+				archiveBuilder.setPositiveButton("Ok",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								archiveNote();
+							}
+						});
+				archiveBuilder.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+							}
+						});
 				AlertDialog deleteDialog = archiveBuilder.create();
 				deleteDialog.show();
 			}
@@ -284,114 +285,152 @@ public class NoteDetail extends Activity {
 			// User's preference is deleting note
 			else if (rselected_setting.equals("delete")) {
 				// Prompt for delete confirmation
-				AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(NoteDetail.this);
-				deleteBuilder.setTitle("Delete").setMessage("This note will be deleted.");
+				AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(
+						NoteDetail.this);
+				deleteBuilder.setTitle("Delete").setMessage(
+						"This note will be deleted.");
 
-				deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,	int which) {
-						deleteNote();
-					}
-				});
-				deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,
-							int which) {
-					}
-				});
+				deleteBuilder.setPositiveButton("Ok",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								deleteNote();
+							}
+						});
+				deleteBuilder.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+							}
+						});
 				AlertDialog deleteDialog = deleteBuilder.create();
 				deleteDialog.show();
 			}
-			
+
 			// User did not set preference
 			else {
 				LayoutInflater inflater = LayoutInflater.from(this);
-				final View setting_view = inflater.inflate(R.layout.setting_dialog, null);
-				cb_remember_setting = (CheckBox) setting_view.findViewById(R.id.cb_remember_setting);
+				final View setting_view = inflater.inflate(
+						R.layout.setting_dialog, null);
+				cb_remember_setting = (CheckBox) setting_view
+						.findViewById(R.id.cb_remember_setting);
 				savePreferences("preference", false);
 
-				AlertDialog.Builder optionBuilder = new AlertDialog.Builder(this);
+				AlertDialog.Builder optionBuilder = new AlertDialog.Builder(
+						this);
 				optionBuilder.setView(setting_view);
 				optionBuilder.setTitle("Select an action");
 
 				// Checking whether user set preference
-				cb_remember_setting.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton arg0,
-							boolean arg1) {
-						if (cb_remember_setting.isChecked()) {
-							savePreferences("preference", true);
-						} else {
-							savePreferences("preference", false);
-						}
-					}
-				});
+				cb_remember_setting
+						.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+							@Override
+							public void onCheckedChanged(CompoundButton arg0,
+									boolean arg1) {
+								if (cb_remember_setting.isChecked()) {
+									savePreferences("preference", true);
+								} else {
+									savePreferences("preference", false);
+								}
+							}
+						});
 
 				// Select action "Archive"
-				optionBuilder.setNegativeButton("Archive", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// Prompt for archive confirmation
-						AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(NoteDetail.this);
-						archiveBuilder.setTitle("Archive").setMessage("This note will be archived.");
+				optionBuilder.setNegativeButton("Archive",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// Prompt for archive confirmation
+								AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
+										NoteDetail.this);
+								archiveBuilder.setTitle("Archive").setMessage(
+										"This note will be archived.");
 
-						archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (rsp.getBoolean("preference",	true)) {
-									savePreferences("selected_setting", "archive");
-								}
-								archiveNote();
+								archiveBuilder.setPositiveButton("Ok",
+										new DialogInterface.OnClickListener() {
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												if (rsp.getBoolean(
+														"preference", true)) {
+													savePreferences(
+															"selected_setting",
+															"archive");
+												}
+												archiveNote();
+											}
+										});
+								archiveBuilder.setNegativeButton("Cancel",
+										new DialogInterface.OnClickListener() {
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+											}
+										});
+								AlertDialog deleteDialog = archiveBuilder
+										.create();
+								deleteDialog.show();
 							}
 						});
-						archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,	int which) {
-							}
-						});
-						AlertDialog deleteDialog = archiveBuilder.create();
-						deleteDialog.show();
-					}
-				});
 
 				// Select action "Delete"
-				optionBuilder.setPositiveButton("Delete",	new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,	int which) {
-						// Prompt for delete confirmation
-						AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(NoteDetail.this);
-						archiveBuilder.setTitle("Delete").setMessage("This note will be deleted.");
+				optionBuilder.setPositiveButton("Delete",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// Prompt for delete confirmation
+								AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
+										NoteDetail.this);
+								archiveBuilder.setTitle("Delete").setMessage(
+										"This note will be deleted.");
 
-						archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,	int which) {
-								if (rsp.getBoolean("preference",	true)) {
-									savePreferences("selected_setting", "delete");
-								}
-								deleteNote();
+								archiveBuilder.setPositiveButton("Ok",
+										new DialogInterface.OnClickListener() {
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												if (rsp.getBoolean(
+														"preference", true)) {
+													savePreferences(
+															"selected_setting",
+															"delete");
+												}
+												deleteNote();
+											}
+										});
+								archiveBuilder.setNegativeButton("Cancel",
+										new DialogInterface.OnClickListener() {
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+											}
+										});
+								AlertDialog deleteDialog = archiveBuilder
+										.create();
+								deleteDialog.show();
 							}
 						});
-						archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,	int which) {
-							}
-						});
-						AlertDialog deleteDialog = archiveBuilder.create();
-						deleteDialog.show();
-					}
-				});
 				AlertDialog dialog = optionBuilder.create();
 				dialog.show();
 			}
 			break;
 		case R.id.btn_edit:
-			Intent intent = new Intent(getApplicationContext(), UpdateActivity.class);
+			Intent intent = new Intent(getApplicationContext(),
+					UpdateActivity.class);
 			intent.putExtra("noteID", noteID);
 			startActivity(intent);
 			this.finish();
 			break;
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -407,7 +446,8 @@ public class NoteDetail extends Activity {
 			controller.close();
 			Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note archived", Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), "Note archived", Toast.LENGTH_LONG)
+					.show();
 		}
 	}
 
@@ -423,55 +463,61 @@ public class NoteDetail extends Activity {
 			controller.close();
 			Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note deleted", Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), "Note deleted", Toast.LENGTH_LONG)
+					.show();
 		}
 	}
 
 	private void savePreferences(String key, boolean value) {
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
 		edit.putBoolean(key, value);
 		edit.commit();
 	}
 
 	private void savePreferences(String key, String value) {
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
 		edit.putString(key, value);
 		edit.commit();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		NoteDetail.this.finish();
 		Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
 		refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(refresh);
-		
+
 		super.onBackPressed();
 	}
 
 	private void expand() {
-	     //set Visible
-	     mLinearLayout.setVisibility(View.VISIBLE);
-	     
-	     final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-	     final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-	     mLinearLayout.measure(widthSpec, heightSpec);
-	     
-	     ValueAnimator mAnimator = slideAnimator(0, mLinearLayout.getMeasuredHeight());
-	     
-	     noteContent.setVisibility(View.GONE);
-	     attachments.setText("Attachment(s) - tap to close");
-	     
-	     mAnimator.start();
+		// set Visible
+		mLinearLayout.setVisibility(View.VISIBLE);
+
+		final int widthSpec = View.MeasureSpec.makeMeasureSpec(0,
+				View.MeasureSpec.UNSPECIFIED);
+		final int heightSpec = View.MeasureSpec.makeMeasureSpec(0,
+				View.MeasureSpec.UNSPECIFIED);
+		mLinearLayout.measure(widthSpec, heightSpec);
+
+		ValueAnimator mAnimator = slideAnimator(0,
+				mLinearLayout.getMeasuredHeight());
+
+		noteContent.setVisibility(View.GONE);
+		attachments.setText("Attachment(s) - tap to close");
+
+		mAnimator.start();
 	}
 
 	private void collapse() {
 		int finalHeight = mLinearLayout.getHeight();
 
 		ValueAnimator mAnimator = slideAnimator(finalHeight, 0);
-		
+
 		mAnimator.addListener(new Animator.AnimatorListener() {
 
 			@Override
@@ -501,7 +547,7 @@ public class NoteDetail extends Activity {
 
 			}
 		});
-		 mAnimator.start();
+		mAnimator.start();
 	}
 
 	private ValueAnimator slideAnimator(int start, int end) {

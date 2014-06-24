@@ -44,8 +44,7 @@ public class noteList extends ArrayAdapter<Note>{
 				
 				//setting text to widgets
 				txtTitle.setText(resultArray.get(position).getNote_name());
-				if(!resultArray.get(position).getNote_name().equals("NO result Found please check your input. Thank you")){
-					Log.d("test", resultArray.get(position).getNote_name());
+				
 				txtCate.setText(resultArray.get(position).getNote_category());
 				txtDate.setText(resultArray.get(position).getNote_date());
 				if(resultArray.get(position).getNote_category().equals("Meeting Notes")){
@@ -54,10 +53,10 @@ public class noteList extends ArrayAdapter<Note>{
 					imgView.setImageResource(imageId[2]);
 				}else if(resultArray.get(position).getNote_category().equals("Client")){
 					imgView.setImageResource(imageId[0]);
-				}
 				}else{
 					imgView.setImageResource(imageId[3]);
 				}
+				
 				
 				
 				return rowView;
