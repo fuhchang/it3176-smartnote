@@ -24,6 +24,11 @@
     <string name="action_settings">Settings</string>
     <string name="action_archive">Archive</string>
 
+    <!-- Delete|Archive note -->
+    <string name="btn_remove">Remove</string>
+    <string name="cb_remember_setting">Remember this setting?</string>
+    <string name="btn_reactivate">Reactivate</string>
+    
     <!-- Category of notes -->
     <string name="selection"><u>Tap here to select note category</u></string>
         <string name="tags"><u>Tap here to add tags</u></string>
@@ -50,11 +55,8 @@
         <item>Ascending</item>
         <item>Descending</item>
     </string-array>
-    <!-- Delete|Archive note -->
-    <string name="btn_remove">Remove</string>
+    
     <string name="btn_edit">Edit</string>
-    <string name="cb_remember_setting">Remember this setting?</string>
-    <string name="btn_reactivate">Reactivate</string>
     <string name="title_activity_update">Update Note</string>
     
 </resources>

@@ -1,61 +1,56 @@
 package com.example.it3176_smartnote;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.SearchManager;
-import android.app.TabActivity;
 import android.app.AlertDialog.Builder;
-import android.content.ClipData.Item;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.drawable.Drawable;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.DatePicker;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
+import android.widget.SearchView.OnQueryTextListener;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 
 @SuppressLint("ValidFragment")
 public class MainActivity extends Activity {
+	String selected_setting;
+	ArrayList<Note> selected_notes = new ArrayList<Note>();
+	SharedPreferences sp;
 	int count, selected;
+	noteList notelist;
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
@@ -84,15 +79,14 @@ public class MainActivity extends Activity {
 			}
 		}
 		Collections.sort(resultArray, new DateDesComparator());
-		noteList notelist = new noteList(MainActivity.this, resultArray, imageId);
+		notelist = new noteList(MainActivity.this, resultArray, imageId);
 		list = (ListView) findViewById(R.id.noteListView);
 		list.setAdapter(notelist);
 
 		list.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1,	int position, long arg3) {
 				// TODO Auto-generated method stub
 
 				Intent intent = new Intent(getApplicationContext(), NoteDetail.class);
@@ -100,6 +94,131 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 
+		});
+
+		sp = PreferenceManager.getDefaultSharedPreferences(this);
+		selected_setting = sp.getString("selected_setting", "YourSetting");
+		
+		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+			
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+				
+				case R.id.btn_remove:
+					
+					// Calls getSelectedIds method from noteList Class
+					SparseBooleanArray selected = notelist.getSelectedIds();
+					
+					// Captures all selected ids with a loop
+					for (int i = (selected.size() - 1); i >= 0; i--) {
+						if (selected.valueAt(i)) {
+							selected_notes.add(notelist.getItem(selected.keyAt(i)));
+						}
+					}
+					
+					if(selected_setting.equals("archive")){
+						// Prompt for archive confirmation
+						AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(MainActivity.this);
+
+						archiveBuilder.setTitle("Archive").setMessage("These note(s) will be archived.");
+
+						archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								for(int i = 0; i < selected_notes.size(); i++){
+									archiveNote(selected_notes.get(i));
+								}
+							}
+						});
+						archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,	int which) {
+							}
+						});
+						AlertDialog dialog = archiveBuilder.create();
+						dialog.show();
+					}
+					
+					else if(selected_setting.equals("delete")){
+						// Prompt for delete confirmation
+						AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(MainActivity.this);
+
+						deleteBuilder.setTitle("Delete").setMessage("These note(s) will be deleted.");
+
+						deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								for(int i = 0; i < selected_notes.size(); i++){
+									deleteNote(selected_notes.get(i));
+								}
+							}
+						});
+						deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,	int which) {
+							}
+						});
+						AlertDialog dialog = deleteBuilder.create();
+						dialog.show();
+					}
+					
+					else if(selected_setting.equals("none")){
+						AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+						builder.setMessage("No settings");
+						builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {}
+						});
+						AlertDialog dialog = builder.create();
+						dialog.show();
+					}
+					
+					// Close CAB
+					mode.finish();
+					break;
+				}
+				return false;
+			}
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				mode.getMenuInflater().inflate(R.menu.remove, menu);
+				
+				if (selected_setting.equals("archive")) {
+					menu.getItem(0).setIcon(R.drawable.ic_action_collection);
+				}
+
+				else if (selected_setting.equals("delete")) {
+					menu.getItem(0).setIcon(R.drawable.ic_action_discard);
+				}
+
+				else if (selected_setting.equals("none")){
+					menu.getItem(0).setIcon(R.drawable.ic_action_remove);
+				}
+				return true;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+				notelist.removeSelection();
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				return false;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+				// Capture total checked items
+				final int checkedCount = list.getCheckedItemCount();
+				// Set the CAB title according to total checked items
+				mode.setTitle(checkedCount + " Selected");
+				// Calls toggleSelection method from noteList Class
+				notelist.toggleSelection(position);
+			}
 		});
 
 	}
@@ -174,8 +293,8 @@ public class MainActivity extends Activity {
 			startActivity(archive_intent);
 			break;
 		case R.id.action_settings:
-			final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-			String selected_setting = sp.getString("selected_setting", "YourSetting");
+			sp = PreferenceManager.getDefaultSharedPreferences(this);
+			selected_setting = sp.getString("selected_setting", "YourSetting");
 
 			// If user's had chose a preference before
 			if (selected_setting.equals("archive")) {
@@ -185,6 +304,8 @@ public class MainActivity extends Activity {
 			} else if (selected_setting.equals("none")) {
 				selected = 2;
 			}
+			else
+				selected = 2;
 
 			final CharSequence[] preferences = { "Archive", "Delete", "None" };
 
@@ -211,6 +332,10 @@ public class MainActivity extends Activity {
 					} else if (preferences[selected].equals("None")) {
 						savePreferences("selected_setting", "none");
 					}
+					
+					/*MainActivity.this.finish();
+					Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+					startActivity(refresh);*/
 				}
 			});
 			AlertDialog prefDialog = builder.create();
@@ -248,6 +373,36 @@ public class MainActivity extends Activity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void archiveNote(Note note) {
+		SQLiteController controller = new SQLiteController(MainActivity.this);
+		try {
+			controller.open();
+			controller.updateNoteStatus(note, "archive");
+		} catch (SQLException e) {
+			System.out.println(e);
+		} finally {
+			controller.close();
+			Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+			startActivity(refresh);
+			Toast.makeText(getBaseContext(), "Note(s) archived", Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private void deleteNote(Note note) {
+		SQLiteController controller = new SQLiteController(MainActivity.this);
+		try {
+			controller.open();
+			controller.deleteNote(note);
+		} catch (SQLException e) {
+			System.out.println(e);
+		} finally {
+			controller.close();
+			Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+			startActivity(refresh);
+			Toast.makeText(getBaseContext(), "Note(s) deleted", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private class MyDatePicker extends DialogFragment implements DatePickerDialog.OnDateSetListener {

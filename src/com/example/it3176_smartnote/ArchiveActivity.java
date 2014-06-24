@@ -10,9 +10,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.SQLiteController.it3176.SQLiteController;
-import com.example.it3176_smartnote.model.Note;
-
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -26,22 +23,31 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SearchView.OnQueryTextListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+
+import com.SQLiteController.it3176.SQLiteController;
+import com.example.it3176_smartnote.model.Note;
 
 @SuppressLint({ "ValidFragment", "SimpleDateFormat" })
 public class ArchiveActivity extends Activity {
+	ArrayList<Note> selected_notes = new ArrayList<Note>();
 	int count, selected;
+	noteList notelist;
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
@@ -68,7 +74,7 @@ public class ArchiveActivity extends Activity {
         	}
         }
 		Collections.sort(resultArray, new DateDesComparator());
-		noteList notelist = new noteList(ArchiveActivity.this, resultArray, imageId);
+		notelist = new noteList(ArchiveActivity.this, resultArray, imageId);
 		list = (ListView) findViewById(R.id.noteListView);
 		list.setAdapter(notelist);
         
@@ -80,6 +86,92 @@ public class ArchiveActivity extends Activity {
 				startActivity(intent);
 			}
         });
+        
+		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+			
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+				
+				case R.id.btn_reactivate:
+					
+					// Calls getSelectedIds method from noteList Class
+					SparseBooleanArray selected = notelist.getSelectedIds();
+					
+					// Captures all selected ids with a loop
+					for (int i = (selected.size() - 1); i >= 0; i--) {
+						if (selected.valueAt(i)) {
+							selected_notes.add(notelist.getItem(selected.keyAt(i)));
+						}
+					}
+					
+					//Prompt for restore confirmation
+					AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
+					
+					builder.setTitle("Restore").setMessage("These note(s) will be restored.");
+					
+					builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							SQLiteController controller = new SQLiteController(ArchiveActivity.this);
+							for(int i = 0; i < selected_notes.size(); i++) {
+								try{
+									controller.open();
+									controller.reactivateNote(selected_notes.get(i));
+								} catch(SQLException e){
+									System.out.println(e);
+								} finally{
+									controller.close();
+								}
+							}
+							ArchiveActivity.this.finish();
+							Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
+							startActivity(refresh);
+						}
+					});
+					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					AlertDialog dialog = builder.create();
+					dialog.show();
+					
+					// Close CAB
+					mode.finish();
+					break;
+					}
+				return false;
+			}
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				mode.getMenuInflater().inflate(R.menu.archive_detail, menu);
+				return false;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+				notelist.removeSelection();
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				return false;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+				// Capture total checked items
+				final int checkedCount = list.getCheckedItemCount();
+				// Set the CAB title according to total checked items
+				mode.setTitle(checkedCount + " Selected");
+				// Calls toggleSelection method from noteList Class
+				notelist.toggleSelection(position);
+			}
+		});
         
 		ActionBar actionBar	= getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);

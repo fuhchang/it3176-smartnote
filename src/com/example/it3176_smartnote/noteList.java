@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +22,15 @@ public class noteList extends ArrayAdapter<Note>{
 	private final Activity context;
 	private ArrayList<Note> resultArray = new ArrayList<Note>();
 	private Integer[] imageId;
+	private SparseBooleanArray mSelectedItemsIds;
+	
 	public noteList(Context context, ArrayList<Note> resultArray2, Integer[] imageId) {
 		super(context, R.layout.note_single,resultArray2);
 		// TODO Auto-generated constructor stub
 		this.context = (Activity) context;
 		this.resultArray = resultArray2;
 		this.imageId = imageId;
+		mSelectedItemsIds = new SparseBooleanArray();
 	}
 
 	@Override
@@ -57,13 +61,33 @@ public class noteList extends ArrayAdapter<Note>{
 					imgView.setImageResource(imageId[3]);
 				}
 				
-				
-				
 				return rowView;
 	}
 
-	
 
-	
+	public void toggleSelection(int position) {
+		selectView(position, !mSelectedItemsIds.get(position));
+	}
+
+	public void removeSelection() {
+		mSelectedItemsIds = new SparseBooleanArray();
+		notifyDataSetChanged();
+	}
+
+	public void selectView(int position, boolean value) {
+		if (value)
+			mSelectedItemsIds.put(position, value);
+		else
+			mSelectedItemsIds.delete(position);
+		notifyDataSetChanged();
+	}
+
+	public int getSelectedCount() {
+		return mSelectedItemsIds.size();
+	}
+
+	public SparseBooleanArray getSelectedIds() {
+		return mSelectedItemsIds;
+	}
 
 }

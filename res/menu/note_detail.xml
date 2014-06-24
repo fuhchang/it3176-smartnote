@@ -7,11 +7,11 @@
         android:showAsAction="always"
         android:icon="@drawable/ic_action_edit"
         android:title="@string/btn_edit"/>
+	
     <item
         android:id="@+id/btn_remove"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:icon="@drawable/ic_action_discard"
         android:title="@string/btn_remove"/>
   
 	<item

@@ -44,6 +44,7 @@ import com.example.it3176_smartnote.util.VideoPlayerActivity;
 
 public class NoteDetail extends Activity {
 	CheckBox cb_remember_setting;
+	Menu menu;
 	LinearLayout mLinearLayout;
 	LinearLayout mLinearLayoutHeader;
 
@@ -191,6 +192,25 @@ public class NoteDetail extends Activity {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.note_detail, menu);
+		
+
+		final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		String selected_setting = sp.getString("selected_setting", "YourSetting");
+
+		if (selected_setting.equals("archive")) {
+			this.menu = menu;
+			menu.getItem(1).setIcon(R.drawable.ic_action_collection);
+		}
+
+		else if (selected_setting.equals("delete")) {
+			this.menu = menu;
+			menu.getItem(1).setIcon(R.drawable.ic_action_discard);
+		}
+
+		else if (selected_setting.equals("none")){
+			this.menu = menu;
+			menu.getItem(1).setIcon(R.drawable.ic_action_remove);
+		}
 
 		return true;
 	}
@@ -243,6 +263,7 @@ public class NoteDetail extends Activity {
 							} else if (preferences[selected].equals("None")) {
 								savePreferences("selected_setting", "none");
 							}
+							NoteDetail.this.invalidateOptionsMenu();
 						}
 					});
 			AlertDialog prefDialog = builder.create();
@@ -278,8 +299,8 @@ public class NoteDetail extends Activity {
 									int which) {
 							}
 						});
-				AlertDialog deleteDialog = archiveBuilder.create();
-				deleteDialog.show();
+				AlertDialog dialog = archiveBuilder.create();
+				dialog.show();
 			}
 
 			// User's preference is deleting note
@@ -372,9 +393,9 @@ public class NoteDetail extends Activity {
 													int which) {
 											}
 										});
-								AlertDialog deleteDialog = archiveBuilder
+								AlertDialog archiveDialog = archiveBuilder
 										.create();
-								deleteDialog.show();
+								archiveDialog.show();
 							}
 						});
 
