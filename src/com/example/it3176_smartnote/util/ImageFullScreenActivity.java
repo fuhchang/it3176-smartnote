@@ -57,10 +57,10 @@ public class ImageFullScreenActivity extends Activity{
         	image.setScaleType(ScaleType.MATRIX);   //required
         	matrix.preRotate((float) 180, image.getWidth()/2, image.getHeight()/2);
         	image.setImageMatrix(matrix);
-        	
         }
         TouchImageView img = (TouchImageView) findViewById(R.id.imageReviewFullScreen);
         img.setMaxZoom(4);
+        img.setRotation(rotateImage);
 
     }
       
