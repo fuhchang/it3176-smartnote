@@ -1,22 +1,31 @@
 package com.example.it3176_smartnote;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 import android.database.SQLException;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +40,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.TextView;
@@ -129,24 +139,43 @@ public class NoteDetail extends Activity {
 					note.getNote_img().lastIndexOf("/") + 1,
 					note.getNote_img().length()));
 			imageFilePathTextView.setVisibility(View.VISIBLE);
-			imageView.setOnTouchListener(new OnTouchListener() {
 
+			final int rotateImage = getCameraPhotoOrientation(NoteDetail.this,
+					Uri.parse(note.getNote_img()), note.getNote_img());
+			
+			Matrix matrix = new Matrix();
+			imageView.setScaleType(ScaleType.MATRIX);
+			matrix.postRotate(rotateImage, imageView.getDrawable().getBounds()
+					.width() / 2,
+					imageView.getDrawable().getBounds().height() / 2);
+			
+			imageView.setImageMatrix(matrix);
+			imageView.setOnTouchListener(new OnTouchListener() {
 				@Override
 				public boolean onTouch(View arg0, MotionEvent event) {
-					// TODO Auto-generated method stub
 					int action = event.getAction();
 					switch (action) {
 					case MotionEvent.ACTION_UP:
+
 						Intent reviewImageFullScreen = new Intent(
-								NoteDetail.this, ImageFullScreenActivity.class);
+								NoteDetail.this,
+								ImageFullScreenActivity.class);
+						ByteArrayOutputStream bs = new ByteArrayOutputStream();
+						BitmapDrawable drawable = (BitmapDrawable) imageView
+								.getDrawable();
+						Bitmap bitmap = drawable.getBitmap();
+						bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bs);
+						reviewImageFullScreen.putExtra("byteArray",
+								bs.toByteArray());
 						reviewImageFullScreen.putExtra("uri",
-								note.getNote_img());
+								imageFilePathTextView.getText().toString());
+						reviewImageFullScreen.putExtra("rotateImage",
+								rotateImage);
 						startActivity(reviewImageFullScreen);
 						break;
 					}
 					return true;
 				}
-
 			});
 		}
 		// check and display if there is video
@@ -192,10 +221,11 @@ public class NoteDetail extends Activity {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.note_detail, menu);
-		
 
-		final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		String selected_setting = sp.getString("selected_setting", "YourSetting");
+		final SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String selected_setting = sp.getString("selected_setting",
+				"YourSetting");
 
 		if (selected_setting.equals("archive")) {
 			this.menu = menu;
@@ -587,5 +617,40 @@ public class NoteDetail extends Activity {
 			}
 		});
 		return animator;
+	}
+
+	public int getCameraPhotoOrientation(Context context, Uri imageUri,
+			String imagePath) {
+		int rotate = 0;
+		try {
+			context.getContentResolver().notifyChange(imageUri, null);
+			File imageFile = new File(imagePath);
+
+			ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+			int orientation = exif.getAttributeInt(
+					ExifInterface.TAG_ORIENTATION,
+					ExifInterface.ORIENTATION_NORMAL);
+
+			switch (orientation) {
+			case ExifInterface.ORIENTATION_ROTATE_270:
+				rotate = 270;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_180:
+				rotate = 180;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_90:
+				rotate = 90;
+				break;
+			default:
+				rotate = 0;
+				break;
+			}
+
+			Log.i("RotateImage", "Exif orientation: " + orientation);
+			Log.i("RotateImage", "Rotate value: " + rotate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rotate;
 	}
 }
