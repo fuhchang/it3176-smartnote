@@ -17,7 +17,6 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.SearchManager;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,8 +37,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
 import android.widget.SearchView.OnQueryTextListener;
+import android.widget.Toast;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
@@ -99,128 +98,185 @@ public class MainActivity extends Activity {
 		sp = PreferenceManager.getDefaultSharedPreferences(this);
 		selected_setting = sp.getString("selected_setting", "YourSetting");
 		
-		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-			
-			@Override
-			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-				switch (item.getItemId()) {
+		if(selected_setting.equals("archive") || selected_setting.equals("delete")){
+			list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 				
-				case R.id.btn_remove:
+				@Override
+				public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+					switch (item.getItemId()) {
 					
-					// Calls getSelectedIds method from noteList Class
-					SparseBooleanArray selected = notelist.getSelectedIds();
+					case R.id.btn_remove:
+						
+						// Calls getSelectedIds method from noteList Class
+						SparseBooleanArray selected = notelist.getSelectedIds();
+						
+						// Captures all selected ids with a loop
+						for (int i = (selected.size() - 1); i >= 0; i--) {
+							if (selected.valueAt(i)) {
+								selected_notes.add(notelist.getItem(selected.keyAt(i)));
+							}
+						}
+						
+						if(selected_setting.equals("archive")){
+							// Prompt for archive confirmation
+							AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(MainActivity.this);
+	
+							archiveBuilder.setTitle("Archive").setMessage("These note(s) will be archived.");
+	
+							archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									for(int i = 0; i < selected_notes.size(); i++){
+										archiveNote(selected_notes.get(i));
+									}
+								}
+							});
+							archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,	int which) {
+								}
+							});
+							AlertDialog dialog = archiveBuilder.create();
+							dialog.show();
+						}
+						
+						else if(selected_setting.equals("delete")){
+							// Prompt for delete confirmation
+							AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(MainActivity.this);
+	
+							deleteBuilder.setTitle("Delete").setMessage("These note(s) will be deleted.");
+	
+							deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									for(int i = 0; i < selected_notes.size(); i++){
+										deleteNote(selected_notes.get(i));
+									}
+								}
+							});
+							deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,	int which) {
+								}
+							});
+							AlertDialog dialog = deleteBuilder.create();
+							dialog.show();
+						}
+						
+						// Close CAB
+						mode.finish();
+						break;
+					}
+					return false;
+				}
+	
+				@Override
+				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+					mode.getMenuInflater().inflate(R.menu.remove, menu);
 					
-					// Captures all selected ids with a loop
-					for (int i = (selected.size() - 1); i >= 0; i--) {
-						if (selected.valueAt(i)) {
-							selected_notes.add(notelist.getItem(selected.keyAt(i)));
+					if (selected_setting.equals("archive")) {
+						menu.getItem(0).setIcon(R.drawable.ic_action_collection);
+					}
+	
+					else if (selected_setting.equals("delete")) {
+						menu.getItem(0).setIcon(R.drawable.ic_action_discard);
+					}
+					return true;
+				}
+	
+				@Override
+				public void onDestroyActionMode(ActionMode mode) {
+					notelist.removeSelection();
+				}
+	
+				@Override
+				public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+					return false;
+				}
+	
+				@Override
+				public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+					// Capture total checked items
+					final int checkedCount = list.getCheckedItemCount();
+					// Set the CAB title according to total checked items
+					mode.setTitle(checkedCount + " Selected");
+					// Calls toggleSelection method from noteList Class
+					notelist.toggleSelection(position);
+				}
+			});
+		}
+
+		if(selected_setting.equals("archive") || selected_setting.equals("delete")){
+			// Create a ListView-specific touch listener. ListViews are given special treatment because
+	        // by default they handle touches for their list items... i.e. they're in charge of drawing
+	        // the pressed state (the list selector), handling list item clicks, etc.
+	        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(list, new SwipeDismissListViewTouchListener.DismissCallbacks() {
+				
+				@Override
+				public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+					for(int position : reverseSortedPositions) {
+						final int tempt = position;
+		                //notelist.remove(notelist.getItem(position));
+						if(selected_setting.equals("archive")){
+							// Prompt for archive confirmation
+							AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(MainActivity.this);
+	
+							archiveBuilder.setTitle("Archive").setMessage("Note " + notelist.getItem(position).getNote_name() + " will be archived.");
+	
+							archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									archiveNote(notelist.getItem(tempt));
+								}
+							});
+							archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,	int which) {
+									Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+									refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+									startActivity(refresh);
+								}
+							});
+							AlertDialog dialog = archiveBuilder.create();
+							dialog.show();
+						}
+						else if(selected_setting.equals("delete")){
+							// Prompt for delete confirmation
+							AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(MainActivity.this);
+
+							deleteBuilder.setTitle("Delete").setMessage("Note " + notelist.getItem(position).getNote_name() + " will be deleted.");
+		
+							deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									deleteNote(notelist.getItem(tempt));
+								}
+							});
+							deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,	int which) {
+									Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+									refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+									startActivity(refresh);
+								}
+							});
+							AlertDialog dialog = deleteBuilder.create();
+							dialog.show();
 						}
 					}
-					
-					if(selected_setting.equals("archive")){
-						// Prompt for archive confirmation
-						AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(MainActivity.this);
-
-						archiveBuilder.setTitle("Archive").setMessage("These note(s) will be archived.");
-
-						archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								for(int i = 0; i < selected_notes.size(); i++){
-									archiveNote(selected_notes.get(i));
-								}
-							}
-						});
-						archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,	int which) {
-							}
-						});
-						AlertDialog dialog = archiveBuilder.create();
-						dialog.show();
-					}
-					
-					else if(selected_setting.equals("delete")){
-						// Prompt for delete confirmation
-						AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(MainActivity.this);
-
-						deleteBuilder.setTitle("Delete").setMessage("These note(s) will be deleted.");
-
-						deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								for(int i = 0; i < selected_notes.size(); i++){
-									deleteNote(selected_notes.get(i));
-								}
-							}
-						});
-						deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,	int which) {
-							}
-						});
-						AlertDialog dialog = deleteBuilder.create();
-						dialog.show();
-					}
-					
-					else if(selected_setting.equals("none")){
-						AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-						builder.setMessage("No settings");
-						builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {}
-						});
-						AlertDialog dialog = builder.create();
-						dialog.show();
-					}
-					
-					// Close CAB
-					mode.finish();
-					break;
+					notelist.notifyDataSetChanged();
 				}
-				return false;
-			}
-
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				mode.getMenuInflater().inflate(R.menu.remove, menu);
 				
-				if (selected_setting.equals("archive")) {
-					menu.getItem(0).setIcon(R.drawable.ic_action_collection);
+				@Override
+				public boolean canDismiss(int position) {
+					return true;
 				}
-
-				else if (selected_setting.equals("delete")) {
-					menu.getItem(0).setIcon(R.drawable.ic_action_discard);
-				}
-
-				else if (selected_setting.equals("none")){
-					menu.getItem(0).setIcon(R.drawable.ic_action_remove);
-				}
-				return true;
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode) {
-				notelist.removeSelection();
-			}
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-				return false;
-			}
-
-			@Override
-			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-				// Capture total checked items
-				final int checkedCount = list.getCheckedItemCount();
-				// Set the CAB title according to total checked items
-				mode.setTitle(checkedCount + " Selected");
-				// Calls toggleSelection method from noteList Class
-				notelist.toggleSelection(position);
-			}
-		});
-
+			});
+	        list.setOnTouchListener(touchListener);
+	        // Setting this scroll listener is required to ensure that during ListView scrolling, we don't look for swipes.
+	        list.setOnScrollListener(touchListener.makeScrollListener());
+		}
 	}
 
 	@Override
@@ -301,11 +357,9 @@ public class MainActivity extends Activity {
 				selected = 0;
 			} else if (selected_setting.equals("delete")) {
 				selected = 1;
-			} else if (selected_setting.equals("none")) {
+			} else {
 				selected = 2;
 			}
-			else
-				selected = 2;
 
 			final CharSequence[] preferences = { "Archive", "Delete", "None" };
 
@@ -333,9 +387,9 @@ public class MainActivity extends Activity {
 						savePreferences("selected_setting", "none");
 					}
 					
-					/*MainActivity.this.finish();
+					MainActivity.this.finish();
 					Intent refresh = new Intent(MainActivity.this, MainActivity.class);
-					startActivity(refresh);*/
+					startActivity(refresh);
 				}
 			});
 			AlertDialog prefDialog = builder.create();
@@ -384,9 +438,11 @@ public class MainActivity extends Activity {
 			System.out.println(e);
 		} finally {
 			controller.close();
+			this.finish();
 			Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note(s) archived", Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), "Note(s) archived", Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -399,9 +455,11 @@ public class MainActivity extends Activity {
 			System.out.println(e);
 		} finally {
 			controller.close();
+			this.finish();
 			Intent refresh = new Intent(MainActivity.this, MainActivity.class);
+			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note(s) deleted", Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), "Note(s) deleted", Toast.LENGTH_SHORT).show();
 		}
 	}
 

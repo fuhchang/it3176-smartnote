@@ -207,7 +207,7 @@ public class NoteDetail extends Activity {
 			menu.getItem(1).setIcon(R.drawable.ic_action_discard);
 		}
 
-		else if (selected_setting.equals("none")){
+		else {
 			this.menu = menu;
 			menu.getItem(1).setIcon(R.drawable.ic_action_remove);
 		}
