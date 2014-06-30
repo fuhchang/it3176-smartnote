@@ -66,10 +66,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -158,6 +160,9 @@ public class UpdateActivity extends Activity {
 	static TextView imageFilePathTextView;
 	static TextView videoFilePathTextView;
 
+	ScrollView sv;
+	FrameLayout frameLayout;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -189,6 +194,9 @@ public class UpdateActivity extends Activity {
 		noteContent = (EditText) findViewById(R.id.noteContent);
 		noteContent.setText(note.getNote_content());
 
+		//sv = (ScrollView) findViewById(R.id.sv);
+		frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
+		
 		btnSave = (Button) findViewById(R.id.btnSave);
 
 		imageView = (ImageView) findViewById(R.id.imageView);
@@ -214,7 +222,6 @@ public class UpdateActivity extends Activity {
 		mLinearLayout.setVisibility(View.GONE);
 		mLinearLayoutHeader = (LinearLayout) findViewById(R.id.header);
 		mLinearLayoutHeader.setVisibility(View.GONE);
-
 		hrTv = (TextView) findViewById(R.id.hrTv);
 		hrTv.setVisibility(View.GONE);
 
@@ -319,6 +326,12 @@ public class UpdateActivity extends Activity {
 			hrTv.setVisibility(View.VISIBLE);
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			currentLocation.setText(note.getNote_address().toString());
+			//frameLayout.getLayoutParams().height = 770;
+		}
+		else{
+			//sv.getLayoutParams().height = 300;
+			//frameLayout.removeView(sv);
+			frameLayout.getLayoutParams().height = 470;
 		}
 
 		calendarEventTitleCursor = getContentResolver().query(
@@ -442,6 +455,7 @@ public class UpdateActivity extends Activity {
 
 		else if (id == R.id.attachLocation) {
 			getMyCurrentLocation();
+			//frameLayout.getLayoutParams().height = 880;
 		}
 
 		else if (id == R.id.removeAtt) {
@@ -924,7 +938,7 @@ public class UpdateActivity extends Activity {
 												.setVisibility(View.GONE);
 										currentLocation.setText("");
 										storingAddress = "";
-
+										System.out.println(mLinearLayout.getHeight());
 										if ((imageView.getVisibility() == View.GONE)
 												&& (videoView.getVisibility() == View.GONE)
 												&& (currentLocation

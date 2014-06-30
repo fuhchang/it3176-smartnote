@@ -93,14 +93,16 @@
     
     
     
-    <FrameLayout android:layout_width="match_parent"
+    <FrameLayout
+         android:id="@+id/frame_layout"
+         android:layout_width="match_parent"
     			android:layout_height="wrap_content">
 
  			<ScrollView
 	         	android:id="@+id/sv"
 	         	android:layout_below="@+id/attachmentHr"
 	         	android:layout_width="fill_parent"
-	         	android:layout_height="fill_parent">
+	         	android:layout_height="wrap_content">
 	         	
 			    <LinearLayout
 			        android:id="@+id/expandable"
@@ -165,7 +167,7 @@
 							    <TextView
 							        android:id="@+id/imageFilePathTextView"
 							        android:layout_width="140dp"
-							        android:layout_height="100dp"
+							        android:layout_height="50dp"
 							        android:layout_gravity="center_horizontal"
 							        android:layout_marginLeft="10dp"
 							        android:layout_marginRight="10dp"
@@ -175,7 +177,7 @@
 							     <TextView
 							         android:id="@+id/videoFilePathTextView"
 							         android:layout_width="140dp"
-							         android:layout_height="100dp"
+							         android:layout_height="50dp"
 							         android:layout_gravity="center_horizontal"
 							         android:layout_marginLeft="10dp"
 							         android:layout_marginRight="10dp"
