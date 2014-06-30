@@ -38,6 +38,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.Toast;
 import android.widget.SearchView.OnQueryTextListener;
 
 import com.SQLiteController.it3176.SQLiteController;
@@ -87,9 +88,9 @@ public class ArchiveActivity extends Activity {
 			}
         });
         
-		list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-			
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+
 			@Override
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 				switch (item.getItemId()) {
@@ -106,34 +107,17 @@ public class ArchiveActivity extends Activity {
 						}
 					}
 					
-					//Prompt for restore confirmation
+					// Prompt for restore confirmation
 					AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
 					
-					builder.setTitle("Restore").setMessage("These note(s) will be restored.");
+					builder.setTitle("Restore").setMessage("These note(s) will be restored");
 					
 					builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							SQLiteController controller = new SQLiteController(ArchiveActivity.this);
-							for(int i = 0; i < selected_notes.size(); i++) {
-								try{
-									controller.open();
-									controller.reactivateNote(selected_notes.get(i));
-								} catch(SQLException e){
-									System.out.println(e);
-								} finally{
-									controller.close();
-								}
+							for(int i = 0; i < selected_notes.size(); i++){
+								restoreNotes(selected_notes.get(i));
 							}
-							ArchiveActivity.this.finish();
-							Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
-							startActivity(refresh);
-						}
-					});
-					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
 						}
 					});
 					AlertDialog dialog = builder.create();
@@ -141,15 +125,15 @@ public class ArchiveActivity extends Activity {
 					
 					// Close CAB
 					mode.finish();
-					break;
-					}
+				}				
 				return false;
 			}
 
 			@Override
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 				mode.getMenuInflater().inflate(R.menu.archive_detail, menu);
-				return false;
+				
+				return true;
 			}
 
 			@Override
@@ -168,10 +152,53 @@ public class ArchiveActivity extends Activity {
 				final int checkedCount = list.getCheckedItemCount();
 				// Set the CAB title according to total checked items
 				mode.setTitle(checkedCount + " Selected");
-				// Calls toggleSelection method from noteList Class
+				// Calls toggleSelection method from noteList class
 				notelist.toggleSelection(position);
 			}
+        });
+
+		// Create a ListView-specific touch listener. ListViews are given special treatment because
+        // by default they handle touches for their list items... i.e. they're in charge of drawing
+        // the pressed state (the list selector), handling list item clicks, etc.
+        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(list, new SwipeDismissListViewTouchListener.DismissCallbacks() {
+			
+			@Override
+			public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+				for(int position : reverseSortedPositions) {
+					final int tempt = position;
+					// Prompt for archive confirmation
+					AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveActivity.this);
+
+					builder.setTitle("Restore").setMessage(notelist.getItem(position).getNote_name() + " will be restored.");
+
+					builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							restoreNotes(notelist.getItem(tempt));
+						}
+					});
+					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,	int which) {
+							Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
+							refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							startActivity(refresh);
+						}
+					});
+					AlertDialog dialog = builder.create();
+					dialog.show();
+				}
+				notelist.notifyDataSetChanged();
+			}
+			
+			@Override
+			public boolean canDismiss(int position) {
+				return true;
+			}
 		});
+        list.setOnTouchListener(touchListener);
+        // Setting this scroll listener is required to ensure that during ListView scrolling, we don't look for swipes.
+        list.setOnScrollListener(touchListener.makeScrollListener());
         
 		ActionBar actionBar	= getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -312,6 +339,23 @@ public class ArchiveActivity extends Activity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void restoreNotes(Note note) {
+		SQLiteController controller = new SQLiteController(ArchiveActivity.this);
+		try {
+			controller.open();
+			controller.updateNoteStatus(note, "active");
+		} catch (SQLException e) {
+			System.out.println(e);
+		} finally {
+			controller.close();
+			this.finish();
+			Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
+			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(refresh);
+			Toast.makeText(getBaseContext(), "Note(s) restored", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private class MyDatePicker extends DialogFragment implements DatePickerDialog.OnDateSetListener {
