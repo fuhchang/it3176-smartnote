@@ -1,6 +1,7 @@
 /**************CREATE NOTE DONE BY KEITH**********************/
 package com.example.it3176_smartnote;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,10 +26,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
@@ -61,6 +65,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+import android.widget.ImageView.ScaleType;
+
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
 import com.example.it3176_smartnote.util.ImageFullScreenActivity;
@@ -406,6 +412,16 @@ public class CreateActivity extends Activity {
 						imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 						imageView.setVisibility(View.VISIBLE);
 						imageView.setImageBitmap(Image);
+						   //Added
+						   final int rotateImage = getCameraPhotoOrientation(CreateActivity.this, mImageUri, uriOfImage);
+						   Image = decodeSampledBitmapFromResource(uriOfImage,
+									140, 100);
+							Matrix matrix = new Matrix();
+							imageView.setScaleType(ScaleType.MATRIX); // required
+							matrix.postRotate((float) rotateImage, imageView.getDrawable()
+									.getBounds().width() / 2, imageView.getDrawable()
+									.getBounds().height() / 2);
+							imageView.setImageMatrix(matrix);
 						imageView.setOnTouchListener(new OnTouchListener(){
 			                @Override
 			                public boolean onTouch(View arg0, MotionEvent event) {
@@ -414,7 +430,16 @@ public class CreateActivity extends Activity {
 			                    case MotionEvent.ACTION_UP:
 			                    	
 			                        Intent reviewImageFullScreen = new Intent(CreateActivity.this,ImageFullScreenActivity.class);
+			                        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+									BitmapDrawable drawable = (BitmapDrawable) imageView
+											.getDrawable();
+									Bitmap bitmap = drawable.getBitmap();
+									bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bs);
+									reviewImageFullScreen.putExtra("byteArray",
+											bs.toByteArray());
 			                        reviewImageFullScreen.putExtra("uri", uriOfImage);
+									reviewImageFullScreen.putExtra("rotateImage",
+											rotateImage);
 			                        startActivity(reviewImageFullScreen);
 			                        break;
 			                    }
@@ -432,41 +457,70 @@ public class CreateActivity extends Activity {
 					break;
 					
 				case CAPTURE_PHOTO:	
-						Uri capturedImageUri = data.getData();
-					       InputStream imageStream = null;
-					       try {
-					           imageStream = getContentResolver().openInputStream(capturedImageUri);
-					       } catch (FileNotFoundException e) {
-					           // TODO Auto-generated catch block
-					           e.printStackTrace();
-					       }
-					       Bitmap yourSelectedImage = BitmapFactory.decodeStream(imageStream);
-					       hrTv.setVisibility(View.VISIBLE);
-					       mLinearLayoutHeader.setVisibility(View.VISIBLE);
-					       uriOfImage = getRealPathFromURI(capturedImageUri);				
-					       imageUriTv.setVisibility(View.VISIBLE);
-					       //String img = "<u>Image: " + uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()) + "</u>";
-						   //imageUriTv.setText(Html.fromHtml(img));
-					       imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
-					       imageView.setVisibility(View.VISIBLE);
-						   imageView.setImageBitmap(yourSelectedImage);
-						   imageView.setOnTouchListener(new OnTouchListener(){
-				                @Override
-				                public boolean onTouch(View arg0, MotionEvent event) {
-				                    int action = event.getAction();
-				                    switch (action) {
-				                    case MotionEvent.ACTION_UP:
-				                    	
-				                        Intent reviewImageFullScreen = new Intent(CreateActivity.this,ImageFullScreenActivity.class);
-				                        reviewImageFullScreen.putExtra("uri", uriOfImage);
-				                        startActivity(reviewImageFullScreen);
-				                        break;
-				                    }
-				                    return true;
-				                }
-				            });
+					Uri capturedImageUri = data.getData();
+					InputStream imageStream = null;
+					try {
+						imageStream = getContentResolver().openInputStream(
+								capturedImageUri);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					Bitmap yourSelectedImage = BitmapFactory
+							.decodeStream(imageStream);
+					hrTv.setVisibility(View.VISIBLE);
+					mLinearLayoutHeader.setVisibility(View.VISIBLE);
+					uriOfImage = getRealPathFromURI(capturedImageUri);
+
+					final int rotateImage = getCameraPhotoOrientation(
+							CreateActivity.this, capturedImageUri, uriOfImage);
+					System.out.println(uriOfImage);
+					imageUriTv.setVisibility(View.VISIBLE);
+					imageUriTv.setText(uriOfImage.substring(
+							uriOfImage.lastIndexOf("/") + 1, uriOfImage.length()));
+					imageView.setVisibility(View.VISIBLE);
+					yourSelectedImage = decodeSampledBitmapFromResource(uriOfImage,
+							140, 100);
+					imageView.setImageBitmap(yourSelectedImage);
+					int width = imageView.getWidth();
+					int height = imageView.getHeight();
+					// Bitmap newImage =
+					// decodeSampledBitmapFromResource(selectedImagePath,width,height);
+					// imageUploaded.setImageBitmap(newImage);
+					// imageUploaded.setImageURI(selectedImageUri);
+					Matrix matrix = new Matrix();
+					imageView.setScaleType(ScaleType.MATRIX); // required
+					matrix.postRotate((float) rotateImage, imageView.getDrawable()
+							.getBounds().width() / 2, imageView.getDrawable()
+							.getBounds().height() / 2);
+					imageView.setImageMatrix(matrix);
+					imageView.setOnTouchListener(new OnTouchListener() {
+						@Override
+						public boolean onTouch(View arg0, MotionEvent event) {
+							int action = event.getAction();
+							switch (action) {
+							case MotionEvent.ACTION_UP:
+								Intent reviewImageFullScreen = new Intent(
+										CreateActivity.this,
+										ImageFullScreenActivity.class);
+								ByteArrayOutputStream bs = new ByteArrayOutputStream();
+								BitmapDrawable drawable = (BitmapDrawable) imageView
+										.getDrawable();
+								Bitmap bitmap = drawable.getBitmap();
+								bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bs);
+								reviewImageFullScreen.putExtra("byteArray",
+										bs.toByteArray());
+								reviewImageFullScreen.putExtra("uri",
+										imageUriTv.getText().toString());
+								reviewImageFullScreen.putExtra("rotateImage",
+										rotateImage);
+								startActivity(reviewImageFullScreen);
+								break;
+							}
+							return true;
+						}
+					});
 					break;
-		
 				case PICK_VIDEO:
 					try{
 					Uri mVideoURI = data.getData();        
@@ -543,6 +597,85 @@ public class CreateActivity extends Activity {
 			}
 		}
 		
+	}
+	
+	//Added
+	public static Bitmap decodeSampledBitmapFromResource(String pathName,
+			int reqWidth, int reqHeight) {
+
+		// First decode with inJustDecodeBounds=true to check dimensions
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(pathName, options);
+
+		// Calculate inSampleSize
+		options.inSampleSize = calculateInSampleSize(options, reqWidth,
+				reqHeight);
+
+		// Decode bitmap with inSampleSize set
+		options.inJustDecodeBounds = false;
+		return BitmapFactory.decodeFile(pathName, options);
+	}
+
+	//Added
+	public static int calculateInSampleSize(BitmapFactory.Options options,
+			int reqWidth, int reqHeight) {
+		// Raw height and width of image
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		int inSampleSize = 1;
+
+		if (height > reqHeight || width > reqWidth) {
+
+			final int halfHeight = height / 2;
+			final int halfWidth = width / 2;
+
+			// Calculate the largest inSampleSize value that is a power of 2 and
+			// keeps both
+			// height and width larger than the requested height and width.
+			while ((halfHeight / inSampleSize) > reqHeight
+					&& (halfWidth / inSampleSize) > reqWidth) {
+				inSampleSize *= 2;
+			}
+		}
+
+		return inSampleSize;
+	}
+
+	//Added
+	public int getCameraPhotoOrientation(Context context, Uri imageUri,
+			String imagePath) {
+		int rotate = 0;
+		try {
+			context.getContentResolver().notifyChange(imageUri, null);
+			File imageFile = new File(imagePath);
+
+			ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+			int orientation = exif.getAttributeInt(
+					ExifInterface.TAG_ORIENTATION,
+					ExifInterface.ORIENTATION_NORMAL);
+
+			switch (orientation) {
+			case ExifInterface.ORIENTATION_ROTATE_270:
+				rotate = 270;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_180:
+				rotate = 180;
+				break;
+			case ExifInterface.ORIENTATION_ROTATE_90:
+				rotate = 90;
+				break;
+			default:
+				rotate = 0;
+				break;
+			}
+
+			Log.i("RotateImage", "Exif orientation: " + orientation);
+			Log.i("RotateImage", "Rotate value: " + rotate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rotate;
 	}
 	
 	//convert the image URI to the direct file system path of the image file
