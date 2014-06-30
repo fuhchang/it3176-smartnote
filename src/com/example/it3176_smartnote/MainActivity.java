@@ -222,7 +222,7 @@ public class MainActivity extends Activity {
 							// Prompt for archive confirmation
 							AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(MainActivity.this);
 	
-							archiveBuilder.setTitle("Archive").setMessage("Note " + notelist.getItem(position).getNote_name() + " will be archived.");
+							archiveBuilder.setTitle("Archive").setMessage(notelist.getItem(position).getNote_name() + " will be archived.");
 	
 							archiveBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 								@Override
@@ -245,7 +245,7 @@ public class MainActivity extends Activity {
 							// Prompt for delete confirmation
 							AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(MainActivity.this);
 
-							deleteBuilder.setTitle("Delete").setMessage("Note " + notelist.getItem(position).getNote_name() + " will be deleted.");
+							deleteBuilder.setTitle("Delete").setMessage(notelist.getItem(position).getNote_name() + " will be deleted.");
 		
 							deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 								@Override
