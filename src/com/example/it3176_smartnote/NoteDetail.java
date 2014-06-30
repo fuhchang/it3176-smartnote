@@ -498,7 +498,9 @@ public class NoteDetail extends Activity {
 			System.out.println(e);
 		} finally {
 			controller.close();
+			this.finish();
 			Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
+			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
 			Toast.makeText(getBaseContext(), "Note archived", Toast.LENGTH_LONG)
 					.show();
@@ -515,7 +517,9 @@ public class NoteDetail extends Activity {
 			System.out.println(e);
 		} finally {
 			controller.close();
+			this.finish();
 			Intent refresh = new Intent(NoteDetail.this, MainActivity.class);
+			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
 			Toast.makeText(getBaseContext(), "Note deleted", Toast.LENGTH_LONG)
 					.show();

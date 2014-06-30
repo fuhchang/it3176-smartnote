@@ -120,6 +120,11 @@ public class ArchiveActivity extends Activity {
 							}
 						}
 					});
+					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
 					AlertDialog dialog = builder.create();
 					dialog.show();
 					
