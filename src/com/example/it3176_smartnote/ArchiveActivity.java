@@ -345,7 +345,7 @@ public class ArchiveActivity extends Activity {
 		SQLiteController controller = new SQLiteController(ArchiveActivity.this);
 		try {
 			controller.open();
-			controller.updateNoteStatus(note, "active");
+			controller.reactivateNote(note);
 		} catch (SQLException e) {
 			System.out.println(e);
 		} finally {
