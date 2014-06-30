@@ -42,7 +42,6 @@ public class VideoPlayerActivity extends Activity implements SurfaceHolder.Callb
 
         player = new MediaPlayer();
         controller = new VideoControllerView(this);
-        
         getActionBar().setTitle(uri.substring(uri.lastIndexOf("/") + 1,uri.length()));
         try {
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);

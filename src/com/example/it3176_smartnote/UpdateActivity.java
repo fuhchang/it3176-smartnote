@@ -379,7 +379,7 @@ public class UpdateActivity extends Activity {
 				// TODO Auto-generated method stub
 				CreateNoteDialog dialog = new CreateNoteDialog();
 				dialog.setDialogType(SELECTION_CHOICE_DIALOG);
-				dialog.show(getFragmentManager(), "CreateNoteDialog");
+				dialog.show(getFragmentManager(), "UpdateNoteDialog");
 			}
 		});
 
@@ -680,7 +680,7 @@ public class UpdateActivity extends Activity {
 				hrTv.setVisibility(View.VISIBLE);
 				mLinearLayoutHeader.setVisibility(View.VISIBLE);
 
-				uriOfVideo = getRealPathFromURI(mVideoURI);
+				uriOfVideo = getRealPathFromVideoURI(mVideoURI);
 
 				videoView.setVisibility(View.VISIBLE);
 				videoFilePathTextView.setVisibility(View.VISIBLE);
@@ -707,7 +707,7 @@ public class UpdateActivity extends Activity {
 					hrTv.setVisibility(View.VISIBLE);
 					mLinearLayoutHeader.setVisibility(View.VISIBLE);
 					// uriOfVideo = capturedVideoURI.toString();
-					uriOfVideo = getRealPathFromURI(capturedVideoURI);
+					uriOfVideo = getRealPathFromVideoURI(capturedVideoURI);
 					videoFilePathTextView.setVisibility(View.VISIBLE);
 					videoView.setVisibility(View.VISIBLE);
 					// String uriOfVideo = "<b>Video: </b>" +
@@ -822,6 +822,24 @@ public class UpdateActivity extends Activity {
 
 		// can post image
 		String[] proj = { MediaStore.Images.Media.DATA };
+		Cursor cursor = managedQuery(contentUri, proj, // Which columns to
+														// return
+				null, // WHERE clause; which rows to return (all rows)
+				null, // WHERE clause selection arguments (none)
+				null); // Order-by clause (ascending by name)
+		int column_index = cursor
+				.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+		cursor.moveToFirst();
+
+		return cursor.getString(column_index);
+	}
+	
+	// And to convert the video URI to the direct file system path of the image
+	// file
+	public String getRealPathFromVideoURI(Uri contentUri) {
+
+		// can post image
+		String[] proj = { MediaStore.Video.Media.DATA };
 		Cursor cursor = managedQuery(contentUri, proj, // Which columns to
 														// return
 				null, // WHERE clause; which rows to return (all rows)

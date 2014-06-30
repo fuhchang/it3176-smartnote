@@ -411,11 +411,12 @@ public class CreateActivity extends Activity {
 						//imageUriTv.setText(Html.fromHtml(img));
 						imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 						imageView.setVisibility(View.VISIBLE);
+						Image = decodeSampledBitmapFromResource(uriOfImage,
+									140, 100);
 						imageView.setImageBitmap(Image);
 						   //Added
 						   final int rotateImage = getCameraPhotoOrientation(CreateActivity.this, mImageUri, uriOfImage);
-						   Image = decodeSampledBitmapFromResource(uriOfImage,
-									140, 100);
+
 							Matrix matrix = new Matrix();
 							imageView.setScaleType(ScaleType.MATRIX); // required
 							matrix.postRotate((float) rotateImage, imageView.getDrawable()
