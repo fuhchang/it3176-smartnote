@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
-
+	
 	private DatePickerDialog datePicker;
 	private DatePickerDialog.OnDateSetListener dateListener;
 	Integer[] imageId = { R.drawable.client, R.drawable.meeting, R.drawable.personnel, R.drawable.ic_launcher };
