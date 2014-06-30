@@ -328,11 +328,6 @@ public class UpdateActivity extends Activity {
 			currentLocation.setText(note.getNote_address().toString());
 			//frameLayout.getLayoutParams().height = 770;
 		}
-		else{
-			//sv.getLayoutParams().height = 300;
-			//frameLayout.removeView(sv);
-			frameLayout.getLayoutParams().height = 470;
-		}
 
 		calendarEventTitleCursor = getContentResolver().query(
 				CalendarContract.Events.CONTENT_URI,
@@ -455,7 +450,6 @@ public class UpdateActivity extends Activity {
 
 		else if (id == R.id.attachLocation) {
 			getMyCurrentLocation();
-			//frameLayout.getLayoutParams().height = 880;
 		}
 
 		else if (id == R.id.removeAtt) {
