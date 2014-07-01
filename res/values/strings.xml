@@ -23,6 +23,7 @@
  	<string name="sort_location">Sort By Address</string>
     <string name="action_settings">Settings</string>
     <string name="action_archive">Archive</string>
+    <string name="send_file">send file</string>
 
     <!-- Delete|Archive note -->
     <string name="btn_remove">Remove</string>

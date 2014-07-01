@@ -21,6 +21,12 @@
 	    android:title="@string/refresh_title"
 	    android:showAsAction="never"
 	    />
+	<item 
+	    android:id="@+id/send_file"
+	    android:icon="@drawable/ic_action_refresh"
+	    android:title="@string/send_file"
+	    android:showAsAction="never"
+	    />
 	<item
         android:id="@+id/action_archive"
         android:orderInCategory="100"
