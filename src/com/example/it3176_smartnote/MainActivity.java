@@ -489,7 +489,10 @@ public class MainActivity extends Activity {
 			pMonth = monthOfYear + 1;
 
 			String monthString = null;
-
+			String dayString =null;
+			if(pDay < 10){
+				dayString = "0" + pDay;
+			}
 			switch (pMonth) {
 			case 1:
 				monthString = "Jan";
@@ -535,14 +538,17 @@ public class MainActivity extends Activity {
 				if (!resultArray.isEmpty()) {
 					for (int i = 0; i < resultArray.size(); i++) {
 						DateTime noteDate = formatter.parseDateTime(resultArray.get(i).getNote_date());
-						String selectedDate = pDay + "-" + monthString + "-" + pYear;
+						String selectedDate = dayString  + "-" + monthString + "-" + pYear;
 						String date1 = dateFormat.format(noteDate.toDate());
-
+						Log.d("date selected", selectedDate);
+						Log.d("date 1", date1);
 						if (date1.equals(selectedDate)) {
 							tempArray.add(resultArray.get(i));
 						}
 					}
 				}
+				
+				
 				if (!tempArray.isEmpty()) {
 					noteList notelist = new noteList(MainActivity.this,	tempArray, imageId);
 					list = (ListView) findViewById(R.id.noteListView);
@@ -550,6 +556,7 @@ public class MainActivity extends Activity {
 				} else {
 					Note note = new Note();
 					note.setNote_name("NO result Found please check your input. Thank you");
+					note.setNote_category("");
 					tempArray.add(note);
 					noteList notelist = new noteList(MainActivity.this, tempArray, imageId);
 					list = (ListView) findViewById(R.id.noteListView);
@@ -592,6 +599,7 @@ public class MainActivity extends Activity {
 							} else {
 								Note note = new Note();
 								note.setNote_name("NO result Found please check your input. Thank you");
+								note.setNote_category("");
 								tempArray.add(note);
 								noteList notelist = new noteList(
 										MainActivity.this, tempArray, imageId);
