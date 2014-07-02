@@ -855,4 +855,31 @@ public class MainActivity extends Activity {
 		}
 
 	}
+
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		
+		AlertDialog.Builder exitBuilder = new AlertDialog.Builder(MainActivity.this);
+		
+		exitBuilder.setTitle("Exit SmartNote?");
+
+		exitBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		});
+		exitBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog,	int which) {
+				dialog.cancel();
+			}
+		});
+		AlertDialog dialog = exitBuilder.create();
+		dialog.show();
+		//super.onBackPressed();
+	}
+	
+	
 }
