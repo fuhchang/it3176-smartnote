@@ -253,6 +253,13 @@ public class NoteDetail extends Activity {
 
 		switch (item.getItemId()) {
 
+		case R.id.send_email:
+			Intent email = new Intent(Intent.ACTION_SEND);
+			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_category() + " - "+ note.getNote_name());
+			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content());
+			email.setType("message/rfc822");
+			startActivity(Intent.createChooser(email, "Choose an Email client: "));
+			break;
 		case R.id.action_settings:
 
 			final SharedPreferences sp = PreferenceManager

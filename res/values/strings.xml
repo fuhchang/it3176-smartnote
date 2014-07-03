@@ -25,6 +25,7 @@
     <string name="action_archive">Archive</string>
     <string name="action_delete_all">Delete All</string>
     <string name="send_file">Send file</string>
+    <string name="send_email">Send email</string>
 
     <!-- Delete|Archive note -->
     <string name="btn_remove">Remove</string>
