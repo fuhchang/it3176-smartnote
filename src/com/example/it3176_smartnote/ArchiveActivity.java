@@ -18,6 +18,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.SearchManager;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -229,6 +230,7 @@ public class ArchiveActivity extends Activity {
 
 			@Override
 			public boolean onQueryTextSubmit(String query) {
+				searchResult.clear();
 				for (int i = 0; i < resultArray.size(); i++) {
 					if (resultArray.get(i).getNote_name().equals(query)) {
 						searchResult.add(resultArray.get(i));
@@ -311,6 +313,37 @@ public class ArchiveActivity extends Activity {
 			});
 			AlertDialog prefDialog = builder.create();
 			prefDialog.show();
+			break;
+		case R.id.action_delete_all:
+			AlertDialog.Builder deleteAllBuilder = new AlertDialog.Builder(this);
+			deleteAllBuilder.setTitle("Delete All Note").setMessage("Are you sure you want to delete all archive notes?");
+			deleteAllBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					SQLiteController controller = new SQLiteController(ArchiveActivity.this);
+					try {
+						controller.open();
+						for(int i = 0; i < resultArray.size(); i++){
+							controller.deleteNote(resultArray.get(i));	
+						}
+					} catch (SQLException e) {
+						System.out.println(e);
+					} finally {
+						controller.close();
+						Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
+						refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						startActivity(refresh);
+						Toast.makeText(getBaseContext(), "All archived notes deleted.", Toast.LENGTH_SHORT).show();
+					}
+				}
+			});
+			deleteAllBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			});
+			AlertDialog deleteAllDialog = deleteAllBuilder.create();
+			deleteAllDialog.show();
 			break;
 		case R.id.search_type:
 			MyCategoryDialog dialog = new MyCategoryDialog();
