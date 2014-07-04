@@ -24,6 +24,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -1017,16 +1018,20 @@ public class UpdateActivity extends Activity {
 
 	/** Notification for saving of note **/
 	public void notifySuccess() {
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-				this)
-				.setSmallIcon(R.drawable.ic_launcher)
-				.setContentTitle(getString(R.string.app_name))
-				.setContentText(
-						suggestTitle.getText().toString()
-								+ " successfully saved.");
-
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		mNotificationManager.notify(notifyID, mBuilder.build());
+		Intent intent = new Intent(this, NoteDetail.class);
+		intent.putExtra("noteID", noteID);
+	    PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+	    
+		NotificationCompat.Builder mBuilder = 
+				new NotificationCompat.Builder(this)
+					.setSmallIcon(R.drawable.app_icon)
+					.setContentTitle(getString(R.string.app_name))
+					.setContentIntent(pIntent)
+					.setContentText(suggestTitle.getText().toString() + " successfully saved.");
+		
+		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(notifyID,mBuilder.build());
+		this.finish();
 	}
 
 	/** For back pressed event **/
@@ -1407,10 +1412,9 @@ public class UpdateActivity extends Activity {
 
 				Toast.makeText(getApplicationContext(), "Note Saved",
 						Toast.LENGTH_LONG).show();
-				UpdateActivity.this.finish();
 				Intent intent = new Intent(this, MainActivity.class);
 				startActivity(intent);
-
+				UpdateActivity.this.finish();
 			} else {
 				Toast.makeText(getApplicationContext(),
 						"Something went wrong while storing.",
