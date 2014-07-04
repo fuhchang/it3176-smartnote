@@ -23,8 +23,11 @@ package com.example.it3176_smartnote.dropbox;
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -69,6 +72,7 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
     private DropboxAPI<?> mApi;
     private String mPath;
     private String mUrl;
+    private String localFilePath;
     private Drawable mDrawable;
 
     private FileOutputStream mFos;
@@ -132,10 +136,10 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
             mFileLen = ent.bytes;*/
 
 
-            String cachePath = Environment.getExternalStorageDirectory() + "/Documents/" + mUrl.substring(mUrl.lastIndexOf("/") + 1, mUrl.length());
-            System.out.println("Cache Path: " + cachePath);
+            localFilePath = Environment.getExternalStorageDirectory() + "/Documents/" + mUrl.substring(mUrl.lastIndexOf("/") + 1, mUrl.length());
+            System.out.println("Cache Path: " + localFilePath);
             try {
-                mFos = new FileOutputStream(cachePath);
+                mFos = new FileOutputStream(localFilePath);
             } catch (FileNotFoundException e) {
                 mErrorMsg = "Couldn't create a local file to store the note";
                 return false;
@@ -207,7 +211,24 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
         if (result) {
             // Set the image now that we have it
             //mView.setImageDrawable(mDrawable);
-        	Log.d("URL: ",mUrl);
+        	Log.d("URL: ",localFilePath);
+        	//Get the text file
+        	File file = new File(localFilePath);
+        	//Read text from file
+        	StringBuilder text = new StringBuilder();
+        	try {
+        	    BufferedReader br = new BufferedReader(new FileReader(file));
+        	    String line;
+        	    while ((line = br.readLine()) != null) {
+        	        text.append(line.substring(line.indexOf(":", 1) + 1));
+        	        text.append('\n');
+        	    }
+        	}
+        	catch (IOException e) {
+        	    //You'll need to add proper error handling here
+        		e.printStackTrace();
+        	}
+    	    System.out.println(text);
         } else {
             // Couldn't download it, so show an error
             showToast(mErrorMsg);
