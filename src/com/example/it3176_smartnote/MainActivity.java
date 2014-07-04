@@ -24,6 +24,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.DownloadManager;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,9 +32,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.SQLException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
@@ -51,6 +56,7 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
 import com.SQLiteController.it3176.SQLiteController;
+import com.dropbox.chooser.android.DbxChooser;
 import com.dropbox.client2.*;
 import com.dropbox.client2.DropboxAPI.Entry;
 import com.dropbox.client2.android.AndroidAuthSession;
@@ -58,6 +64,7 @@ import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
 import com.dropbox.client2.session.AppKeyPair;
 import com.dropbox.client2.session.Session.AccessType;
+import com.example.it3176_smartnote.dropbox.DownloadFromDropbox;
 import com.example.it3176_smartnote.dropbox.UploadToDropbox;
 import com.example.it3176_smartnote.model.Note;
 @SuppressLint("ValidFragment")
@@ -90,6 +97,9 @@ public class MainActivity extends Activity {
     final static private String ACCESS_SECRET_NAME = "ACCESS_SECRET";
 	String token;
 	String token2;
+	
+	private DbxChooser mChooser;
+	static final int DBX_CHOOSER_REQUEST = 0;  // You can change this if needed
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -477,132 +487,183 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
-
+		boolean isConnected = haveNetworkConnection();
 		switch (item.getItemId()) {
-		case R.id.upload_dropbox:
-			String FILENAME = "/smartnote.txt";
-			String string = "\nHello world! This is a testing note.";
-			FileOutputStream outputStream;
-			File file = new File(Environment.getExternalStorageDirectory() + "/Documents/",FILENAME);
-			file.setWritable(false);
-			file.setExecutable(false);
-			file.setReadable(true);
-			try {
-			  outputStream = new FileOutputStream(file);
-			  outputStream.write(string.getBytes());
-			  outputStream.close();
-			  File newFile = file;
-			  FileInputStream inputStream = new FileInputStream(newFile);
-			  System.out.println(file.getPath());
-			  /*try {
-	                DropboxAPI.Entry newEntry = mDBApi.putFileOverwrite("/test.txt", inputStream, newFile.length(), null);
-	            } catch (DropboxUnlinkedException e) {
-	                Log.e("DbExampleLog", "User has unlinked.");
-	            } catch (DropboxException e) {
-	                Log.e("DbExampleLog", "Something went wrong while uploading.");
-	            }*/
-			  /*Entry response = mDBApi.putFile("/magnum-opus.txt", inputStream,
-					  newFile.length(), null, null);
-			  Log.i("DbExampleLog", "The uploaded file's rev is: " + response.rev);*/
-			  UploadToDropbox upload = new UploadToDropbox(MainActivity.this, mDBApi, "/Smart_note/", file);
-              upload.execute();
-			  inputStream.close();
-			  
-			} catch (Exception e) {
-				e.printStackTrace();
-	        }
-			break;
-		case R.id.new_icon:
-			Intent intent = new Intent(this, CreateActivity.class);
-			startActivity(intent);
-			this.finish();
-			break;
-		case R.id.action_archive:
-			Intent archive_intent = new Intent(this, ArchiveActivity.class);
-			startActivity(archive_intent);
-			break;
-		case R.id.action_settings:
-			sp = PreferenceManager.getDefaultSharedPreferences(this);
-			selected_setting = sp.getString("selected_setting", "YourSetting");
-
-			// If user's had chose a preference before
-			if (selected_setting.equals("archive")) {
-				selected = 0;
-			} else if (selected_setting.equals("delete")) {
-				selected = 1;
-			} else {
-				selected = 2;
+			case R.id.upload_dropbox:
+				if(isConnected){
+					String FILENAME = "/smartnote.txt";
+					String string = "\nHello world! This is a testing note.";
+					FileOutputStream outputStream;
+					File file = new File(Environment.getExternalStorageDirectory() + "/Documents/",FILENAME);
+					file.setWritable(false);
+					file.setExecutable(false);
+					file.setReadable(true);
+					try {
+					  outputStream = new FileOutputStream(file);
+					  outputStream.write(string.getBytes());
+					  outputStream.close();
+					  File newFile = file;
+					  FileInputStream inputStream = new FileInputStream(newFile);
+					  UploadToDropbox upload = new UploadToDropbox(MainActivity.this, mDBApi, "/Smart_note/", file);
+		              upload.execute();
+					  inputStream.close();
+					  
+					} catch (Exception e) {
+						e.printStackTrace();
+			        }
+				}
+				else{
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setMessage("There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int id) {
+					                //do things
+					           }
+					       });
+					AlertDialog alert = builder.create();
+					alert.show();
+				}
+				break;
+			case R.id.download_dropbox:
+				if(isConnected){
+					mChooser = new DbxChooser(APP_KEY);
+					mChooser.forResultType(DbxChooser.ResultType.PREVIEW_LINK).launch(MainActivity.this, DBX_CHOOSER_REQUEST);
+				}
+				else{
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setMessage("There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int id) {
+					                //do things
+					           }
+					       });
+					AlertDialog alert = builder.create();
+					alert.show();
+				}
+				break;
+			case R.id.new_icon:
+				Intent intent = new Intent(this, CreateActivity.class);
+				startActivity(intent);
+				this.finish();
+				break;
+			case R.id.action_archive:
+				Intent archive_intent = new Intent(this, ArchiveActivity.class);
+				startActivity(archive_intent);
+				break;
+			case R.id.action_settings:
+				sp = PreferenceManager.getDefaultSharedPreferences(this);
+				selected_setting = sp.getString("selected_setting", "YourSetting");
+	
+				// If user's had chose a preference before
+				if (selected_setting.equals("archive")) {
+					selected = 0;
+				} else if (selected_setting.equals("delete")) {
+					selected = 1;
+				} else {
+					selected = 2;
+				}
+	
+				final CharSequence[] preferences = { "Archive", "Delete", "None" };
+	
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle("Preference").setSingleChoiceItems(preferences,
+						selected, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (preferences[which].equals("Archive")) {
+									selected = 0;
+								} else if (preferences[which].equals("Delete")) {
+									selected = 1;
+								} else if (preferences[which].equals("None")) {
+									selected = 2;
+								}
+							}
+						});
+				builder.setPositiveButton("Ok",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								if (preferences[selected].equals("Archive")) {
+									savePreferences("selected_setting", "archive");
+								} else if (preferences[selected].equals("Delete")) {
+									savePreferences("selected_setting", "delete");
+								} else if (preferences[selected].equals("None")) {
+									savePreferences("selected_setting", "none");
+								}
+	
+								MainActivity.this.finish();
+								Intent refresh = new Intent(MainActivity.this,
+										MainActivity.class);
+								startActivity(refresh);
+							}
+						});
+				AlertDialog prefDialog = builder.create();
+				prefDialog.show();
+				break;
+			case R.id.search_type:
+				MyCategoryDialog dialog = new MyCategoryDialog();
+				dialog.show(getFragmentManager(), "myCategoryDialog");
+				break;
+			case R.id.search_date:
+				MyDatePicker datepicker = new MyDatePicker();
+				datepicker.show(getFragmentManager(), "myDatePicker");
+				break;
+			case R.id.sort_title:
+				sortByTitle sortTitle = new sortByTitle();
+				sortTitle.show(getFragmentManager(), "sortByTitle");
+				break;
+			case R.id.sort_date:
+				sortByDate sortDate = new sortByDate();
+				sortDate.show(getFragmentManager(), "sortByDate");
+				break;
+			case R.id.sort_type:
+				sortByType sortType = new sortByType();
+				sortType.show(getFragmentManager(), "sortByType");
+				break;
+			case R.id.sort_location:
+				sortByAddress sortAddress = new sortByAddress();
+				sortAddress.show(getFragmentManager(), "sortByAdress");
+				break;
+			case R.id.refresh_icon:
+				Intent refresh = new Intent(this, MainActivity.class);
+				startActivity(refresh);
+				this.finish();
+				break;
 			}
 
-			final CharSequence[] preferences = { "Archive", "Delete", "None" };
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Preference").setSingleChoiceItems(preferences,
-					selected, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (preferences[which].equals("Archive")) {
-								selected = 0;
-							} else if (preferences[which].equals("Delete")) {
-								selected = 1;
-							} else if (preferences[which].equals("None")) {
-								selected = 2;
-							}
-						}
-					});
-			builder.setPositiveButton("Ok",
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (preferences[selected].equals("Archive")) {
-								savePreferences("selected_setting", "archive");
-							} else if (preferences[selected].equals("Delete")) {
-								savePreferences("selected_setting", "delete");
-							} else if (preferences[selected].equals("None")) {
-								savePreferences("selected_setting", "none");
-							}
-
-							MainActivity.this.finish();
-							Intent refresh = new Intent(MainActivity.this,
-									MainActivity.class);
-							startActivity(refresh);
-						}
-					});
-			AlertDialog prefDialog = builder.create();
-			prefDialog.show();
-			break;
-		case R.id.search_type:
-			MyCategoryDialog dialog = new MyCategoryDialog();
-			dialog.show(getFragmentManager(), "myCategoryDialog");
-			break;
-		case R.id.search_date:
-			MyDatePicker datepicker = new MyDatePicker();
-			datepicker.show(getFragmentManager(), "myDatePicker");
-			break;
-		case R.id.sort_title:
-			sortByTitle sortTitle = new sortByTitle();
-			sortTitle.show(getFragmentManager(), "sortByTitle");
-			break;
-		case R.id.sort_date:
-			sortByDate sortDate = new sortByDate();
-			sortDate.show(getFragmentManager(), "sortByDate");
-			break;
-		case R.id.sort_type:
-			sortByType sortType = new sortByType();
-			sortType.show(getFragmentManager(), "sortByType");
-			break;
-		case R.id.sort_location:
-			sortByAddress sortAddress = new sortByAddress();
-			sortAddress.show(getFragmentManager(), "sortByAdress");
-			break;
-		case R.id.refresh_icon:
-			Intent refresh = new Intent(this, MainActivity.class);
-			startActivity(refresh);
-			this.finish();
-			break;
-		}
-
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == DBX_CHOOSER_REQUEST) {
+	        if (resultCode == Activity.RESULT_OK) {
+	            DbxChooser.Result result = new DbxChooser.Result(data);
+	            Log.d("main", "Link to selected file: " + result.getLink());
+	            DownloadFromDropbox download = new DownloadFromDropbox(MainActivity.this,mDBApi,"/Smart_note/",result.getLink().toString());
+	            download.execute();
+	            // Handle the result
+	        } else {
+	            // Failed or was cancelled by the user.
+	        }
+	    } else {
+	        super.onActivityResult(requestCode, resultCode, data);
+	    }
+	}
+	
+	private boolean haveNetworkConnection() {
+	    boolean haveConnectedWifi = false;
+	    boolean haveConnectedMobile = false;
+
+	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+	    for (NetworkInfo ni : netInfo) {
+	        if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+	            if (ni.isConnected())
+	                haveConnectedWifi = true;
+	        if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+	            if (ni.isConnected())
+	                haveConnectedMobile = true;
+	    }
+	    return haveConnectedWifi || haveConnectedMobile;
 	}
 	
 	// convert InputStream to String

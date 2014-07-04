@@ -26,6 +26,7 @@
     <string name="action_delete_all">Delete All</string>
     <string name="send_file">Send file</string>
     <string name="upload_to_dropbox">Upload to Dropbox</string>
+    <string name="download_from_dropbox">Download from Dropbox</string>
     <string name="send_email">Send email</string>
 
     <!-- Delete|Archive note -->
@@ -51,7 +52,7 @@
         <item>Remove Image</item>
         <item>Remove Video</item>
         <item>Remove Location</item>
-        <item>All Inputs</item>
+        <item>All</item>
     </string-array>
     
     
