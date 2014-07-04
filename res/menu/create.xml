@@ -62,7 +62,7 @@
         android:id="@+id/removeAtt"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="Remove Attachment"                                                                                                                         
+        android:title="Remove"                                                                                                                         
         />
     
     <item
