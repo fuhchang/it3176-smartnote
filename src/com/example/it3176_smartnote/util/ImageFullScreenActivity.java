@@ -1,35 +1,22 @@
 package com.example.it3176_smartnote.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
   
 
 import com.example.it3176_smartnote.R;
-import com.example.it3176_smartnote.UpdateActivity;
 import com.example.it3176_smartnote.util.TouchImageView;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.PointF;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.view.Window;
 import android.widget.ImageView;
-import android.widget.LinearLayout; 
 import android.widget.ImageView.ScaleType;
   
 public class ImageFullScreenActivity extends Activity{
@@ -37,7 +24,8 @@ public class ImageFullScreenActivity extends Activity{
     String uri; 
     int rotateImage = 0;
     
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_view_full_screen);
         Bundle extras = getIntent().getExtras();
@@ -55,7 +43,7 @@ public class ImageFullScreenActivity extends Activity{
         	System.out.println("Rotation: " + rotateImage);
         	Matrix matrix=new Matrix();
         	image.setScaleType(ScaleType.MATRIX);   //required
-        	matrix.preRotate((float) 180, image.getWidth()/2, image.getHeight()/2);
+        	matrix.preRotate(180, image.getWidth()/2, image.getHeight()/2);
         	image.setImageMatrix(matrix);
         }
         TouchImageView img = (TouchImageView) findViewById(R.id.imageReviewFullScreen);

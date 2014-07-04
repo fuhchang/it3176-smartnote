@@ -28,6 +28,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -227,7 +228,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                 mDownX = 0;
                 mDownY = 0;
                 mDownView = null;
-                mDownPosition = ListView.INVALID_POSITION;
+                mDownPosition = AdapterView.INVALID_POSITION;
                 mSwiping = false;
                 break;
             }
@@ -254,7 +255,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                     dismiss = (velocityX < 0) == (deltaX < 0);
                     dismissRight = mVelocityTracker.getXVelocity() > 0;
                 }
-                if (dismiss && mDownPosition != ListView.INVALID_POSITION) {
+                if (dismiss && mDownPosition != AdapterView.INVALID_POSITION) {
                     // dismiss
                     final View downView = mDownView; // mDownView gets null'd before animation ends
                     final int downPosition = mDownPosition;
@@ -282,7 +283,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                 mDownX = 0;
                 mDownY = 0;
                 mDownView = null;
-                mDownPosition = ListView.INVALID_POSITION;
+                mDownPosition = AdapterView.INVALID_POSITION;
                 mSwiping = false;
                 break;
             }
@@ -364,7 +365,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                     
                     // Reset mDownPosition to avoid MotionEvent.ACTION_UP trying to start a dismiss 
                     // animation with a stale position
-                    mDownPosition = ListView.INVALID_POSITION;
+                    mDownPosition = AdapterView.INVALID_POSITION;
 
                     ViewGroup.LayoutParams lp;
                     for (PendingDismissData pendingDismiss : mPendingDismisses) {

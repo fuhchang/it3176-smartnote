@@ -16,6 +16,7 @@ public class sqlTest extends Activity implements OnClickListener{
 	Button sqlCreate;
 	EditText noteName , noteContent;
 	
+	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.test);

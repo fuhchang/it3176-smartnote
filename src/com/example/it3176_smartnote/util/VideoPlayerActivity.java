@@ -1,13 +1,9 @@
 package com.example.it3176_smartnote.util;
 
-import com.example.it3176_smartnote.NoteDetail;
 import com.example.it3176_smartnote.R;
-import com.example.it3176_smartnote.UpdateActivity;
-
 import java.io.IOException;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;

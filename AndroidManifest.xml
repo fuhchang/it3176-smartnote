@@ -9,7 +9,9 @@
         android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.READ_CALENDAR" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ__EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                     android:maxSdkVersion="18" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>"
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -84,6 +86,18 @@
             android:label="@string/title_activity_update" 
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+		  android:name="com.dropbox.client2.android.AuthActivity"
+		  android:launchMode="singleTask"
+		  android:configChanges="orientation|keyboard">
+		  <intent-filter>
+		    <!-- Change this to be db- followed by your app key -->
+		    <data android:scheme="db-ajddbjayy7yheai" />
+		    <action android:name="android.intent.action.VIEW" />
+		    <category android:name="android.intent.category.BROWSABLE"/>
+		    <category android:name="android.intent.category.DEFAULT" />
+		  </intent-filter>
+		</activity>
     </application>
 
 </manifest>

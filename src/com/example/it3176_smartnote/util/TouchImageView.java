@@ -163,7 +163,8 @@ public class TouchImageView extends ImageView {
  final Handler mHandler = new Handler();
  // Create runnable for posting
  final Runnable mAdjustUI = new Runnable() {
-  public void run() {
+  @Override
+public void run() {
   }
  };
 
@@ -173,7 +174,8 @@ public class TouchImageView extends ImageView {
 
   if (viewWidth <= 0) {
    mOnLayoutRunnable = new Runnable() {
-    public void run() {
+    @Override
+	public void run() {
      setImageRotateBitmapResetBase(bitmap, resetSupp);
     }
    };
@@ -420,18 +422,18 @@ public class TouchImageView extends ImageView {
   height = MeasureSpec.getSize(heightMeasureSpec);
   // Fit to screen.
   float scale;
-  float scaleX = (float) width / (float) bmWidth;
-  float scaleY = (float) height / (float) bmHeight;
+  float scaleX = width / bmWidth;
+  float scaleY = height / bmHeight;
   scale = Math.min(scaleX, scaleY);
   matrix.setScale(scale, scale);
   setImageMatrix(matrix);
   saveScale = 1f;
 
   // Center the image
-  redundantYSpace = (float) height - (scale * (float) bmHeight);
-  redundantXSpace = (float) width - (scale * (float) bmWidth);
-  redundantYSpace /= (float) 2;
-  redundantXSpace /= (float) 2;
+  redundantYSpace = height - (scale * bmHeight);
+  redundantXSpace = width - (scale * bmWidth);
+  redundantYSpace /= 2;
+  redundantXSpace /= 2;
 
   matrix.postTranslate(redundantXSpace, redundantYSpace);
 

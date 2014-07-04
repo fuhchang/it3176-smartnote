@@ -1,7 +1,5 @@
 package com.example.it3176_smartnote;
 
-import java.util.ArrayList;
-
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;

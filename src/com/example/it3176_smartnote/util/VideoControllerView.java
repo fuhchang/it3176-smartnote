@@ -39,8 +39,6 @@ import java.lang.ref.WeakReference;
 import java.util.Formatter;
 import java.util.Locale;
 
-import com.example.it3176_smartnote.R;
-
 /**
  * A view containing controls for a MediaPlayer. Typically contains the
  * buttons like "Play/Pause", "Rewind", "Fast Forward" and a progress
@@ -420,14 +418,16 @@ public class VideoControllerView extends FrameLayout {
     }
 
     private View.OnClickListener mPauseListener = new View.OnClickListener() {
-        public void onClick(View v) {
+        @Override
+		public void onClick(View v) {
             doPauseResume();
             show(sDefaultTimeout);
         }
     };
 
     private View.OnClickListener mFullscreenListener = new View.OnClickListener() {
-        public void onClick(View v) {
+        @Override
+		public void onClick(View v) {
             doToggleFullscreen();
             show(sDefaultTimeout);
         }
@@ -491,7 +491,8 @@ public class VideoControllerView extends FrameLayout {
     // case there WON'T BE onStartTrackingTouch/onStopTrackingTouch notifications,
     // we will simply apply the updated position without suspending regular updates.
     private OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
-        public void onStartTrackingTouch(SeekBar bar) {
+        @Override
+		public void onStartTrackingTouch(SeekBar bar) {
             show(3600000);
 
             mDragging = true;
@@ -504,7 +505,8 @@ public class VideoControllerView extends FrameLayout {
             mHandler.removeMessages(SHOW_PROGRESS);
         }
 
-        public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
+        @Override
+		public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
             if (mPlayer == null) {
                 return;
             }
@@ -522,7 +524,8 @@ public class VideoControllerView extends FrameLayout {
                 mCurrentTime.setText(stringForTime( (int) newposition));
         }
 
-        public void onStopTrackingTouch(SeekBar bar) {
+        @Override
+		public void onStopTrackingTouch(SeekBar bar) {
             mDragging = false;
             setProgress();
             updatePausePlay();
@@ -560,7 +563,8 @@ public class VideoControllerView extends FrameLayout {
     }
 
     private View.OnClickListener mRewListener = new View.OnClickListener() {
-        public void onClick(View v) {
+        @Override
+		public void onClick(View v) {
             if (mPlayer == null) {
                 return;
             }
@@ -575,7 +579,8 @@ public class VideoControllerView extends FrameLayout {
     };
 
     private View.OnClickListener mFfwdListener = new View.OnClickListener() {
-        public void onClick(View v) {
+        @Override
+		public void onClick(View v) {
             if (mPlayer == null) {
                 return;
             }

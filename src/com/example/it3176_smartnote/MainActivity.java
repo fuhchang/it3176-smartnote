@@ -1,5 +1,12 @@
 package com.example.it3176_smartnote;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
@@ -25,6 +32,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -32,6 +40,7 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -42,8 +51,15 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.Toast;
 
 import com.SQLiteController.it3176.SQLiteController;
+import com.dropbox.client2.*;
+import com.dropbox.client2.DropboxAPI.Entry;
+import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.exception.DropboxException;
+import com.dropbox.client2.exception.DropboxUnlinkedException;
+import com.dropbox.client2.session.AppKeyPair;
+import com.dropbox.client2.session.Session.AccessType;
+import com.example.it3176_smartnote.dropbox.UploadToDropbox;
 import com.example.it3176_smartnote.model.Note;
-
 @SuppressLint("ValidFragment")
 public class MainActivity extends Activity {
 	String selected_setting;
@@ -62,13 +78,37 @@ public class MainActivity extends Activity {
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
-
+		
+	final static private String APP_KEY = "ajddbjayy7yheai";
+	final static private String APP_SECRET = "hzlxix5dla74hkj";
+	private AccessType type = AccessType.DROPBOX;
+	private DropboxAPI<AndroidAuthSession> mDBApi;
+	AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+	AndroidAuthSession session = new AndroidAuthSession(appKeys, type);
+    final static private String ACCOUNT_PREFS_NAME = "prefs";
+    final static private String ACCESS_KEY_NAME = "ACCESS_KEY";
+    final static private String ACCESS_SECRET_NAME = "ACCESS_SECRET";
+	String token;
+	String token2;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		cateArray = getResources().getStringArray(R.array.category_choice);
-
+		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		token2 = sp.getString("token2", null);
+		
+		mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+		if((token2 == null) || (token2.length() == 0) || (token2.equalsIgnoreCase(null))){
+			mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
+		}
+		else{
+			mDBApi.getSession().setOAuth2AccessToken(token2);
+		}
+		
+		
 		SQLiteController controller = new SQLiteController(this);
 		controller.open();
 		ArrayList<Note> temptArray = controller.retrieveNotes();
@@ -105,7 +145,7 @@ public class MainActivity extends Activity {
 
 		if (selected_setting.equals("archive")
 				|| selected_setting.equals("delete")) {
-			list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
 			list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
 				@Override
@@ -354,6 +394,25 @@ public class MainActivity extends Activity {
 			list.setOnScrollListener(touchListener.makeScrollListener());
 		}
 	}
+	
+	@Override
+	protected void onResume() {
+	    super.onResume();
+	    if (mDBApi.getSession().authenticationSuccessful()) {
+	        try {
+	            // Required to complete auth, sets the access token on the session
+	            mDBApi.getSession().finishAuthentication();
+
+	            token2 = mDBApi.getSession().getOAuth2AccessToken();
+	    		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+	    		Editor edit = sp.edit();
+	    		edit.putString("token2", token2);
+	    		edit.commit();
+	        } catch (IllegalStateException e) {
+	            Log.i("DbAuthLog", "Error authenticating", e);
+	        }
+	    }
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -414,13 +473,45 @@ public class MainActivity extends Activity {
 		return super.onCreateOptionsMenu(menu);
 
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
 
 		switch (item.getItemId()) {
-
+		case R.id.upload_dropbox:
+			String FILENAME = "/smartnote.txt";
+			String string = "\nHello world! This is a testing note.";
+			FileOutputStream outputStream;
+			File file = new File(Environment.getExternalStorageDirectory() + "/Documents/",FILENAME);
+			file.setWritable(false);
+			file.setExecutable(false);
+			file.setReadable(true);
+			try {
+			  outputStream = new FileOutputStream(file);
+			  outputStream.write(string.getBytes());
+			  outputStream.close();
+			  File newFile = file;
+			  FileInputStream inputStream = new FileInputStream(newFile);
+			  System.out.println(file.getPath());
+			  /*try {
+	                DropboxAPI.Entry newEntry = mDBApi.putFileOverwrite("/test.txt", inputStream, newFile.length(), null);
+	            } catch (DropboxUnlinkedException e) {
+	                Log.e("DbExampleLog", "User has unlinked.");
+	            } catch (DropboxException e) {
+	                Log.e("DbExampleLog", "Something went wrong while uploading.");
+	            }*/
+			  /*Entry response = mDBApi.putFile("/magnum-opus.txt", inputStream,
+					  newFile.length(), null, null);
+			  Log.i("DbExampleLog", "The uploaded file's rev is: " + response.rev);*/
+			  UploadToDropbox upload = new UploadToDropbox(MainActivity.this, mDBApi, "/Smart_note/", file);
+              upload.execute();
+			  inputStream.close();
+			  
+			} catch (Exception e) {
+				e.printStackTrace();
+	        }
+			break;
 		case R.id.new_icon:
 			Intent intent = new Intent(this, CreateActivity.class);
 			startActivity(intent);
@@ -513,6 +604,19 @@ public class MainActivity extends Activity {
 
 		return super.onOptionsItemSelected(item);
 	}
+	
+	// convert InputStream to String
+		private static String getStringFromInputStream(InputStream in) throws IOException {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+	        StringBuilder out = new StringBuilder();
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            out.append(line);
+	        }
+	        reader.close();
+	        return out.toString();   //Prints the string content read from input stream
+	 
+		}
 
 	private void archiveNote(Note note) {
 		SQLiteController controller = new SQLiteController(MainActivity.this);

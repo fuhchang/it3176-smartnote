@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,7 +13,6 @@ import java.util.List;
 import java.util.Locale;
 
 import com.SQLiteController.it3176.SQLiteController;
-import com.example.it3176_smartnote.CreateActivity.CreateNoteDialog;
 import com.example.it3176_smartnote.model.Note;
 import com.example.it3176_smartnote.util.ImageFullScreenActivity;
 import com.example.it3176_smartnote.util.VideoPlayerActivity;
@@ -40,21 +37,15 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.ExifInterface;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
+import android.provider.MediaStore.MediaColumns;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.CursorLoader;
-import android.text.Html;
-import android.text.SpannableString;
 import android.text.format.DateFormat;
-import android.text.style.UnderlineSpan;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -262,7 +253,7 @@ public class UpdateActivity extends Activity {
 			// imageUploaded.setImageURI(selectedImageUri);
 			Matrix matrix = new Matrix();
 			imageView.setScaleType(ScaleType.MATRIX); // required
-			matrix.postRotate((float) rotateImage, imageView.getDrawable()
+			matrix.postRotate(rotateImage, imageView.getDrawable()
 					.getBounds().width() / 2, imageView.getDrawable()
 					.getBounds().height() / 2);
 			imageView.setImageMatrix(matrix);
@@ -538,6 +529,7 @@ public class UpdateActivity extends Activity {
 	 */
 
 	/** Set the selected image from gallery and display in image view **/
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (resultCode == RESULT_OK) {
@@ -566,7 +558,7 @@ public class UpdateActivity extends Activity {
 					// imageUploaded.setImageURI(selectedImageUri);
 					Matrix matrix = new Matrix();
 					imageView.setScaleType(ScaleType.MATRIX); // required
-					matrix.postRotate((float) rotateImage, imageView
+					matrix.postRotate(rotateImage, imageView
 							.getDrawable().getBounds().width() / 2, imageView
 							.getDrawable().getBounds().height() / 2);
 					imageView.setImageMatrix(matrix);
@@ -644,7 +636,7 @@ public class UpdateActivity extends Activity {
 				// imageUploaded.setImageURI(selectedImageUri);
 				Matrix matrix = new Matrix();
 				imageView.setScaleType(ScaleType.MATRIX); // required
-				matrix.postRotate((float) rotateImage, imageView.getDrawable()
+				matrix.postRotate(rotateImage, imageView.getDrawable()
 						.getBounds().width() / 2, imageView.getDrawable()
 						.getBounds().height() / 2);
 				imageView.setImageMatrix(matrix);
@@ -821,14 +813,14 @@ public class UpdateActivity extends Activity {
 	public String getRealPathFromURI(Uri contentUri) {
 
 		// can post image
-		String[] proj = { MediaStore.Images.Media.DATA };
+		String[] proj = { MediaColumns.DATA };
 		Cursor cursor = managedQuery(contentUri, proj, // Which columns to
 														// return
 				null, // WHERE clause; which rows to return (all rows)
 				null, // WHERE clause selection arguments (none)
 				null); // Order-by clause (ascending by name)
 		int column_index = cursor
-				.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+				.getColumnIndexOrThrow(MediaColumns.DATA);
 		cursor.moveToFirst();
 
 		return cursor.getString(column_index);
@@ -839,14 +831,14 @@ public class UpdateActivity extends Activity {
 	public String getRealPathFromVideoURI(Uri contentUri) {
 
 		// can post image
-		String[] proj = { MediaStore.Video.Media.DATA };
+		String[] proj = { MediaColumns.DATA };
 		Cursor cursor = managedQuery(contentUri, proj, // Which columns to
 														// return
 				null, // WHERE clause; which rows to return (all rows)
 				null, // WHERE clause selection arguments (none)
 				null); // Order-by clause (ascending by name)
 		int column_index = cursor
-				.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+				.getColumnIndexOrThrow(MediaColumns.DATA);
 		cursor.moveToFirst();
 
 		return cursor.getString(column_index);
@@ -860,6 +852,7 @@ public class UpdateActivity extends Activity {
 			dialogType = type;
 		}
 
+		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -1133,6 +1126,7 @@ public class UpdateActivity extends Activity {
 			builder1.setCancelable(true);
 			builder1.setNegativeButton("OK",
 					new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int id) {
 							dialog.cancel();
 						}
@@ -1350,6 +1344,7 @@ public class UpdateActivity extends Activity {
 		builder1.setCancelable(true);
 		builder1.setNegativeButton("Yes",
 				new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int id) {
 						/** 9 **/
 						titleOfNote = eventMatchCriteria;
@@ -1360,6 +1355,7 @@ public class UpdateActivity extends Activity {
 					}
 				});
 		builder1.setNeutralButton("No", new DialogInterface.OnClickListener() {
+			@Override
 			public void onClick(DialogInterface dialog, int id) {
 				/** 10 **/
 				saveNoteToDB();

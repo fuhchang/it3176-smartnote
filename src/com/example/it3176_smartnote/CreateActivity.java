@@ -23,9 +23,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,7 +38,6 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
@@ -58,7 +54,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -67,11 +62,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ImageView.ScaleType;
 
 import com.SQLiteController.it3176.SQLiteController;
@@ -130,15 +123,6 @@ public class CreateActivity extends Activity {
 	static Button removeVideoBtn;
 	static Button removeLocBtn;
 	
-	
-	Spinner spCat;
-	ArrayAdapter<CharSequence> catAdapter;
-	//TextView categorySelected;
-	String[] categoryArray;
-	int selectedPosition;
-	
-	
-	
 	/**Values to be stored in database**/
 	String titleOfNote="";
 	String content="";
@@ -153,7 +137,6 @@ public class CreateActivity extends Activity {
 	String calendarDuplicateTitle="";
 	static String noteTags="";
 	final Context context = this;
-	static int SPWhich;
 	
 	/**For retrieving Location**/
 	Location location; 
@@ -259,7 +242,7 @@ public class CreateActivity extends Activity {
 		suggestTitle.setAdapter(adapter);
 		
 		/**For selection of category**/
-	/*	selectionArray=getResources().getStringArray(R.array.category_choice);
+		selectionArray=getResources().getStringArray(R.array.category_choice);
 		categorySelection = (TextView) findViewById(R.id.categorySelection);
 		categorySelectionChoice = (TextView) findViewById(R.id.categorySelectionChoice);
 		categorySelection.setOnClickListener(new OnClickListener(){
@@ -271,29 +254,14 @@ public class CreateActivity extends Activity {
 				dialog.setDialogType(SELECTION_CHOICE_DIALOG);
 				dialog.show(getFragmentManager(), "CreateNoteDialog");
 			}
-		});*/
-		spCat = (Spinner) findViewById(R.id.spCat);
-		//categorySelected =  (TextView) findViewById(R.id.categorySelected);
-		Resources myRes = this.getResources();
-		categoryArray = myRes.getStringArray(R.array.category_choice);
-		
-		catAdapter = ArrayAdapter.createFromResource(this, R.array.category_choice, android.R.layout.simple_spinner_dropdown_item);
-		spCat.setAdapter(catAdapter);
-		
-		spCat.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				// TODO Auto-generated method stub
-				/**GET SELECTED VALUE**/
-				//categorySelected.setText(arg0.getItemAtPosition(arg2).toString());
-			}
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub				
-			}			
 		});
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		videoView.seekTo(10000);
 	}
 
 	/**Menu items**/
@@ -739,7 +707,7 @@ public class CreateActivity extends Activity {
 		{
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 			
-			/*if(dialogType==SELECTION_CHOICE_DIALOG)
+			if(dialogType==SELECTION_CHOICE_DIALOG)
 			{								
 				builder.setTitle("Select Category");
 				builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
@@ -748,11 +716,10 @@ public class CreateActivity extends Activity {
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
 						noteCategory=selectionArray[which];
-						SPWhich = which;
-						//updateChoice();
+						updateChoice();
 					}
 				});
-			}*/
+			}
 			
 			if(dialogType==REMOVAL_CHOICE_DIALOG){
 				builder.setTitle("Which attachment do you want to remove?");
@@ -851,14 +818,14 @@ public class CreateActivity extends Activity {
 	}
 	
 	/**Set textview to display selected category**/
-/*	public static void updateChoice(){
+	public static void updateChoice(){
 		category="";
 		
 		if(noteCategory.length()>0){
 			category="Category: " + noteCategory;
 		}
 		categorySelectionChoice.setText(category);
-	}*/
+	}
 
 /** Check the type of GPS Provider available at that instance and  collect the location informations**/
    void getMyCurrentLocation() {    
@@ -949,7 +916,6 @@ public class CreateActivity extends Activity {
 				 uriOfImage="";
 				 uriOfVideo="";
 				 storingAddress="";
-				 discard();
 	        	 Toast.makeText(getApplicationContext(), "Note discarded.", Toast.LENGTH_LONG).show();
 	        	 Intent intent = new Intent(CreateActivity.this, MainActivity.class);
 					startActivity(intent);
@@ -1077,9 +1043,6 @@ public class CreateActivity extends Activity {
 		
         
 		/**************Validation for insert into database****************/
-        
-    		noteCategory = spCat.getSelectedItem().toString();
-    		
 		if(titleOfNote.matches("")||content.matches("")||noteCategory.matches("")){
 			Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
 		}
@@ -1091,12 +1054,11 @@ public class CreateActivity extends Activity {
 					//Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note. \n(On-going calendar event)", Toast.LENGTH_LONG).show();			
 					/**5**/
 					if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
-						//Toast.makeText(getApplicationContext(), "Duplicate CALENDAR EVENT TITLE AND duplicate note title found, unable to save note.", Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "Duplicate CALENDAR EVENT TITLE AND duplicate note title found, unable to save note.", Toast.LENGTH_LONG).show();
 					}				
 					/***6**/
 					else{
-					//	Toast.makeText(getApplicationContext(), "No duplicate CALENDAR EVENT title, NO DUPLICATE TITLE", Toast.LENGTH_LONG).show();
+					//	Toast.makeText(getApplicationContext(), "AFTER ONGOING CALENDAR EVENT, NO DUPLICATE TITLE", Toast.LENGTH_LONG).show();
 						saveNoteToDB();
 					}
 				}
@@ -1104,20 +1066,12 @@ public class CreateActivity extends Activity {
 				else{
 					/**7**/
 					if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
-						//Toast.makeText(getApplicationContext(), "NO DUPLICATE CALENDAR EVENT TITLE BUT duplicate note title found, unable to save note", Toast.LENGTH_LONG).show();
+						Toast.makeText(getApplicationContext(), "NO DUPLICATE CALENDAR EVENT TITLE BUT duplicate note title found, unable to save note", Toast.LENGTH_LONG).show();
 					}
 					/**8**/
 					else{
-						//Toast.makeText(getApplicationContext(), "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
-						if(titleOfNote.equals(eventMatchCriteria)){
-							saveNoteToDB();
-							//Toast.makeText(getApplicationContext(), "Note title same as event title so no need to prompt for replacement", Toast.LENGTH_LONG).show();
-						}
-						else{
-							//Toast.makeText(getApplicationContext(), "Note title not the same as event title, NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
-							replaceTitle();
-						}
+					//	Toast.makeText(getApplicationContext(), "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
+						replaceTitle();
 					}
 				}
 			}
@@ -1166,8 +1120,6 @@ public class CreateActivity extends Activity {
 	
 	public void saveNoteToDB(){
 		boolean result = true;
-		noteCategory = spCat.getSelectedItem().toString();
-		//Toast.makeText(getApplicationContext(), noteCategory, Toast.LENGTH_SHORT).show();
 			try{
 				Note note = new Note(titleOfNote, content, noteCategory, uriOfImage, uriOfVideo,storingAddress);
 		
@@ -1186,7 +1138,7 @@ public class CreateActivity extends Activity {
 					uriOfImage="";
 					uriOfVideo="";
 					storingAddress="";
-					discard();
+					
 					Toast.makeText(getApplicationContext(), "Note Saved", Toast.LENGTH_LONG).show();
 					CreateActivity.this.finish();
 					Intent intent = new Intent(this, MainActivity.class);
@@ -1209,56 +1161,6 @@ public class CreateActivity extends Activity {
 		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(notifyID,mBuilder.build());
 	}
-
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		Editor edit = sp.edit();
-		edit.putString("titleOfNote", suggestTitle.getText().toString());
-		edit.putString("content", noteContent.getText().toString());
-		selectedPosition = spCat.getSelectedItemPosition();
-		edit.putInt("spinnerSelection", selectedPosition);
-	//	edit.putInt("SPWhich", SPWhich);
-		edit.commit();
-		
-		//Toast.makeText(getApplicationContext(), "Pause state: " + spCat.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
-		super.onPause();
-	}
-	
-	
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		videoView.seekTo(10000);
-		
-		
-		
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-		String titleOfNote = sp.getString("titleOfNote", "");
-		suggestTitle.setText(titleOfNote);
-		String content = sp.getString("content", "");
-		noteContent.setText(content);
-		spCat.setSelection(sp.getInt("spinnerSelection",0));
-	//	int arrayWhich = sp.getInt("SPWhich", 0);
-	//	noteCategory=selectionArray[arrayWhich];
-	//	updateChoice();
-		//if(noteCategory.equals("")){
-		//	Toast.makeText(getApplicationContext(), "Empty NoteCategory", Toast.LENGTH_SHORT).show();
-		//}
-		//else{
-		//	categorySelectionChoice.setText("Category: " + noteCategory);
-		//}		
-	}
-	
-	public void discard(){
-		suggestTitle.setText("");
-		noteContent.setText("");
-		spCat.setSelection(0);
-	}
-	
-	
 	
 }//class
 	
