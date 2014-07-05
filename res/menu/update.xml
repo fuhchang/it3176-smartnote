@@ -64,4 +64,10 @@
         android:showAsAction="always"
         android:title="Save Note"
         />
+    
+   	<item
+        android:id="@+id/note_share"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Share"/>
 </menu>
