@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.StringTokenizer;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -67,6 +68,8 @@ import com.dropbox.client2.session.Session.AccessType;
 import com.example.it3176_smartnote.dropbox.DownloadFromDropbox;
 import com.example.it3176_smartnote.dropbox.UploadToDropbox;
 import com.example.it3176_smartnote.model.Note;
+import com.example.it3176_smartnote.util.readFileAsString;
+
 @SuppressLint("ValidFragment")
 public class MainActivity extends Activity {
 	String selected_setting;
@@ -77,7 +80,7 @@ public class MainActivity extends Activity {
 	ListView list;
 	String[] cateArray;
 	DatePicker dpInputDate;
-
+	private static final int pick_file = 1;
 	private DatePickerDialog datePicker;
 	private DatePickerDialog.OnDateSetListener dateListener;
 	Integer[] imageId = { R.drawable.client, R.drawable.meeting,
@@ -85,40 +88,40 @@ public class MainActivity extends Activity {
 	ArrayList<Note> resultArray = new ArrayList<Note>();
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
-		
+
 	final static private String APP_KEY = "ajddbjayy7yheai";
 	final static private String APP_SECRET = "hzlxix5dla74hkj";
 	private AccessType type = AccessType.DROPBOX;
 	private DropboxAPI<AndroidAuthSession> mDBApi;
 	AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
 	AndroidAuthSession session = new AndroidAuthSession(appKeys, type);
-    final static private String ACCOUNT_PREFS_NAME = "prefs";
-    final static private String ACCESS_KEY_NAME = "ACCESS_KEY";
-    final static private String ACCESS_SECRET_NAME = "ACCESS_SECRET";
+	final static private String ACCOUNT_PREFS_NAME = "prefs";
+	final static private String ACCESS_KEY_NAME = "ACCESS_KEY";
+	final static private String ACCESS_SECRET_NAME = "ACCESS_SECRET";
 	String token;
 	String token2;
-	
+
 	private DbxChooser mChooser;
-	static final int DBX_CHOOSER_REQUEST = 0;  // You can change this if needed
-	
+	static final int DBX_CHOOSER_REQUEST = 0; // You can change this if needed
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		cateArray = getResources().getStringArray(R.array.category_choice);
-		
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		token2 = sp.getString("token2", null);
-		
+
 		mDBApi = new DropboxAPI<AndroidAuthSession>(session);
-		if((token2 == null) || (token2.length() == 0) || (token2.equalsIgnoreCase(null))){
+		if ((token2 == null) || (token2.length() == 0)
+				|| (token2.equalsIgnoreCase(null))) {
 			mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
-		}
-		else{
+		} else {
 			mDBApi.getSession().setOAuth2AccessToken(token2);
 		}
-		
-		
+
 		SQLiteController controller = new SQLiteController(this);
 		controller.open();
 		ArrayList<Note> temptArray = controller.retrieveNotes();
@@ -404,24 +407,26 @@ public class MainActivity extends Activity {
 			list.setOnScrollListener(touchListener.makeScrollListener());
 		}
 	}
-	
+
 	@Override
 	protected void onResume() {
-	    super.onResume();
-	    if (mDBApi.getSession().authenticationSuccessful()) {
-	        try {
-	            // Required to complete auth, sets the access token on the session
-	            mDBApi.getSession().finishAuthentication();
+		super.onResume();
+		if (mDBApi.getSession().authenticationSuccessful()) {
+			try {
+				// Required to complete auth, sets the access token on the
+				// session
+				mDBApi.getSession().finishAuthentication();
 
-	            token2 = mDBApi.getSession().getOAuth2AccessToken();
-	    		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-	    		Editor edit = sp.edit();
-	    		edit.putString("token2", token2);
-	    		edit.commit();
-	        } catch (IllegalStateException e) {
-	            Log.i("DbAuthLog", "Error authenticating", e);
-	        }
-	    }
+				token2 = mDBApi.getSession().getOAuth2AccessToken();
+				SharedPreferences sp = PreferenceManager
+						.getDefaultSharedPreferences(this);
+				Editor edit = sp.edit();
+				edit.putString("token2", token2);
+				edit.commit();
+			} catch (IllegalStateException e) {
+				Log.i("DbAuthLog", "Error authenticating", e);
+			}
+		}
 	}
 
 	@Override
@@ -483,201 +488,263 @@ public class MainActivity extends Activity {
 		return super.onCreateOptionsMenu(menu);
 
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// TODO Auto-generated method stub
 		boolean isConnected = haveNetworkConnection();
 		switch (item.getItemId()) {
-			case R.id.upload_dropbox:
-				if(isConnected){
-					String FILENAME = "/smartnote.txt";
-					String string = "\nHello world! This is a testing note.";
-					FileOutputStream outputStream;
-					File file = new File(Environment.getExternalStorageDirectory() + "/Documents/",FILENAME);
-					file.setWritable(false);
-					file.setExecutable(false);
-					file.setReadable(true);
-					try {
-					  outputStream = new FileOutputStream(file);
-					  outputStream.write(string.getBytes());
-					  outputStream.close();
-					  File newFile = file;
-					  FileInputStream inputStream = new FileInputStream(newFile);
-					  UploadToDropbox upload = new UploadToDropbox(MainActivity.this, mDBApi, "/Smart_note/", file);
-		              upload.execute();
-					  inputStream.close();
-					  
-					} catch (Exception e) {
-						e.printStackTrace();
-			        }
+		case R.id.import_file:
+			Intent intentFile = new Intent(Intent.ACTION_GET_CONTENT);
+			Uri uri = Uri.parse(Environment.getExternalStorageDirectory()
+					.getPath() + "/myFolder/");
+			intentFile.setDataAndType(uri, "text/csv");
+			// startActivity(Intent.createChooser(intentFile , "Open folder"));
+			startActivityForResult(
+					Intent.createChooser(intentFile, "Select File"), pick_file);
+			break;
+		case R.id.upload_dropbox:
+			if (isConnected) {
+				String FILENAME = "/smartnote.txt";
+				String string = "\nHello world! This is a testing note.";
+				FileOutputStream outputStream;
+				File file = new File(Environment.getExternalStorageDirectory()
+						+ "/Documents/", FILENAME);
+				file.setWritable(false);
+				file.setExecutable(false);
+				file.setReadable(true);
+				try {
+					outputStream = new FileOutputStream(file);
+					outputStream.write(string.getBytes());
+					outputStream.close();
+					File newFile = file;
+					FileInputStream inputStream = new FileInputStream(newFile);
+					UploadToDropbox upload = new UploadToDropbox(
+							MainActivity.this, mDBApi, "/Smart_note/", file);
+					upload.execute();
+					inputStream.close();
+
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				else{
-					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-					builder.setMessage("There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					           public void onClick(DialogInterface dialog, int id) {
-					                //do things
-					           }
-					       });
-					AlertDialog alert = builder.create();
-					alert.show();
-				}
-				break;
-			case R.id.download_dropbox:
-				if(isConnected){
-					mChooser = new DbxChooser(APP_KEY);
-					mChooser.forResultType(DbxChooser.ResultType.PREVIEW_LINK).launch(MainActivity.this, DBX_CHOOSER_REQUEST);
-				}
-				else{
-					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-					builder.setMessage("There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.").setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					           public void onClick(DialogInterface dialog, int id) {
-					                //do things
-					           }
-					       });
-					AlertDialog alert = builder.create();
-					alert.show();
-				}
-				break;
-			case R.id.new_icon:
-				Intent intent = new Intent(this, CreateActivity.class);
-				startActivity(intent);
-				this.finish();
-				break;
-			case R.id.action_archive:
-				Intent archive_intent = new Intent(this, ArchiveActivity.class);
-				startActivity(archive_intent);
-				break;
-			case R.id.action_settings:
-				sp = PreferenceManager.getDefaultSharedPreferences(this);
-				selected_setting = sp.getString("selected_setting", "YourSetting");
-	
-				// If user's had chose a preference before
-				if (selected_setting.equals("archive")) {
-					selected = 0;
-				} else if (selected_setting.equals("delete")) {
-					selected = 1;
-				} else {
-					selected = 2;
-				}
-	
-				final CharSequence[] preferences = { "Archive", "Delete", "None" };
-	
+			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle("Preference").setSingleChoiceItems(preferences,
-						selected, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (preferences[which].equals("Archive")) {
-									selected = 0;
-								} else if (preferences[which].equals("Delete")) {
-									selected = 1;
-								} else if (preferences[which].equals("None")) {
-									selected = 2;
-								}
-							}
-						});
-				builder.setPositiveButton("Ok",
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								if (preferences[selected].equals("Archive")) {
-									savePreferences("selected_setting", "archive");
-								} else if (preferences[selected].equals("Delete")) {
-									savePreferences("selected_setting", "delete");
-								} else if (preferences[selected].equals("None")) {
-									savePreferences("selected_setting", "none");
-								}
-	
-								MainActivity.this.finish();
-								Intent refresh = new Intent(MainActivity.this,
-										MainActivity.class);
-								startActivity(refresh);
-							}
-						});
-				AlertDialog prefDialog = builder.create();
-				prefDialog.show();
-				break;
-			case R.id.search_type:
-				MyCategoryDialog dialog = new MyCategoryDialog();
-				dialog.show(getFragmentManager(), "myCategoryDialog");
-				break;
-			case R.id.search_date:
-				MyDatePicker datepicker = new MyDatePicker();
-				datepicker.show(getFragmentManager(), "myDatePicker");
-				break;
-			case R.id.sort_title:
-				sortByTitle sortTitle = new sortByTitle();
-				sortTitle.show(getFragmentManager(), "sortByTitle");
-				break;
-			case R.id.sort_date:
-				sortByDate sortDate = new sortByDate();
-				sortDate.show(getFragmentManager(), "sortByDate");
-				break;
-			case R.id.sort_type:
-				sortByType sortType = new sortByType();
-				sortType.show(getFragmentManager(), "sortByType");
-				break;
-			case R.id.sort_location:
-				sortByAddress sortAddress = new sortByAddress();
-				sortAddress.show(getFragmentManager(), "sortByAdress");
-				break;
-			case R.id.refresh_icon:
-				Intent refresh = new Intent(this, MainActivity.class);
-				startActivity(refresh);
-				this.finish();
-				break;
+				builder.setMessage(
+						"There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.")
+						.setCancelable(false)
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// do things
+									}
+								});
+				AlertDialog alert = builder.create();
+				alert.show();
 			}
+			break;
+		case R.id.download_dropbox:
+			if (isConnected) {
+				mChooser = new DbxChooser(APP_KEY);
+				mChooser.forResultType(DbxChooser.ResultType.PREVIEW_LINK)
+						.launch(MainActivity.this, DBX_CHOOSER_REQUEST);
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage(
+						"There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.")
+						.setCancelable(false)
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// do things
+									}
+								});
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
+			break;
+		case R.id.new_icon:
+			Intent intent = new Intent(this, CreateActivity.class);
+			startActivity(intent);
+			this.finish();
+			break;
+		case R.id.action_archive:
+			Intent archive_intent = new Intent(this, ArchiveActivity.class);
+			startActivity(archive_intent);
+			break;
+		case R.id.action_settings:
+			sp = PreferenceManager.getDefaultSharedPreferences(this);
+			selected_setting = sp.getString("selected_setting", "YourSetting");
+
+			// If user's had chose a preference before
+			if (selected_setting.equals("archive")) {
+				selected = 0;
+			} else if (selected_setting.equals("delete")) {
+				selected = 1;
+			} else {
+				selected = 2;
+			}
+
+			final CharSequence[] preferences = { "Archive", "Delete", "None" };
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Preference").setSingleChoiceItems(preferences,
+					selected, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (preferences[which].equals("Archive")) {
+								selected = 0;
+							} else if (preferences[which].equals("Delete")) {
+								selected = 1;
+							} else if (preferences[which].equals("None")) {
+								selected = 2;
+							}
+						}
+					});
+			builder.setPositiveButton("Ok",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (preferences[selected].equals("Archive")) {
+								savePreferences("selected_setting", "archive");
+							} else if (preferences[selected].equals("Delete")) {
+								savePreferences("selected_setting", "delete");
+							} else if (preferences[selected].equals("None")) {
+								savePreferences("selected_setting", "none");
+							}
+
+							MainActivity.this.finish();
+							Intent refresh = new Intent(MainActivity.this,
+									MainActivity.class);
+							startActivity(refresh);
+						}
+					});
+			AlertDialog prefDialog = builder.create();
+			prefDialog.show();
+			break;
+		case R.id.search_type:
+			MyCategoryDialog dialog = new MyCategoryDialog();
+			dialog.show(getFragmentManager(), "myCategoryDialog");
+			break;
+		case R.id.search_date:
+			MyDatePicker datepicker = new MyDatePicker();
+			datepicker.show(getFragmentManager(), "myDatePicker");
+			break;
+		case R.id.sort_title:
+			sortByTitle sortTitle = new sortByTitle();
+			sortTitle.show(getFragmentManager(), "sortByTitle");
+			break;
+		case R.id.sort_date:
+			sortByDate sortDate = new sortByDate();
+			sortDate.show(getFragmentManager(), "sortByDate");
+			break;
+		case R.id.sort_type:
+			sortByType sortType = new sortByType();
+			sortType.show(getFragmentManager(), "sortByType");
+			break;
+		case R.id.sort_location:
+			sortByAddress sortAddress = new sortByAddress();
+			sortAddress.show(getFragmentManager(), "sortByAdress");
+			break;
+		case R.id.refresh_icon:
+			Intent refresh = new Intent(this, MainActivity.class);
+			startActivity(refresh);
+			this.finish();
+			break;
+		}
 
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    if (requestCode == DBX_CHOOSER_REQUEST) {
-	        if (resultCode == Activity.RESULT_OK) {
-	            DbxChooser.Result result = new DbxChooser.Result(data);
-	            Log.d("main", "Link to selected file: " + result.getLink());
-	            DownloadFromDropbox download = new DownloadFromDropbox(MainActivity.this,mDBApi,"/Smart_note/",result.getLink().toString());
-	            download.execute();
-	            // Handle the result
-	        } else {
-	            // Failed or was cancelled by the user.
-	        }
-	    } else {
-	        super.onActivityResult(requestCode, resultCode, data);
-	    }
-	}
-	
-	private boolean haveNetworkConnection() {
-	    boolean haveConnectedWifi = false;
-	    boolean haveConnectedMobile = false;
-
-	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo[] netInfo = cm.getAllNetworkInfo();
-	    for (NetworkInfo ni : netInfo) {
-	        if (ni.getTypeName().equalsIgnoreCase("WIFI"))
-	            if (ni.isConnected())
-	                haveConnectedWifi = true;
-	        if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
-	            if (ni.isConnected())
-	                haveConnectedMobile = true;
-	    }
-	    return haveConnectedWifi || haveConnectedMobile;
-	}
-	
-	// convert InputStream to String
-		private static String getStringFromInputStream(InputStream in) throws IOException {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-	        StringBuilder out = new StringBuilder();
-	        String line;
-	        while ((line = reader.readLine()) != null) {
-	            out.append(line);
-	        }
-	        reader.close();
-	        return out.toString();   //Prints the string content read from input stream
-	 
+		if (requestCode == DBX_CHOOSER_REQUEST) {
+			if (resultCode == Activity.RESULT_OK) {
+				switch (requestCode) {
+				case pick_file:
+					ArrayList<String> readList = new ArrayList<String>();
+					String file;
+					Uri fileUri = data.getData();
+					readFileAsString readFile = new readFileAsString();
+				
+					 try  {
+						file = readFile.getStringFromFile(fileUri.toString().substring(7));
+						StringTokenizer st = new StringTokenizer(file, "^");
+						readList.clear();
+						while(st.hasMoreElements()){
+							readList.add(st.nextElement().toString());
+						}
+						
+						
+						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if(readList.size() != 0){
+						Note note = new Note();
+						note.setNote_name(readList.get(1));
+						note.setNote_category(readList.get(2));
+						note.setNote_content(readList.get(3));
+						note.setNote_img("");
+						note.setNote_video("");
+						note.setNote_address("");
+						SQLiteController entry = new SQLiteController(this);
+						entry.open();
+						entry.insertNote(note);
+						entry.close();
+						refresh();
+					}
+					break;
+				}
+				//check to use switch case
+				DbxChooser.Result result = new DbxChooser.Result(data);
+				Log.d("main", "Link to selected file: " + result.getLink());
+				DownloadFromDropbox download = new DownloadFromDropbox(
+						MainActivity.this, mDBApi, "/Smart_note/", result
+								.getLink().toString());
+				download.execute();
+				// Handle the result
+			} else {
+				// Failed or was cancelled by the user.
+			}
+		} else {
+			super.onActivityResult(requestCode, resultCode, data);
 		}
+	}
+
+	private boolean haveNetworkConnection() {
+		boolean haveConnectedWifi = false;
+		boolean haveConnectedMobile = false;
+
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+		for (NetworkInfo ni : netInfo) {
+			if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+				if (ni.isConnected())
+					haveConnectedWifi = true;
+			if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+				if (ni.isConnected())
+					haveConnectedMobile = true;
+		}
+		return haveConnectedWifi || haveConnectedMobile;
+	}
+
+	// convert InputStream to String
+	private static String getStringFromInputStream(InputStream in)
+			throws IOException {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		StringBuilder out = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			out.append(line);
+		}
+		reader.close();
+		return out.toString(); // Prints the string content read from input
+								// stream
+
+	}
 
 	private void archiveNote(Note note) {
 		SQLiteController controller = new SQLiteController(MainActivity.this);
@@ -1147,6 +1214,12 @@ public class MainActivity extends Activity {
 		AlertDialog dialog = exitBuilder.create();
 		dialog.show();
 		// super.onBackPressed();
+	}
+	
+	private void refresh(){
+		Intent refresh = new Intent(this, MainActivity.class);
+		startActivity(refresh);
+		this.finish();
 	}
 
 }

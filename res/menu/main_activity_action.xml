@@ -22,9 +22,9 @@
 	    android:showAsAction="never"
 	    />
 	<item 
-	    android:id="@+id/send_file"
+	    android:id="@+id/import_file"
 	    android:icon="@drawable/ic_action_refresh"
-	    android:title="@string/send_file"
+	    android:title="@string/import_file"
 	    android:showAsAction="never"
 	    />
 	<item

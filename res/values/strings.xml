@@ -24,11 +24,11 @@
     <string name="action_settings">Settings</string>
     <string name="action_archive">Archive</string>
     <string name="action_delete_all">Delete All</string>
-    <string name="send_file">Send file</string>
     <string name="upload_to_dropbox">Upload to Dropbox</string>
     <string name="download_from_dropbox">Download from Dropbox</string>
     <string name="send_email">Send email</string>
-
+	<string name="import_file">import file</string>
+	<string name="sendBlueTooth">BlueTooth sharing</string>
     <!-- Delete|Archive note -->
     <string name="btn_remove">Remove</string>
     <string name="cb_remember_setting">Remember this setting?</string>

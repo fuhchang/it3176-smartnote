@@ -2,19 +2,30 @@ package com.example.it3176_smartnote;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Set;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 
+import android.database.Cursor;
 import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,12 +34,23 @@ import android.graphics.drawable.BitmapDrawable;
 
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcEvent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -58,10 +80,17 @@ public class NoteDetail extends Activity {
 	Menu menu;
 	LinearLayout mLinearLayout;
 	LinearLayout mLinearLayoutHeader;
-
+	NfcAdapter nfc;
 	private ImageView imageView;
 	private VideoView videoView;
+	Intent intent;
+	private Intent mIntent;
+	// private File mParentPath;
+	
 
+	private Uri[] mFileUris = new Uri[10];
+	Uri fileUri;
+	BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
 	TextView dateTimeCreation, categorySelection, attachment, hrTv,
 			tapToAddTags, tags, addTv, currentLocation, attachments, noteTitle,
 			noteContent, imageFilePathTextView, videoFilePathTextView;
@@ -74,6 +103,7 @@ public class NoteDetail extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.note_detail);
+
 		noteID = getIntent().getIntExtra("noteID", 0);
 		SQLiteController getEntry = new SQLiteController(this);
 		getEntry.open();
@@ -143,15 +173,15 @@ public class NoteDetail extends Activity {
 
 			final int rotateImage = getCameraPhotoOrientation(NoteDetail.this,
 					Uri.parse(note.getNote_img()), note.getNote_img());
-			Bitmap yourSelectedImage = decodeSampledBitmapFromResource(note.getNote_img(),
-					140, 100);
+			Bitmap yourSelectedImage = decodeSampledBitmapFromResource(
+					note.getNote_img(), 140, 100);
 			imageView.setImageBitmap(yourSelectedImage);
 			Matrix matrix = new Matrix();
 			imageView.setScaleType(ScaleType.MATRIX);
 			matrix.postRotate(rotateImage, imageView.getDrawable().getBounds()
 					.width() / 2,
 					imageView.getDrawable().getBounds().height() / 2);
-			
+
 			imageView.setImageMatrix(matrix);
 			imageView.setOnTouchListener(new OnTouchListener() {
 				@Override
@@ -161,8 +191,7 @@ public class NoteDetail extends Activity {
 					case MotionEvent.ACTION_UP:
 
 						Intent reviewImageFullScreen = new Intent(
-								NoteDetail.this,
-								ImageFullScreenActivity.class);
+								NoteDetail.this, ImageFullScreenActivity.class);
 						ByteArrayOutputStream bs = new ByteArrayOutputStream();
 						BitmapDrawable drawable = (BitmapDrawable) imageView
 								.getDrawable();
@@ -252,13 +281,25 @@ public class NoteDetail extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
-
+		case R.id.sendNFC:
+			if(btAdapter == null){
+				Toast.makeText(getApplicationContext(), "no blue tooth", Toast.LENGTH_LONG).show();
+			}else{
+				Intent intent = new Intent();
+				intent.setAction(Intent.ACTION_SEND);
+				intent.setType("text/plain");
+				intent.putExtra(Intent.EXTRA_TEXT, "^" + note.getNote_name() + "^" + note.getNote_category() +"^" +  note.getNote_content()+ "^");
+				startActivity(intent);
+			}
+			break;
 		case R.id.send_email:
 			Intent email = new Intent(Intent.ACTION_SEND);
-			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_category() + " - "+ note.getNote_name());
+			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_category()
+					+ " - " + note.getNote_name());
 			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content());
 			email.setType("message/rfc822");
-			startActivity(Intent.createChooser(email, "Choose an Email client: "));
+			startActivity(Intent.createChooser(email,
+					"Choose an Email client: "));
 			break;
 		case R.id.action_settings:
 
@@ -667,7 +708,7 @@ public class NoteDetail extends Activity {
 		}
 		return rotate;
 	}
-	
+
 	public static Bitmap decodeSampledBitmapFromResource(String pathName,
 			int reqWidth, int reqHeight) {
 
@@ -684,7 +725,7 @@ public class NoteDetail extends Activity {
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeFile(pathName, options);
 	}
-	
+
 	public static int calculateInSampleSize(BitmapFactory.Options options,
 			int reqWidth, int reqHeight) {
 		// Raw height and width of image
@@ -708,4 +749,5 @@ public class NoteDetail extends Activity {
 
 		return inSampleSize;
 	}
+
 }
