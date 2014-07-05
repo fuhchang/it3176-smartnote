@@ -28,6 +28,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,6 +43,7 @@ import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
@@ -54,12 +58,15 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -68,6 +75,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+/**
+ * This class is to do the UI Logic for updating note activity into the local SQLite Database.
+ * @author Lee Zhuo Xun
+ *
+ */
 public class UpdateActivity extends Activity {
 
 	static LinearLayout mLinearLayout;
@@ -109,12 +121,21 @@ public class UpdateActivity extends Activity {
 	static TextView categorySelectionChoice;
 	EditText noteTitle;
 	static EditText noteContent;
-	AutoCompleteTextView suggestTitle;
+	static AutoCompleteTextView suggestTitle;
 	Button btnSave;
+	static Button removeImgBtn;
+	static Button removeVideoBtn;
+	static Button removeLocBtn;
 
-	MediaController videoMC;
-	MediaController audioMC;
-
+	static TextView imageFilePathTextView;
+	static TextView videoFilePathTextView;
+	
+	static Spinner spCat;
+	ArrayAdapter<CharSequence> catAdapter;
+	//TextView categorySelected;
+	String[] categoryArray;
+	int selectedPosition;
+	
 	/** Values to be stored in database **/
 	String titleOfNote = "";
 	String content = "";
@@ -138,6 +159,9 @@ public class UpdateActivity extends Activity {
 	private boolean network_enabled = false;
 
 	final Context context = this;
+	static int SPWhich;
+	
+	// For calendar
 	private Cursor calendarEventTitleCursor;
 	private Cursor onGoingEventCursor;
 	String eventTitle;
@@ -149,11 +173,7 @@ public class UpdateActivity extends Activity {
 	String fullEventDetails = "";
 	ArrayList<String> eventTitles = new ArrayList<String>();
 
-	static TextView imageFilePathTextView;
-	static TextView videoFilePathTextView;
 
-	ScrollView sv;
-	FrameLayout frameLayout;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -186,9 +206,6 @@ public class UpdateActivity extends Activity {
 		noteContent = (EditText) findViewById(R.id.noteContent);
 		noteContent.setText(note.getNote_content());
 
-		//sv = (ScrollView) findViewById(R.id.sv);
-		frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
-		
 		btnSave = (Button) findViewById(R.id.btnSave);
 
 		imageView = (ImageView) findViewById(R.id.imageView);
@@ -346,6 +363,7 @@ public class UpdateActivity extends Activity {
 
 		}
 		suggestTitle = (AutoCompleteTextView) findViewById(R.id.noteTitle);
+		System.out.println("Note name: " + note.getNote_name());
 		suggestTitle.setText(note.getNote_name());
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -358,30 +376,106 @@ public class UpdateActivity extends Activity {
 		dateTimeCreation.setText(strDate);
 
 		// For selection of category
-		selectionArray = getResources().getStringArray(R.array.category_choice);
+		/*	selectionArray=getResources().getStringArray(R.array.category_choice);
 		categorySelection = (TextView) findViewById(R.id.categorySelection);
-
 		categorySelectionChoice = (TextView) findViewById(R.id.categorySelectionChoice);
-		noteCategory = note.getNote_category();
-		categorySelectionChoice.setText("Category: " + noteCategory);
+		categorySelection.setOnClickListener(new OnClickListener(){
 
-		categorySelection.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				CreateNoteDialog dialog = new CreateNoteDialog();
 				dialog.setDialogType(SELECTION_CHOICE_DIALOG);
-				dialog.show(getFragmentManager(), "UpdateNoteDialog");
+				dialog.show(getFragmentManager(), "CreateNoteDialog");
 			}
-		});
+		});*/
+		spCat = (Spinner) findViewById(R.id.spCat);
+		//categorySelected =  (TextView) findViewById(R.id.categorySelected);
+		Resources myRes = this.getResources();
+		categoryArray = myRes.getStringArray(R.array.category_choice);
+		
+		catAdapter = ArrayAdapter.createFromResource(this, R.array.category_choice, android.R.layout.simple_spinner_dropdown_item);
+		spCat.setAdapter(catAdapter);
+		if(note.getNote_category().equals("Personal")){
+			spCat.setSelection(0);	
+		}
+		else if(note.getNote_category().equals("Meeting Notes")){
+			spCat.setSelection(1);
+		}
+		else{
+			spCat.setSelection(2);
+		}
+		spCat.setOnItemSelectedListener(new OnItemSelectedListener() {
 
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				// TODO Auto-generated method stub
+				/**GET SELECTED VALUE**/
+				//categorySelected.setText(arg0.getItemAtPosition(arg2).toString());
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub				
+			}			
+		});
 	}
 
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		Editor edit = sp.edit();
+		edit.putString("titleOfNote", suggestTitle.getText().toString());
+		edit.putString("content", noteContent.getText().toString());
+		selectedPosition = spCat.getSelectedItemPosition();
+		edit.putInt("spinnerSelection", selectedPosition);
+	//	edit.putInt("SPWhich", SPWhich);
+		edit.commit();
+		
+		//Toast.makeText(getApplicationContext(), "Pause state: " + spCat.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+		super.onPause();
+	}
+	
+	
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
 		videoView.seekTo(10000);
+		
+		
+		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		String titleOfNote = sp.getString("titleOfNote", "");
+		if(titleOfNote != ""){
+			suggestTitle.setText(titleOfNote);
+		}
+		else{
+			suggestTitle.setText(note.getNote_name());
+		}
+		String content = sp.getString("content", "");
+		if(content != ""){
+			noteContent.setText(content);
+		}
+		else{
+			noteContent.setText(note.getNote_content());
+		}
+		int selection = sp.getInt("spinnerSelection",-1);
+		if(selection != -1){
+			spCat.setSelection(selection);
+		}
+		else{
+			if(note.getNote_category().equals("Personal")){
+				spCat.setSelection(0);	
+			}
+			else if(note.getNote_category().equals("Meeting Notes")){
+				spCat.setSelection(1);
+			}
+			else{
+				spCat.setSelection(2);
+			}
+		}
 	}
 
 	@Override
@@ -857,7 +951,7 @@ public class UpdateActivity extends Activity {
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-			if (dialogType == SELECTION_CHOICE_DIALOG) {
+			/*if (dialogType == SELECTION_CHOICE_DIALOG) {
 				builder.setTitle("Select Category");
 				builder.setItems(R.array.category_choice,
 						new DialogInterface.OnClickListener() {
@@ -870,9 +964,9 @@ public class UpdateActivity extends Activity {
 								updateChoice();
 							}
 						});
-			}
+			}*/
 			if (dialogType == REMOVAL_CHOICE_DIALOG) {
-				builder.setTitle("Which attachment do you want to remove?");
+				builder.setTitle("What do you want to remove?");
 				builder.setItems(R.array.attachment_choice,
 						new DialogInterface.OnClickListener() {
 
@@ -959,42 +1053,27 @@ public class UpdateActivity extends Activity {
 										}
 									}
 								} else if (which == 3) {
-									if ((uriOfImage.equals(""))
-											&& (uriOfVideo.equals(""))
-											&& (currentLocation.getText()
-													.toString().equals(""))) {
-										Toast.makeText(
-												getActivity(),
-												"You do not have any attachment.",
-												Toast.LENGTH_SHORT).show();
-									} else {
-										imageFilePathTextView
-												.setVisibility(View.GONE);
+									if((uriOfImage.equals("")) && (uriOfVideo.equals("")) && (currentLocation.getText().toString().equals(""))&& (suggestTitle.getText().toString().equals("")) && (noteContent.getText().toString().equals("")) && (spCat.getSelectedItem().toString()).equals("Personal")){
+										Toast.makeText(getActivity(), "Nothing to remove.", Toast.LENGTH_SHORT).show();
+									}
+									else{
+										imageUriTv.setVisibility(View.GONE);
 										uriOfImage = "";
 										imageView.setVisibility(View.GONE);
-
+										
 										uriOfVideo = "";
-										videoFilePathTextView
-												.setVisibility(View.GONE);
+										videoUriTv.setVisibility(View.GONE);
 										videoView.setVisibility(View.GONE);
-
+										
 										addTv.setVisibility(View.GONE);
-										currentLocation
-												.setVisibility(View.GONE);
+										currentLocation.setVisibility(View.GONE);
 										currentLocation.setText("");
-										storingAddress = "";
-
-										if ((imageView.getVisibility() == View.GONE)
-												&& (videoView.getVisibility() == View.GONE)
-												&& (currentLocation
-														.getVisibility() == View.GONE)) {
+										storingAddress="";
+										if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
 											hrTv.setVisibility(View.GONE);
-											mLinearLayoutHeader
-													.setVisibility(View.GONE);
-											mLinearLayout
-													.setVisibility(View.GONE);
-											noteContent
-													.setVisibility(View.VISIBLE);
+									        mLinearLayoutHeader.setVisibility(View.GONE);
+									        mLinearLayout.setVisibility(View.GONE);
+									        noteContent.setVisibility(View.VISIBLE);
 										}
 									}
 								}
@@ -1005,17 +1084,7 @@ public class UpdateActivity extends Activity {
 			return builder.create();
 		}
 	}
-
-	/** Set textview to display selected category **/
-	public static void updateChoice() {
-		category = "";
-
-		if (noteCategory.length() > 0) {
-			category = "Category: " + noteCategory;
-		}
-		categorySelectionChoice.setText(category);
-	}
-
+	
 	/** Notification for saving of note **/
 	public void notifySuccess() {
 		Intent intent = new Intent(this, NoteDetail.class);
@@ -1303,7 +1372,8 @@ public class UpdateActivity extends Activity {
 		getEntry.close();
 
 		String duplicateTitle = "";
-
+		noteCategory = spCat.getSelectedItem().toString();
+		
 		if (titleOfNote.matches("") || content.matches("")
 				|| noteCategory.matches("")) {
 			Toast.makeText(getApplicationContext(),
@@ -1318,73 +1388,81 @@ public class UpdateActivity extends Activity {
 					// Toast.makeText(getApplicationContext(),
 					// "Duplicate title found, unable to save note. \n(On-going calendar event)",
 					// Toast.LENGTH_LONG).show();
-
-					// Toast.makeText(getApplicationContext(),
-					// "AFTER ONGOING CALENDAR EVENT, NO DUPLICATE TITLE",
-					// Toast.LENGTH_LONG).show();
-					saveNoteToDB();
+					if(duplicateTitle.matches("yes")){
+						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+						//Toast.makeText(getApplicationContext(), "Duplicate CALENDAR EVENT TITLE AND duplicate note title found, unable to save note.", Toast.LENGTH_LONG).show();
+					}				
+					/***6**/
+					else{
+					//	Toast.makeText(getApplicationContext(), "No duplicate CALENDAR EVENT title, NO DUPLICATE TITLE", Toast.LENGTH_LONG).show();
+						saveNoteToDB();
+					}
 				}
 				/** 4 **/
 				else {
-					/** 7 **/
-					// Toast.makeText(getApplicationContext(),
-					// "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found",
-					// Toast.LENGTH_LONG).show();
-					replaceTitle();
+					/**7**/
+					if(duplicateTitle.matches("yes")){
+						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+						//Toast.makeText(getApplicationContext(), "NO DUPLICATE CALENDAR EVENT TITLE BUT duplicate note title found, unable to save note", Toast.LENGTH_LONG).show();
+					}
+					/**8**/
+					else{
+						//Toast.makeText(getApplicationContext(), "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
+						if(titleOfNote.equals(eventMatchCriteria)){
+							saveNoteToDB();
+							//Toast.makeText(getApplicationContext(), "Note title same as event title so no need to prompt for replacement", Toast.LENGTH_LONG).show();
+						}
+						else{
+							//Toast.makeText(getApplicationContext(), "Note title not the same as event title, NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
+							replaceTitle();
+						}
+					}
 				}
 			} else {
-				saveNoteToDB();
+				if(duplicateTitle.matches("yes")){
+					Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+				}
+				else{
+					saveNoteToDB();	
+				}	
 			}
 		}
 	}
 
-	public void replaceTitle() {
-
-		AlertDialog.Builder builder1 = new AlertDialog.Builder(
-				UpdateActivity.this);
-		// builder1.setMessage("Event: " + eventMatchCriteria +
-		// " is currently on going, replace the current note title with event title?");
-		builder1.setTitle("On-going Calendar Event Alert");
+	public void replaceTitle(){	
+		AlertDialog.Builder builder1 = new AlertDialog.Builder(UpdateActivity.this);
+        builder1.setTitle("On-going Calendar Event Alert");
 		builder1.setMessage(fullEventDetails);
 		builder1.setCancelable(true);
-		builder1.setNegativeButton("Yes",
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int id) {
-						/** 9 **/
-						titleOfNote = eventMatchCriteria;
-						// Toast.makeText(getApplicationContext(),
-						// "Note title replaced.", Toast.LENGTH_LONG).show();
-						saveNoteToDB();
-
-					}
-				});
-		builder1.setNeutralButton("No", new DialogInterface.OnClickListener() {
+        builder1.setNegativeButton("Yes",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            	/**9**/
+            	titleOfNote = eventMatchCriteria;
+            	saveNoteToDB(); 
+            }
+        });
+        builder1.setNeutralButton("No",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+               /**10**/
+            	saveNoteToDB();
+            }
+        });
+        builder1.setPositiveButton("Cancel", new DialogInterface.OnClickListener(){
 			@Override
-			public void onClick(DialogInterface dialog, int id) {
-				/** 10 **/
-				saveNoteToDB();
-			}
-		});
-
-		builder1.setPositiveButton("Cancel",
-				new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						dialog.cancel();
-
-					}
-
-				});
-
-		AlertDialog alert11 = builder1.create();
-		alert11.show();
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+			}       	
+        });
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
 	}
 
 	public void saveNoteToDB() {
 		boolean result = true;
+		noteCategory = spCat.getSelectedItem().toString();
 		try {
 			Note note = new Note(titleOfNote, content, noteCategory,
 					uriOfImage, uriOfVideo, storingAddress);
@@ -1409,7 +1487,6 @@ public class UpdateActivity extends Activity {
 				uriOfVideo = "";
 				uriOfAudio = "";
 				storingAddress = "";
-
 				Toast.makeText(getApplicationContext(), "Note Saved",
 						Toast.LENGTH_LONG).show();
 				Intent intent = new Intent(this, MainActivity.class);
