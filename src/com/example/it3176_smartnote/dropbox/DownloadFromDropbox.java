@@ -33,10 +33,12 @@ import java.util.ArrayList;
 
 import org.bouncycastle.asn1.ocsp.Request;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -46,6 +48,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.SQLiteController.it3176.SQLiteController;
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.DropboxAPI.DropboxFileInfo;
 import com.dropbox.client2.DropboxAPI.Entry;
@@ -57,6 +60,9 @@ import com.dropbox.client2.exception.DropboxParseException;
 import com.dropbox.client2.exception.DropboxPartialFileException;
 import com.dropbox.client2.exception.DropboxServerException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
+import com.example.it3176_smartnote.CreateActivity;
+import com.example.it3176_smartnote.MainActivity;
+import com.example.it3176_smartnote.model.Note;
 
 /**
  * Here we show getting metadata for a directory and downloading a file in a
@@ -215,20 +221,44 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
         	//Get the text file
         	File file = new File(localFilePath);
         	//Read text from file
-        	StringBuilder text = new StringBuilder();
+        	ArrayList<String> textArrList = new ArrayList<String>();
         	try {
         	    BufferedReader br = new BufferedReader(new FileReader(file));
         	    String line;
         	    while ((line = br.readLine()) != null) {
-        	        text.append(line.substring(line.indexOf(":", 1) + 1));
-        	        text.append('\n');
+        	    	textArrList.add(line.substring(line.indexOf(":", 1) + 1));
         	    }
         	}
         	catch (IOException e) {
         	    //You'll need to add proper error handling here
         		e.printStackTrace();
         	}
-    	    System.out.println(text);
+        	String noteTitle = textArrList.get(0);
+        	String category = textArrList.get(1);
+        	String content = "";
+        	for(int i=2;i<textArrList.size();i++){
+        		content += textArrList.get(i);
+        	}
+    	    System.out.println(content);
+    	    try{
+				Note note = new Note(noteTitle, content, category, "", "", "");
+				
+				SQLiteController entry = new SQLiteController(mContext);
+				entry.open();
+				entry.insertNote(note);
+				entry.close();
+    	    }
+    	    catch(Exception e){
+    	    	mErrorMsg = "Something went wrong in processing the downloaded file.";
+    	    	showToast(mErrorMsg);	
+    	    }
+    	    finally{
+				Toast.makeText(mContext, "Note Saved", Toast.LENGTH_LONG).show();
+				file.delete();
+				((Activity) mContext).finish();
+				Intent intent = new Intent(mContext, MainActivity.class);
+				mContext.startActivity(intent);		
+    	    }
         } else {
             // Couldn't download it, so show an error
             showToast(mErrorMsg);

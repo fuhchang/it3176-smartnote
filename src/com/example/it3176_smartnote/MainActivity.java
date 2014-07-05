@@ -89,15 +89,13 @@ public class MainActivity extends Activity {
 	ArrayList<Note> tempArray = new ArrayList<Note>();
 	ArrayList<Note> searchResult = new ArrayList<Note>();
 
+	//Initialize for Dropbox
 	final static private String APP_KEY = "ajddbjayy7yheai";
 	final static private String APP_SECRET = "hzlxix5dla74hkj";
 	private AccessType type = AccessType.DROPBOX;
 	private DropboxAPI<AndroidAuthSession> mDBApi;
 	AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
 	AndroidAuthSession session = new AndroidAuthSession(appKeys, type);
-	final static private String ACCOUNT_PREFS_NAME = "prefs";
-	final static private String ACCESS_KEY_NAME = "ACCESS_KEY";
-	final static private String ACCESS_SECRET_NAME = "ACCESS_SECRET";
 	String token;
 	String token2;
 
@@ -149,6 +147,7 @@ public class MainActivity extends Activity {
 				intent.putExtra("noteID", resultArray.get(position)
 						.getNote_id());
 				startActivity(intent);
+				MainActivity.this.finish();
 			}
 
 		});
@@ -503,46 +502,6 @@ public class MainActivity extends Activity {
 			startActivityForResult(
 					Intent.createChooser(intentFile, "Select File"), pick_file);
 			break;
-		case R.id.upload_dropbox:
-			if (isConnected) {
-				String FILENAME = "/smartnote.txt";
-				String string = "\nHello world! This is a testing note.";
-				FileOutputStream outputStream;
-				File file = new File(Environment.getExternalStorageDirectory()
-						+ "/Documents/", FILENAME);
-				file.setWritable(false);
-				file.setExecutable(false);
-				file.setReadable(true);
-				try {
-					outputStream = new FileOutputStream(file);
-					outputStream.write(string.getBytes());
-					outputStream.close();
-					File newFile = file;
-					FileInputStream inputStream = new FileInputStream(newFile);
-					UploadToDropbox upload = new UploadToDropbox(
-							MainActivity.this, mDBApi, "/Smart_note/", file);
-					upload.execute();
-					inputStream.close();
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setMessage(
-						"There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.")
-						.setCancelable(false)
-						.setPositiveButton("OK",
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int id) {
-										// do things
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
-			}
-			break;
 		case R.id.download_dropbox:
 			if (isConnected) {
 				mChooser = new DbxChooser(APP_KEY);
@@ -659,9 +618,8 @@ public class MainActivity extends Activity {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == DBX_CHOOSER_REQUEST) {
-			if (resultCode == Activity.RESULT_OK) {
-				switch (requestCode) {
+		if(resultCode == Activity.RESULT_OK){
+			switch (requestCode) {
 				case pick_file:
 					ArrayList<String> readList = new ArrayList<String>();
 					String file;
@@ -697,21 +655,30 @@ public class MainActivity extends Activity {
 						refresh();
 					}
 					break;
-				}
-				//check to use switch case
-				DbxChooser.Result result = new DbxChooser.Result(data);
-				Log.d("main", "Link to selected file: " + result.getLink());
-				DownloadFromDropbox download = new DownloadFromDropbox(
-						MainActivity.this, mDBApi, "/Smart_note/", result
-								.getLink().toString());
-				download.execute();
-				// Handle the result
-			} else {
-				// Failed or was cancelled by the user.
+				case DBX_CHOOSER_REQUEST:
+					//check to use switch case
+					DbxChooser.Result result = new DbxChooser.Result(data);
+					Log.d("main", "Link to selected file: " + result.getLink());
+					String link = result.getLink().toString();
+					String fileName = link.substring(link.lastIndexOf("/") + 1,link.length());
+					System.out.print(fileName);
+					String validatingFileName = link.substring(link.lastIndexOf(".") + 1,link.length());
+					if(!validatingFileName.equals("txt")){
+						Toast.makeText(this, "Please select a text file.", Toast.LENGTH_LONG).show();
+						break;
+					}
+					if(!fileName.contains("smartnote-")){
+						Toast.makeText(this, "Please select a appropriate note.", Toast.LENGTH_LONG).show();
+						break;
+					}
+					DownloadFromDropbox download = new DownloadFromDropbox(
+							MainActivity.this, mDBApi, "/Smart_note/", result
+									.getLink().toString());
+					download.execute();
+					break;
 			}
-		} else {
-			super.onActivityResult(requestCode, resultCode, data);
 		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	private boolean haveNetworkConnection() {

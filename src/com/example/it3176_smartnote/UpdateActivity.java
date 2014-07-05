@@ -248,7 +248,7 @@ public class UpdateActivity extends Activity {
 			}
 		});
 
-		if (!note.getNote_img().toString().equals("")) {
+		if ((!note.getNote_img().toString().equals("")) && (note.getNote_img() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			imageView.setVisibility(View.VISIBLE);
@@ -304,7 +304,7 @@ public class UpdateActivity extends Activity {
 			});
 
 		}
-		if (!note.getNote_video().toString().equals("")) {
+		if (!note.getNote_video().toString().equals("") && (note.getNote_video() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.VISIBLE);
@@ -542,7 +542,6 @@ public class UpdateActivity extends Activity {
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("text/plain");
 				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, noteContent.getText().toString());
-				//sharingIntent.putExtra(Intent.EXTRA_TEXT, noteContent.getText().toString());
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));		
 			}
 		}

@@ -2,9 +2,13 @@ package com.example.it3176_smartnote;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +37,8 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 
 import android.media.ExifInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -41,6 +47,7 @@ import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -71,6 +78,11 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.SQLiteController.it3176.SQLiteController;
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.session.AppKeyPair;
+import com.dropbox.client2.session.Session.AccessType;
+import com.example.it3176_smartnote.dropbox.UploadToDropbox;
 import com.example.it3176_smartnote.model.Note;
 import com.example.it3176_smartnote.util.ImageFullScreenActivity;
 import com.example.it3176_smartnote.util.VideoPlayerActivity;
@@ -98,6 +110,17 @@ public class NoteDetail extends Activity {
 	MediaController videoMC;
 	MediaController audioMC;
 	int noteID, selected;
+	
+	String formattedDateTime;
+	
+	//Initalize for Dropbox
+	final static private String APP_KEY = "ajddbjayy7yheai";
+	final static private String APP_SECRET = "hzlxix5dla74hkj";
+	private AccessType type = AccessType.DROPBOX;
+	private DropboxAPI<AndroidAuthSession> mDBApi;
+	AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+	AndroidAuthSession session = new AndroidAuthSession(appKeys, type);
+	String token2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +132,10 @@ public class NoteDetail extends Activity {
 		getEntry.open();
 		note = getEntry.retrieveNote(noteID);
 		getEntry.close();
+	
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		token2 = sp.getString("token2", null);
 
 		noteTitle = (TextView) findViewById(R.id.noteTitle);
 		noteTitle.setText(note.getNote_name());
@@ -118,7 +145,11 @@ public class NoteDetail extends Activity {
 		categorySelection.setText(note.getNote_category());
 		dateTimeCreation = (TextView) findViewById(R.id.currentDateTimeOfCreation);
 		dateTimeCreation.setText(note.getNote_date());
-
+	
+		String newDate = dateTimeCreation.getText().toString().replaceAll("-", "");
+		String newDateTime = newDate.replaceAll(":", "");
+		formattedDateTime = newDateTime.replaceAll(" ", "");
+		
 		imageView = (ImageView) findViewById(R.id.imageView);
 		videoView = (VideoView) findViewById(R.id.videoView);
 
@@ -162,7 +193,7 @@ public class NoteDetail extends Activity {
 			}
 		});
 		// check and display if there is image
-		if (!note.getNote_img().equals("")) {
+		if (!note.getNote_img().equals("") && (note.getNote_img() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			imageView.setImageURI(Uri.parse(note.getNote_img()));
 			imageView.setVisibility(View.VISIBLE);
@@ -211,7 +242,7 @@ public class NoteDetail extends Activity {
 			});
 		}
 		// check and display if there is video
-		if (!note.getNote_video().equals("")) {
+		if (!note.getNote_video().equals("") && (note.getNote_video() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.VISIBLE);
@@ -237,7 +268,7 @@ public class NoteDetail extends Activity {
 
 		}
 
-		if (!note.getNote_address().equals("")) {
+		if (!note.getNote_address().equals("") && (note.getNote_address() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			addTv.setVisibility(View.VISIBLE);
@@ -279,7 +310,7 @@ public class NoteDetail extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
+		boolean isConnected = haveNetworkConnection();
 		switch (item.getItemId()) {
 		case R.id.sendNFC:
 			if(btAdapter == null){
@@ -300,6 +331,55 @@ public class NoteDetail extends Activity {
 			email.setType("message/rfc822");
 			startActivity(Intent.createChooser(email,
 					"Choose an Email client: "));
+			break;
+
+		case R.id.upload_dropbox:
+			mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+			if ((token2 == null) || (token2.length() == 0)
+					|| (token2.equalsIgnoreCase(null))) {
+				mDBApi.getSession().startOAuth2Authentication(NoteDetail.this);
+			} else {
+				mDBApi.getSession().setOAuth2AccessToken(token2);
+			}
+			if (isConnected) {
+				String FILENAME = "/smartnote-"+formattedDateTime+".txt";
+				String string = "Title:" + noteTitle.getText().toString() + "\nCategory:" + categorySelection.getText().toString() 
+						+ "\nContent:" + noteContent.getText().toString();
+				FileOutputStream outputStream;
+				File file = new File(Environment.getExternalStorageDirectory()
+						+ "/Documents/", FILENAME);
+				file.setWritable(false);
+				file.setExecutable(false);
+				file.setReadable(true);
+				try {
+					outputStream = new FileOutputStream(file);
+					outputStream.write(string.getBytes());
+					outputStream.close();
+					File newFile = file;
+					FileInputStream inputStream = new FileInputStream(newFile);
+					UploadToDropbox upload = new UploadToDropbox(
+							NoteDetail.this, mDBApi, "/Smart_note/", file);
+					upload.execute();
+					inputStream.close();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage(
+						"There is no wifi connection or mobile data connection available. Please turn on either the wifi connection or mobile data connection.")
+						.setCancelable(false)
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										// do things
+									}
+								});
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
 			break;
 		case R.id.action_settings:
 
@@ -534,6 +614,25 @@ public class NoteDetail extends Activity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+	
+
+
+	private boolean haveNetworkConnection() {
+		boolean haveConnectedWifi = false;
+		boolean haveConnectedMobile = false;
+
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+		for (NetworkInfo ni : netInfo) {
+			if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+				if (ni.isConnected())
+					haveConnectedWifi = true;
+			if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+				if (ni.isConnected())
+					haveConnectedMobile = true;
+		}
+		return haveConnectedWifi || haveConnectedMobile;
 	}
 
 	private void archiveNote() {
