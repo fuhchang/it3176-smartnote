@@ -1487,6 +1487,13 @@ public class UpdateActivity extends Activity {
 				uriOfVideo = "";
 				uriOfAudio = "";
 				storingAddress = "";
+				SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+				Editor edit = sp.edit();
+				edit.putString("titleOfNote", "");
+				edit.putString("content", "");
+				edit.putInt("spinnerSelection", -1);
+			//	edit.putInt("SPWhich", SPWhich);
+				edit.commit();
 				Toast.makeText(getApplicationContext(), "Note Saved",
 						Toast.LENGTH_LONG).show();
 				Intent intent = new Intent(this, MainActivity.class);
