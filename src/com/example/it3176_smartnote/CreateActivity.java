@@ -67,6 +67,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.ShareActionProvider;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -379,6 +380,18 @@ public class CreateActivity extends Activity {
 
 		}
 		
+		else if(id==R.id.note_share){
+			if(noteContent.getText().toString().equals("")){
+				Toast.makeText(getApplicationContext(), "You don't have any content to share.", Toast.LENGTH_LONG).show();
+			}
+			else{
+				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+				sharingIntent.setType("text/plain");
+				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, noteContent.getText().toString());
+				//sharingIntent.putExtra(Intent.EXTRA_TEXT, noteContent.getText().toString());
+				startActivity(Intent.createChooser(sharingIntent, "Share via"));		
+			}
+		}
 		/*else if(id==R.id.attachAudio){
 			 Intent intent = new Intent();
 	         intent.setType("audio/*");
