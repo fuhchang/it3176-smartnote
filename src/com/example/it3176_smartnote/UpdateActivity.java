@@ -76,24 +76,17 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 /**
- * This class is to do the UI Logic for updating note activity into the local SQLite Database.
+ * This class is to do the UI Logic for updating note activity into the local
+ * SQLite Database.
+ * 
  * @author Lee Zhuo Xun
- *
+ * 
  */
 public class UpdateActivity extends Activity {
-
-	static LinearLayout mLinearLayout;
-	static LinearLayout mLinearLayoutHeader;
-
-	private static Bitmap Image = null;
-	private static ImageView imageView;
-	private static VideoView videoView;
-	private VideoView audioView;
-
 	private int noteID;
 	private Note note;
 
-	/*** Request Code **/
+	// Request Code 
 	int notifyID = 1088;
 	private static final int PICK_IMAGE = 1;
 	private static final int CAPTURE_PHOTO = 100;
@@ -101,13 +94,13 @@ public class UpdateActivity extends Activity {
 	private static final int CAPTURE_VIDEO = 200;
 	private static final int PICK_AUDIO = 3;
 
-	/*** Dialogs ***/
+	//Dialogs
 	static int SELECTION_CHOICE_DIALOG = 1;
 	static int REMOVAL_CHOICE_DIALOG = 2;
-
 	static String[] selectionArray;
 	static String[] attachmentArray;
 
+	//For widget
 	TextView dateTimeCreation, categorySelection, attachment;
 	static TextView hrTv;
 	static TextView imageUriTv;
@@ -126,17 +119,20 @@ public class UpdateActivity extends Activity {
 	static Button removeImgBtn;
 	static Button removeVideoBtn;
 	static Button removeLocBtn;
-
 	static TextView imageFilePathTextView;
 	static TextView videoFilePathTextView;
-	
 	static Spinner spCat;
 	ArrayAdapter<CharSequence> catAdapter;
-	//TextView categorySelected;
 	String[] categoryArray;
 	int selectedPosition;
-	
-	/** Values to be stored in database **/
+	static LinearLayout mLinearLayout;
+	static LinearLayout mLinearLayoutHeader;
+	private static Bitmap Image = null;
+	private static ImageView imageView;
+	private static VideoView videoView;
+
+
+	//Values to be stored in database
 	String titleOfNote = "";
 	String content = "";
 	static String uriOfImage = "";
@@ -144,12 +140,10 @@ public class UpdateActivity extends Activity {
 	String uriOfAudio = "";
 	static String noteCategory = "";
 	static String storingAddress = "";
-
 	String calendarDuplicateTitle = "";
 	static String category = "";
 
-	static String noteTags = "";
-
+	//For location
 	Location location;
 	Double MyLat, MyLong;
 	float accLoc;
@@ -158,9 +152,10 @@ public class UpdateActivity extends Activity {
 	private boolean gps_enabled = false;
 	private boolean network_enabled = false;
 
+	//Variables
 	final Context context = this;
 	static int SPWhich;
-	
+
 	// For calendar
 	private Cursor calendarEventTitleCursor;
 	private Cursor onGoingEventCursor;
@@ -173,14 +168,13 @@ public class UpdateActivity extends Activity {
 	String fullEventDetails = "";
 	ArrayList<String> eventTitles = new ArrayList<String>();
 
-
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_update);
 
 		try {
+			//Retrieve the note to display into update note activity
 			noteID = getIntent().getIntExtra("noteID", 0);
 			SQLiteController getEntry = new SQLiteController(this);
 			getEntry.open();
@@ -247,8 +241,9 @@ public class UpdateActivity extends Activity {
 				}
 			}
 		});
-
-		if ((!note.getNote_img().toString().equals("")) && (note.getNote_img() != null)) {
+		// check and display if there is image
+		if ((!note.getNote_img().toString().equals(""))
+				&& (note.getNote_img() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			imageView.setVisibility(View.VISIBLE);
@@ -256,24 +251,19 @@ public class UpdateActivity extends Activity {
 			uriOfImage = note.getNote_img();
 			imageFilePathTextView.setVisibility(View.VISIBLE);
 			final int rotateImage = getCameraPhotoOrientation(
-					UpdateActivity.this, Uri.parse(note.getNote_img()), uriOfImage);
+					UpdateActivity.this, Uri.parse(note.getNote_img()),
+					uriOfImage);
 			imageFilePathTextView.setText(note.getNote_img().substring(
 					note.getNote_img().lastIndexOf("/") + 1,
 					note.getNote_img().length()));
-			Bitmap yourSelectedImage = decodeSampledBitmapFromResource(uriOfImage,
-					140, 100);
+			Bitmap yourSelectedImage = decodeSampledBitmapFromResource(
+					uriOfImage, 140, 100);
 			imageView.setImageBitmap(yourSelectedImage);
-			int width = imageView.getWidth();
-			int height = imageView.getHeight();
-			// Bitmap newImage =
-			// decodeSampledBitmapFromResource(selectedImagePath,width,height);
-			// imageUploaded.setImageBitmap(newImage);
-			// imageUploaded.setImageURI(selectedImageUri);
 			Matrix matrix = new Matrix();
 			imageView.setScaleType(ScaleType.MATRIX); // required
-			matrix.postRotate(rotateImage, imageView.getDrawable()
-					.getBounds().width() / 2, imageView.getDrawable()
-					.getBounds().height() / 2);
+			matrix.postRotate(rotateImage, imageView.getDrawable().getBounds()
+					.width() / 2,
+					imageView.getDrawable().getBounds().height() / 2);
 			imageView.setImageMatrix(matrix);
 			imageView.setOnTouchListener(new OnTouchListener() {
 				@Override
@@ -304,7 +294,9 @@ public class UpdateActivity extends Activity {
 			});
 
 		}
-		if (!note.getNote_video().toString().equals("") && (note.getNote_video() != null)) {
+		// check and display if there is video
+		if (!note.getNote_video().toString().equals("")
+				&& (note.getNote_video() != null)) {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			videoView.setVisibility(View.VISIBLE);
@@ -328,6 +320,7 @@ public class UpdateActivity extends Activity {
 				}
 			});
 		}
+		//Check if there is any address to display
 		if (!note.getNote_address().toString().equals("")
 				&& (note.getNote_address() != null)) {
 			addTv.setVisibility(View.VISIBLE);
@@ -335,7 +328,6 @@ public class UpdateActivity extends Activity {
 			hrTv.setVisibility(View.VISIBLE);
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			currentLocation.setText(note.getNote_address().toString());
-			//frameLayout.getLayoutParams().height = 770;
 		}
 
 		calendarEventTitleCursor = getContentResolver().query(
@@ -344,18 +336,11 @@ public class UpdateActivity extends Activity {
 				null);
 		if (!(calendarEventTitleCursor.moveToFirst())
 				|| calendarEventTitleCursor.getCount() == 0) {
-			// Toast.makeText(getApplicationContext(),
-			// "You dont have any events in calendar",
-			// Toast.LENGTH_LONG).show();
 			Log.d("CALENDAR TITLE SUGGESTION",
 					"You dont have any events in calendar for note title suggestion");
 		} else {
 			calendarEventTitleCursor.moveToFirst();
 			do {
-
-				// Toast.makeText(getApplicationContext(),
-				// calendarEventTitleCursor.getString(calendarEventTitleCursor.getColumnIndex(CalendarContract.Events.TITLE)),
-				// Toast.LENGTH_SHORT).show();
 				eventTitles
 						.add(calendarEventTitleCursor.getString(calendarEventTitleCursor
 								.getColumnIndex(CalendarContract.Events.TITLE)));
@@ -376,33 +361,19 @@ public class UpdateActivity extends Activity {
 		dateTimeCreation.setText(strDate);
 
 		// For selection of category
-		/*	selectionArray=getResources().getStringArray(R.array.category_choice);
-		categorySelection = (TextView) findViewById(R.id.categorySelection);
-		categorySelectionChoice = (TextView) findViewById(R.id.categorySelectionChoice);
-		categorySelection.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				CreateNoteDialog dialog = new CreateNoteDialog();
-				dialog.setDialogType(SELECTION_CHOICE_DIALOG);
-				dialog.show(getFragmentManager(), "CreateNoteDialog");
-			}
-		});*/
 		spCat = (Spinner) findViewById(R.id.spCat);
-		//categorySelected =  (TextView) findViewById(R.id.categorySelected);
 		Resources myRes = this.getResources();
 		categoryArray = myRes.getStringArray(R.array.category_choice);
-		
-		catAdapter = ArrayAdapter.createFromResource(this, R.array.category_choice, android.R.layout.simple_spinner_dropdown_item);
+
+		catAdapter = ArrayAdapter.createFromResource(this,
+				R.array.category_choice,
+				android.R.layout.simple_spinner_dropdown_item);
 		spCat.setAdapter(catAdapter);
-		if(note.getNote_category().equals("Personal")){
-			spCat.setSelection(0);	
-		}
-		else if(note.getNote_category().equals("Meeting Notes")){
+		if (note.getNote_category().equals("Personal")) {
+			spCat.setSelection(0);
+		} else if (note.getNote_category().equals("Meeting Notes")) {
 			spCat.setSelection(1);
-		}
-		else{
+		} else {
 			spCat.setSelection(2);
 		}
 		spCat.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -411,68 +382,59 @@ public class UpdateActivity extends Activity {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
 				// TODO Auto-generated method stub
-				/**GET SELECTED VALUE**/
-				//categorySelected.setText(arg0.getItemAtPosition(arg2).toString());
+				/** GET SELECTED VALUE **/
+				// categorySelected.setText(arg0.getItemAtPosition(arg2).toString());
 			}
+
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub				
-			}			
+				// TODO Auto-generated method stub
+			}
 		});
 	}
 
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
 		edit.putString("titleOfNote", suggestTitle.getText().toString());
 		edit.putString("content", noteContent.getText().toString());
 		selectedPosition = spCat.getSelectedItemPosition();
 		edit.putInt("spinnerSelection", selectedPosition);
-	//	edit.putInt("SPWhich", SPWhich);
 		edit.commit();
-		
-		//Toast.makeText(getApplicationContext(), "Pause state: " + spCat.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
 		super.onPause();
 	}
-	
-	
+
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
 		videoView.seekTo(10000);
-		
-		
-		
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
 		String titleOfNote = sp.getString("titleOfNote", "");
-		if(titleOfNote != ""){
+		if (titleOfNote != "") {
 			suggestTitle.setText(titleOfNote);
-		}
-		else{
+		} else {
 			suggestTitle.setText(note.getNote_name());
 		}
 		String content = sp.getString("content", "");
-		if(content != ""){
+		if (content != "") {
 			noteContent.setText(content);
-		}
-		else{
+		} else {
 			noteContent.setText(note.getNote_content());
 		}
-		int selection = sp.getInt("spinnerSelection",-1);
-		if(selection != -1){
+		int selection = sp.getInt("spinnerSelection", -1);
+		if (selection != -1) {
 			spCat.setSelection(selection);
-		}
-		else{
-			if(note.getNote_category().equals("Personal")){
-				spCat.setSelection(0);	
-			}
-			else if(note.getNote_category().equals("Meeting Notes")){
+		} else {
+			if (note.getNote_category().equals("Personal")) {
+				spCat.setSelection(0);
+			} else if (note.getNote_category().equals("Meeting Notes")) {
 				spCat.setSelection(1);
-			}
-			else{
+			} else {
 				spCat.setSelection(2);
 			}
 		}
@@ -480,7 +442,6 @@ public class UpdateActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.update, menu);
 		return true;
@@ -506,7 +467,6 @@ public class UpdateActivity extends Activity {
 		} else if (id == R.id.uploadImage) {
 			Intent intent = new Intent();
 			intent.setType("image/*");
-			// intent.setType("*/*");
 			intent.setAction(Intent.ACTION_PICK);
 			startActivityForResult(
 					Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
@@ -515,31 +475,22 @@ public class UpdateActivity extends Activity {
 			startActivityForResult(intentPicture, CAPTURE_PHOTO);
 		} else if (id == R.id.saveNote) {
 			saveNote();
-		}
-
-		else if (id == R.id.uploadVideo) {
+		} else if (id == R.id.uploadVideo) {
 			Intent intent = new Intent();
 			intent.setType("video/*");
 			intent.setAction(Intent.ACTION_PICK);
 			startActivityForResult(
 					Intent.createChooser(intent, "Complete action using"),
 					PICK_VIDEO);
-
-		}
-
-		else if (id == R.id.captureVideo) {
+		} else if (id == R.id.captureVideo) {
 			Intent intent = new Intent(
 					android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 			startActivityForResult(intent, CAPTURE_VIDEO);
-
-		}
-		else if (id == R.id.attachLocation) {
+		} else if (id == R.id.attachLocation) {
 			getMyCurrentLocation();
-		}
-		else if (id == R.id.removeAtt) {
+		} else if (id == R.id.removeAtt) {
 			attachmentArray = getResources().getStringArray(
 					R.array.attachment_choice);
-
 			CreateNoteDialog dialog = new CreateNoteDialog();
 			dialog.setDialogType(REMOVAL_CHOICE_DIALOG);
 			dialog.show(getFragmentManager(), "CreateNoteDialog");
@@ -549,7 +500,8 @@ public class UpdateActivity extends Activity {
 			String title = suggestTitle.getText().toString();
 			String content = noteContent.getText().toString();
 			String category = spCat.getSelectedItem().toString();
-			if (title.matches("") || content.matches("") || category.matches("")) {
+			if (title.matches("") || content.matches("")
+					|| category.matches("")) {
 				Toast.makeText(getApplicationContext(),
 						"Please fill in all the required details",
 						Toast.LENGTH_LONG).show();
@@ -568,58 +520,8 @@ public class UpdateActivity extends Activity {
 			}
 		}
 
-		/*
-		 * else if(id==R.id.captureImage){ Intent intent = new
-		 * Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		 * startActivityForResult(intent, CAPTURE_IMAGE); }
-		 */
-
 		return super.onOptionsItemSelected(item);
 	}
-
-	/** Insert note into database **/
-	/*
-	 * public void onClick(View view){ //Toast.makeText(getApplicationContext(),
-	 * "Nooooo.", Toast.LENGTH_LONG).show(); //Toast.makeText(getBaseContext(),
-	 * v.getId(), Toast.LENGTH_LONG).show();
-	 * 
-	 * String title = noteTitle.getText().toString(); String content =
-	 * noteContent.getText().toString();
-	 * 
-	 * ArrayList<Note> resultArray = new ArrayList<Note>(); SQLiteController
-	 * getEntry = new SQLiteController(this); getEntry.open();
-	 * resultArray.addAll(getEntry.retrieveNotes()); getEntry.close();
-	 * 
-	 * String duplicateTitle="";
-	 * 
-	 * for(int i=0; i<resultArray.size(); i++){
-	 * if(resultArray.get(i).getNote_name
-	 * ().equals(noteTitle.getText().toString())){ duplicateTitle="yes"; } }
-	 * 
-	 * 
-	 * if(title.matches("")||content.matches("")||noteCategory.matches("")){
-	 * Toast.makeText(getApplicationContext(),
-	 * "Please fill in all the required details", Toast.LENGTH_LONG).show(); }
-	 * else if(duplicateTitle.matches("yes")){
-	 * Toast.makeText(getApplicationContext(),
-	 * "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
-	 * } else{
-	 * 
-	 * boolean result = true; try{
-	 * 
-	 * Note note = new Note(title, content, noteCategory);
-	 * 
-	 * SQLiteController entry = new SQLiteController(this); entry.open();
-	 * entry.insertNote(note); entry.close(); }catch(Exception e){ result =
-	 * false; }finally{ if(result){ Toast.makeText(getApplicationContext(),
-	 * "Note Saved", Toast.LENGTH_LONG).show(); CreateActivity.this.finish();
-	 * Intent intent = new Intent(this, MainActivity.class);
-	 * startActivity(intent);
-	 * 
-	 * } } }
-	 * 
-	 * }
-	 */
 
 	/** Set the selected image from gallery and display in image view **/
 	@Override
@@ -643,17 +545,11 @@ public class UpdateActivity extends Activity {
 					Image = decodeSampledBitmapFromResource(uriOfImage, 140,
 							100);
 					imageView.setImageBitmap(Image);
-					int width = imageView.getWidth();
-					int height = imageView.getHeight();
-					// Bitmap newImage =
-					// decodeSampledBitmapFromResource(selectedImagePath,width,height);
-					// imageUploaded.setImageBitmap(newImage);
-					// imageUploaded.setImageURI(selectedImageUri);
 					Matrix matrix = new Matrix();
 					imageView.setScaleType(ScaleType.MATRIX); // required
-					matrix.postRotate(rotateImage, imageView
-							.getDrawable().getBounds().width() / 2, imageView
-							.getDrawable().getBounds().height() / 2);
+					matrix.postRotate(rotateImage, imageView.getDrawable()
+							.getBounds().width() / 2, imageView.getDrawable()
+							.getBounds().height() / 2);
 					imageView.setImageMatrix(matrix);
 					imageFilePathTextView.setText(uriOfImage.substring(
 							uriOfImage.lastIndexOf("/") + 1,
@@ -686,7 +582,6 @@ public class UpdateActivity extends Activity {
 							return true;
 						}
 					});
-
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -703,7 +598,6 @@ public class UpdateActivity extends Activity {
 					imageStream = getContentResolver().openInputStream(
 							capturedImageUri);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				Bitmap yourSelectedImage = BitmapFactory
@@ -721,12 +615,6 @@ public class UpdateActivity extends Activity {
 				yourSelectedImage = decodeSampledBitmapFromResource(uriOfImage,
 						140, 100);
 				imageView.setImageBitmap(yourSelectedImage);
-				int width = imageView.getWidth();
-				int height = imageView.getHeight();
-				// Bitmap newImage =
-				// decodeSampledBitmapFromResource(selectedImagePath,width,height);
-				// imageUploaded.setImageBitmap(newImage);
-				// imageUploaded.setImageURI(selectedImageUri);
 				Matrix matrix = new Matrix();
 				imageView.setScaleType(ScaleType.MATRIX); // required
 				matrix.postRotate(rotateImage, imageView.getDrawable()
@@ -766,7 +654,6 @@ public class UpdateActivity extends Activity {
 				mLinearLayoutHeader.setVisibility(View.VISIBLE);
 
 				uriOfVideo = getRealPathFromVideoURI(mVideoURI);
-
 				videoView.setVisibility(View.VISIBLE);
 				videoFilePathTextView.setVisibility(View.VISIBLE);
 				videoFilePathTextView.setText(uriOfVideo.substring(
@@ -776,7 +663,6 @@ public class UpdateActivity extends Activity {
 					@Override
 					public boolean onTouch(View v, MotionEvent event) {
 						// TODO Auto-generated method stub
-
 						Intent videoAudioPlayer = new Intent(
 								UpdateActivity.this, VideoPlayerActivity.class);
 						videoAudioPlayer.putExtra("uri", uriOfVideo);
@@ -785,19 +671,15 @@ public class UpdateActivity extends Activity {
 					}
 				});
 				break;
-
 			case CAPTURE_VIDEO:
 				try {
 					Uri capturedVideoURI = data.getData();
 					hrTv.setVisibility(View.VISIBLE);
 					mLinearLayoutHeader.setVisibility(View.VISIBLE);
-					// uriOfVideo = capturedVideoURI.toString();
+
 					uriOfVideo = getRealPathFromVideoURI(capturedVideoURI);
 					videoFilePathTextView.setVisibility(View.VISIBLE);
 					videoView.setVisibility(View.VISIBLE);
-					// String uriOfVideo = "<b>Video: </b>" +
-					// capturedVideoURI.toString();
-					// videoUriTv.setText(Html.fromHtml(uriOfVideo));
 					videoFilePathTextView.setText(uriOfVideo.substring(
 							uriOfVideo.lastIndexOf("/") + 1,
 							uriOfVideo.length()));
@@ -806,7 +688,6 @@ public class UpdateActivity extends Activity {
 						@Override
 						public boolean onTouch(View v, MotionEvent event) {
 							// TODO Auto-generated method stub
-
 							Intent videoAudioPlayer = new Intent(
 									UpdateActivity.this,
 									VideoPlayerActivity.class);
@@ -822,9 +703,16 @@ public class UpdateActivity extends Activity {
 				break;
 			}
 		}
-
 	}
 
+	/**
+	 * This method is to decode the Bitmap into smaller sample size
+	 * 
+	 * @param pathName
+	 * @param reqWidth
+	 * @param reqHeight
+	 * @return Bitmap
+	 */
 	public static Bitmap decodeSampledBitmapFromResource(String pathName,
 			int reqWidth, int reqHeight) {
 
@@ -842,6 +730,15 @@ public class UpdateActivity extends Activity {
 		return BitmapFactory.decodeFile(pathName, options);
 	}
 
+	/**
+	 * This method is to calculate the sample size based on the requested height
+	 * and width
+	 * 
+	 * @param options
+	 * @param reqWidth
+	 * @param reqHeight
+	 * @return int
+	 */
 	public static int calculateInSampleSize(BitmapFactory.Options options,
 			int reqWidth, int reqHeight) {
 		// Raw height and width of image
@@ -862,10 +759,18 @@ public class UpdateActivity extends Activity {
 				inSampleSize *= 2;
 			}
 		}
-
 		return inSampleSize;
 	}
 
+	/**
+	 * This method is to detect whether the photo has been rotate to how much
+	 * degrees
+	 * 
+	 * @param context
+	 * @param imageUri
+	 * @param imagePath
+	 * @return int
+	 */
 	public int getCameraPhotoOrientation(Context context, Uri imageUri,
 			String imagePath) {
 		int rotate = 0;
@@ -892,7 +797,6 @@ public class UpdateActivity extends Activity {
 				rotate = 0;
 				break;
 			}
-
 			Log.i("RotateImage", "Exif orientation: " + orientation);
 			Log.i("RotateImage", "Rotate value: " + rotate);
 		} catch (Exception e) {
@@ -901,8 +805,13 @@ public class UpdateActivity extends Activity {
 		return rotate;
 	}
 
-	// And to convert the image URI to the direct file system path of the image
-	// file
+	/**
+	 * This method is to convert the image URI to the direct file system path of
+	 * the image file
+	 * 
+	 * @param contentUri
+	 * @return String
+	 */
 	public String getRealPathFromURI(Uri contentUri) {
 
 		// can post image
@@ -912,15 +821,19 @@ public class UpdateActivity extends Activity {
 				null, // WHERE clause; which rows to return (all rows)
 				null, // WHERE clause selection arguments (none)
 				null); // Order-by clause (ascending by name)
-		int column_index = cursor
-				.getColumnIndexOrThrow(MediaColumns.DATA);
+		int column_index = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
 		cursor.moveToFirst();
 
 		return cursor.getString(column_index);
 	}
-	
-	// And to convert the video URI to the direct file system path of the image
-	// file
+
+	/**
+	 * This method is to convert the video URI to the direct file system path of
+	 * the video file
+	 * 
+	 * @param contentUri
+	 * @return String
+	 */
 	public String getRealPathFromVideoURI(Uri contentUri) {
 
 		// can post image
@@ -930,8 +843,7 @@ public class UpdateActivity extends Activity {
 				null, // WHERE clause; which rows to return (all rows)
 				null, // WHERE clause selection arguments (none)
 				null); // Order-by clause (ascending by name)
-		int column_index = cursor
-				.getColumnIndexOrThrow(MediaColumns.DATA);
+		int column_index = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
 		cursor.moveToFirst();
 
 		return cursor.getString(column_index);
@@ -948,26 +860,10 @@ public class UpdateActivity extends Activity {
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-			/*if (dialogType == SELECTION_CHOICE_DIALOG) {
-				builder.setTitle("Select Category");
-				builder.setItems(R.array.category_choice,
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								// TODO Auto-generated method stub
-								noteCategory = selectionArray[which];
-								updateChoice();
-							}
-						});
-			}*/
 			if (dialogType == REMOVAL_CHOICE_DIALOG) {
 				builder.setTitle("What do you want to remove?");
 				builder.setItems(R.array.attachment_choice,
 						new DialogInterface.OnClickListener() {
-
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
@@ -983,7 +879,6 @@ public class UpdateActivity extends Activity {
 												.setVisibility(View.GONE);
 										uriOfImage = "";
 										imageView.setVisibility(View.GONE);
-
 										if ((imageView.getVisibility() == View.GONE)
 												&& (videoView.getVisibility() == View.GONE)
 												&& (currentLocation
@@ -1036,7 +931,8 @@ public class UpdateActivity extends Activity {
 												.setVisibility(View.GONE);
 										currentLocation.setText("");
 										storingAddress = "";
-										System.out.println(mLinearLayout.getHeight());
+										System.out.println(mLinearLayout
+												.getHeight());
 										if ((imageView.getVisibility() == View.GONE)
 												&& (videoView.getVisibility() == View.GONE)
 												&& (currentLocation
@@ -1051,27 +947,45 @@ public class UpdateActivity extends Activity {
 										}
 									}
 								} else if (which == 3) {
-									if((uriOfImage.equals("")) && (uriOfVideo.equals("")) && (currentLocation.getText().toString().equals(""))&& (suggestTitle.getText().toString().equals("")) && (noteContent.getText().toString().equals("")) && (spCat.getSelectedItem().toString()).equals("Personal")){
-										Toast.makeText(getActivity(), "Nothing to remove.", Toast.LENGTH_SHORT).show();
-									}
-									else{
+									if ((uriOfImage.equals(""))
+											&& (uriOfVideo.equals(""))
+											&& (currentLocation.getText()
+													.toString().equals(""))
+											&& (suggestTitle.getText()
+													.toString().equals(""))
+											&& (noteContent.getText()
+													.toString().equals(""))
+											&& (spCat.getSelectedItem()
+													.toString())
+													.equals("Personal")) {
+										Toast.makeText(getActivity(),
+												"Nothing to remove.",
+												Toast.LENGTH_SHORT).show();
+									} else {
 										imageUriTv.setVisibility(View.GONE);
 										uriOfImage = "";
 										imageView.setVisibility(View.GONE);
-										
+
 										uriOfVideo = "";
 										videoUriTv.setVisibility(View.GONE);
 										videoView.setVisibility(View.GONE);
-										
+
 										addTv.setVisibility(View.GONE);
-										currentLocation.setVisibility(View.GONE);
+										currentLocation
+												.setVisibility(View.GONE);
 										currentLocation.setText("");
-										storingAddress="";
-										if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+										storingAddress = "";
+										if ((imageView.getVisibility() == View.GONE)
+												&& (videoView.getVisibility() == View.GONE)
+												&& (currentLocation
+														.getVisibility() == View.GONE)) {
 											hrTv.setVisibility(View.GONE);
-									        mLinearLayoutHeader.setVisibility(View.GONE);
-									        mLinearLayout.setVisibility(View.GONE);
-									        noteContent.setVisibility(View.VISIBLE);
+											mLinearLayoutHeader
+													.setVisibility(View.GONE);
+											mLinearLayout
+													.setVisibility(View.GONE);
+											noteContent
+													.setVisibility(View.VISIBLE);
 										}
 									}
 								}
@@ -1082,17 +996,21 @@ public class UpdateActivity extends Activity {
 			return builder.create();
 		}
 	}
-	
-	/** Notification for saving of note **/
+
+	/**
+	 * This method is to notify user that the note has been saved into the database
+	 */
 	public void notifySuccess() {
-		NotificationCompat.Builder mBuilder = 
-				new NotificationCompat.Builder(this)
-					.setSmallIcon(R.drawable.app_icon)
-					.setContentTitle(getString(R.string.app_name))
-					.setContentText(suggestTitle.getText().toString() + " successfully saved.");
-		
-		NotificationManager mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		mNotificationManager.notify(notifyID,mBuilder.build());
+		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
+				this)
+				.setSmallIcon(R.drawable.app_icon)
+				.setContentTitle(getString(R.string.app_name))
+				.setContentText(
+						suggestTitle.getText().toString()
+								+ " successfully saved.");
+
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(notifyID, mBuilder.build());
 		this.finish();
 	}
 
@@ -1119,46 +1037,32 @@ public class UpdateActivity extends Activity {
 	 * @Output Latitude and Longitude
 	 * */
 	void getMyCurrentLocation() {
-
 		LocationManager locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		/*
-		 * if(location==null){
-		 * location=locManager.getLastKnownLocation(LocationManager
-		 * .NETWORK_PROVIDER); } if (location != null) {
-		 * accLoc=location.getAccuracy(); MyLat = location.getLatitude(); MyLong
-		 * = location.getLongitude(); }
-		 */
 		try {
 			gps_enabled = locManager
 					.isProviderEnabled(LocationManager.GPS_PROVIDER);
 		} catch (Exception ex) {
-
+			ex.printStackTrace();
 		}
 		try {
 			network_enabled = locManager
 					.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 		} catch (Exception ex) {
-
+			ex.printStackTrace();
 		}
-
 		if (gps_enabled) {
 			location = locManager
 					.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
 		}
-
 		if (network_enabled && location == null) {
 			location = locManager
 					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
 		}
-
 		if (location != null) {
 			accLoc = location.getAccuracy();
 			MyLat = location.getLatitude();
 			MyLong = location.getLongitude();
 		}
-
 		try {
 			// Getting address from found locations.
 			Geocoder geocoder;
@@ -1171,7 +1075,6 @@ public class UpdateActivity extends Activity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		if (Address != null && !Address.isEmpty()) {
 			// doSomething
 			addTv.setVisibility(View.VISIBLE);
@@ -1203,6 +1106,9 @@ public class UpdateActivity extends Activity {
 		}
 	}
 
+	/**
+	 * This method is to open the viewing of attachments
+	 */
 	private void expand() {
 		// set Visible
 		mLinearLayout.setVisibility(View.VISIBLE);
@@ -1222,6 +1128,9 @@ public class UpdateActivity extends Activity {
 		mAnimator.start();
 	}
 
+	/**
+	 * This method is to close the viewing of attachments 
+	 */
 	private void collapse() {
 		int finalHeight = mLinearLayout.getHeight();
 
@@ -1257,9 +1166,14 @@ public class UpdateActivity extends Activity {
 			}
 		});
 		mAnimator.start();
-
 	}
 
+	/**
+	 * This method is to do the animation
+	 * @param start
+	 * @param end
+	 * @return ValueAnimator
+	 */
 	private ValueAnimator slideAnimator(int start, int end) {
 
 		ValueAnimator animator = ValueAnimator.ofInt(start, end);
@@ -1278,6 +1192,9 @@ public class UpdateActivity extends Activity {
 		return animator;
 	}
 
+	/**
+	 * This method is to validate the note
+	 */
 	public void saveNote() {
 		titleOfNote = suggestTitle.getText().toString();
 		content = noteContent.getText().toString();
@@ -1292,9 +1209,6 @@ public class UpdateActivity extends Activity {
 						CalendarContract.Events.DTEND }, null, null, null);
 		if (!(onGoingEventCursor.moveToFirst())
 				|| onGoingEventCursor.getCount() == 0) {
-			// Toast.makeText(getApplicationContext(),
-			// "You dont have any events in calendar",
-			// Toast.LENGTH_LONG).show();
 		} else {
 			onGoingEventCursor.moveToFirst();
 
@@ -1310,24 +1224,13 @@ public class UpdateActivity extends Activity {
 						.getLong(onGoingEventCursor
 								.getColumnIndex(CalendarContract.Events.DTEND));
 
-				// Toast.makeText(getApplicationContext(),
-				// df.format(eventEndDateTime), Toast.LENGTH_LONG).show();
-
 				long currentDateTime = new Date().getTime();
 
 				if (eventStartDateTime < currentDateTime) {
 					if (currentDateTime < eventEndDateTime) {
-						// Toast.makeText(getApplicationContext(), "Event on " +
-						// df.format(eventStartDateTime) + " at " +
-						// tf.format(eventStartDateTime) +
-						// " is currently happening. Today is " +
-						// df.format(currentDateTime) + " "
-						// +tf.format(currentDateTime),
-						// Toast.LENGTH_LONG).show();
 
 						eventMatchCriteria = eventTitle;
 						calendarOnGoingEvent = "MATCH";
-						// replaceTitle();
 						fullEventDetails = "Event: "
 								+ eventTitle
 								+ ". \nStart: "
@@ -1345,15 +1248,6 @@ public class UpdateActivity extends Activity {
 								+ ". \n\nReplace the current note title with event title?";
 					}
 				}
-				/*
-				 * else if(eventStartDateTime>currentDateTime){
-				 * Toast.makeText(getApplicationContext(), "Event on " +
-				 * df.format(eventStartDateTime) + " at " +
-				 * tf.format(eventStartDateTime) +
-				 * " has yet to happen. Today is " + df.format(currentDateTime)
-				 * + " " +tf.format(currentDateTime), Toast.LENGTH_LONG).show();
-				 * }
-				 */
 			} while (onGoingEventCursor.moveToNext());
 		}
 
@@ -1366,7 +1260,7 @@ public class UpdateActivity extends Activity {
 
 		String duplicateTitle = "";
 		noteCategory = spCat.getSelectedItem().toString();
-		
+
 		if (titleOfNote.matches("") || content.matches("")
 				|| noteCategory.matches("")) {
 			Toast.makeText(getApplicationContext(),
@@ -1378,81 +1272,83 @@ public class UpdateActivity extends Activity {
 
 				/*** 3 ***/
 				if (calendarDuplicateTitle.matches("yes")) {
-					// Toast.makeText(getApplicationContext(),
-					// "Duplicate title found, unable to save note. \n(On-going calendar event)",
-					// Toast.LENGTH_LONG).show();
-					if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
-						//Toast.makeText(getApplicationContext(), "Duplicate CALENDAR EVENT TITLE AND duplicate note title found, unable to save note.", Toast.LENGTH_LONG).show();
-					}				
-					/***6**/
-					else{
-					//	Toast.makeText(getApplicationContext(), "No duplicate CALENDAR EVENT title, NO DUPLICATE TITLE", Toast.LENGTH_LONG).show();
+					if (duplicateTitle.matches("yes")) {
+						Toast.makeText(getApplicationContext(),
+								"Duplicate title found, unable to save note",
+								Toast.LENGTH_LONG).show();
+					}
+					/*** 6 **/
+					else {
 						saveNoteToDB();
 					}
 				}
 				/** 4 **/
 				else {
-					/**7**/
-					if(duplicateTitle.matches("yes")){
-						Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
-						//Toast.makeText(getApplicationContext(), "NO DUPLICATE CALENDAR EVENT TITLE BUT duplicate note title found, unable to save note", Toast.LENGTH_LONG).show();
+					/** 7 **/
+					if (duplicateTitle.matches("yes")) {
+						Toast.makeText(getApplicationContext(),
+								"Duplicate title found, unable to save note",
+								Toast.LENGTH_LONG).show();
 					}
-					/**8**/
-					else{
-						//Toast.makeText(getApplicationContext(), "~NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
-						if(titleOfNote.equals(eventMatchCriteria)){
+					/** 8 **/
+					else {
+						if (titleOfNote.equals(eventMatchCriteria)) {
 							saveNoteToDB();
-							//Toast.makeText(getApplicationContext(), "Note title same as event title so no need to prompt for replacement", Toast.LENGTH_LONG).show();
-						}
-						else{
-							//Toast.makeText(getApplicationContext(), "Note title not the same as event title, NO DUPLICATE EVENT TITLE, NO DUPLICATE title found", Toast.LENGTH_LONG).show();
+						} else {
 							replaceTitle();
 						}
 					}
 				}
 			} else {
-				if(duplicateTitle.matches("yes")){
-					Toast.makeText(getApplicationContext(), "Duplicate title found, unable to save note", Toast.LENGTH_LONG).show();
+				if (duplicateTitle.matches("yes")) {
+					Toast.makeText(getApplicationContext(),
+							"Duplicate title found, unable to save note",
+							Toast.LENGTH_LONG).show();
+				} else {
+					saveNoteToDB();
 				}
-				else{
-					saveNoteToDB();	
-				}	
 			}
 		}
 	}
 
-	public void replaceTitle(){	
-		AlertDialog.Builder builder1 = new AlertDialog.Builder(UpdateActivity.this);
-        builder1.setTitle("On-going Calendar Event Alert");
+	/**
+	 * This method is to replace title with another title
+	 */
+	public void replaceTitle() {
+		AlertDialog.Builder builder1 = new AlertDialog.Builder(
+				UpdateActivity.this);
+		builder1.setTitle("On-going Calendar Event Alert");
 		builder1.setMessage(fullEventDetails);
 		builder1.setCancelable(true);
-        builder1.setNegativeButton("Yes",
-                new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            	/**9**/
-            	titleOfNote = eventMatchCriteria;
-            	saveNoteToDB(); 
-            }
-        });
-        builder1.setNeutralButton("No",
-                new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-               /**10**/
-            	saveNoteToDB();
-            }
-        });
-        builder1.setPositiveButton("Cancel", new DialogInterface.OnClickListener(){
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
-				dialog.cancel();
-			}       	
-        });
-        AlertDialog alert11 = builder1.create();
-        alert11.show();
+		builder1.setNegativeButton("Yes",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						/** 9 **/
+						titleOfNote = eventMatchCriteria;
+						saveNoteToDB();
+					}
+				});
+		builder1.setNeutralButton("No", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				/** 10 **/
+				saveNoteToDB();
+			}
+		});
+		builder1.setPositiveButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						dialog.cancel();
+					}
+				});
+		AlertDialog alert11 = builder1.create();
+		alert11.show();
 	}
 
+	/**
+	 * This method is to save the note into the database
+	 */
 	public void saveNoteToDB() {
 		boolean result = true;
 		noteCategory = spCat.getSelectedItem().toString();
@@ -1480,12 +1376,13 @@ public class UpdateActivity extends Activity {
 				uriOfVideo = "";
 				uriOfAudio = "";
 				storingAddress = "";
-				SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+				SharedPreferences sp = PreferenceManager
+						.getDefaultSharedPreferences(this);
 				Editor edit = sp.edit();
 				edit.putString("titleOfNote", "");
 				edit.putString("content", "");
 				edit.putInt("spinnerSelection", -1);
-			//	edit.putInt("SPWhich", SPWhich);
+				// edit.putInt("SPWhich", SPWhich);
 				edit.commit();
 				Toast.makeText(getApplicationContext(), "Note Saved",
 						Toast.LENGTH_LONG).show();

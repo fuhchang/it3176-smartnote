@@ -1,28 +1,5 @@
 package com.example.it3176_smartnote.dropbox;
-/*
- * Copyright (c) 2010-11 Dropbox, Inc.
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,15 +42,13 @@ import com.example.it3176_smartnote.MainActivity;
 import com.example.it3176_smartnote.model.Note;
 
 /**
- * Here we show getting metadata for a directory and downloading a file in a
- * background thread, trying to show typical exception handling and flow of
- * control for an app that downloads a file from Dropbox.
+ * 
+ * This class is to download the choosen file from the DBChooser in the main activity and 
+ * store the note into the local database.
  * @author Lee Zhuo Xun
  *
  */
 public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
-
-
     private Context mContext;
     private final ProgressDialog mDialog;
     private DropboxAPI<?> mApi;
@@ -88,6 +63,13 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
     private Long mFileLen;
     private String mErrorMsg;
 
+    /**
+     * This is the default constructor for download from dropbox
+     * @param context
+     * @param api
+     * @param dropboxPath
+     * @param url
+     */
     public DownloadFromDropbox(Context context, DropboxAPI<?> api,String dropboxPath, String url) {
         // We set the context this way so we don't accidentally leak activities
         mContext = context;
@@ -133,12 +115,7 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
                 return false;
             }
 
-            // Now pick a random one
-            /*Entry ent = thumbs.get(index);
-            String path = ent.path;
-            mFileLen = ent.bytes;*/
-
-
+            //Create a empty file in the Documents folder.
             localFilePath = Environment.getExternalStorageDirectory() + "/Documents/" + mUrl.substring(mUrl.lastIndexOf("/") + 1, mUrl.length());
             System.out.println("Cache Path: " + localFilePath);
             try {
@@ -147,7 +124,8 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
                 mErrorMsg = "Couldn't create a local file to store the note";
                 return false;
             }
-
+            
+            //Download the file into the local phone folder.
             DropboxFileInfo info = mApi.getFile("/Smart_note/" + mUrl.substring(mUrl.lastIndexOf("/") + 1, mUrl.length()), null, mFos, null);
             Log.i("DbExampleLog", "The file's rev is: " + info.getMetadata().rev);
             
@@ -230,7 +208,7 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
         	    //You'll need to add proper error handling here
         		e.printStackTrace();
         	}
-        	//
+        	//Decipher the text in the file and store it into the local database
         	String noteTitle = textArrList.get(0);
         	String category = textArrList.get(1);
         	String content = "";
@@ -269,6 +247,10 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
         }
     }
 
+    /**
+     * Easier way to show the toast
+     * @param msg
+     */
     private void showToast(String msg) {
         Toast error = Toast.makeText(mContext, msg, Toast.LENGTH_LONG);
         error.show();

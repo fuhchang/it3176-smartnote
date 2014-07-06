@@ -133,6 +133,7 @@ public class NoteDetail extends Activity {
 		note = getEntry.retrieveNote(noteID);
 		getEntry.close();
 	
+		//Retrieve the token v2 from Dropbox Core API
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		token2 = sp.getString("token2", null);
@@ -616,8 +617,10 @@ public class NoteDetail extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-
-
+	/**
+	 * This method is to check if there is any existing connection
+	 * @return boolean
+	 */
 	private boolean haveNetworkConnection() {
 		boolean haveConnectedWifi = false;
 		boolean haveConnectedMobile = false;

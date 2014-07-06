@@ -1,28 +1,4 @@
 package com.example.it3176_smartnote.dropbox;
-/*
- * Copyright (c) 2011 Dropbox, Inc.
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,9 +25,9 @@ import com.dropbox.client2.exception.DropboxServerException;
 import com.dropbox.client2.exception.DropboxUnlinkedException;
 
 /**
- * Here we show uploading a file in a background thread, trying to show
- * typical exception handling and flow of control for an app that uploads a
- * file from Dropbox.
+ * This class is to upload a existing note into dropbox.
+ * @author Lee Zhuo Xun
+ *
  */
 public class UploadToDropbox extends AsyncTask<Void, Long, Boolean> {
 
@@ -66,6 +42,13 @@ public class UploadToDropbox extends AsyncTask<Void, Long, Boolean> {
 
     private String mErrorMsg;
 
+    /**
+     * This is the default constructor to upload file into dropbox
+     * @param context
+     * @param api
+     * @param dropboxPath
+     * @param file
+     */
     public UploadToDropbox(Context context, DropboxAPI<?> api, String dropboxPath,
             File file) {
         // We set the context this way so we don't accidentally leak activities
@@ -100,11 +83,13 @@ public class UploadToDropbox extends AsyncTask<Void, Long, Boolean> {
             // so we can cancel it later if we want to
             FileInputStream fis = new FileInputStream(mFile);
             String path = mPath + mFile.getName();
+            //This is to detect whether there is any such folder in Dropbox
             Entry existingEntry = mApi.metadata("/Smart_note", 1, null, false, null);
             Log.i("DbExampleLog", "The file's rev is now: " + existingEntry.rev);
             if((existingEntry.rev == null) || (existingEntry.rev.length() == 0)){
                 mApi.createFolder("/Smart_note");	
             }
+            //Process the file and upload it into dropbox
             mRequest = mApi.putFileOverwriteRequest(path, fis, mFile.length(),
                     new ProgressListener() {
                 @Override
@@ -189,6 +174,7 @@ public class UploadToDropbox extends AsyncTask<Void, Long, Boolean> {
     @Override
     protected void onPostExecute(Boolean result) {
         mDialog.dismiss();
+        //Check whether the note has uploaded into dropbox successfully
         if (result) {
             showToast("Note uploaded successfully");
             mFile.delete();
@@ -197,6 +183,10 @@ public class UploadToDropbox extends AsyncTask<Void, Long, Boolean> {
         }
     }
 
+    /**
+     * Easier way to show the toast
+     * @param msg
+     */
     private void showToast(String msg) {
         Toast error = Toast.makeText(mContext, msg, Toast.LENGTH_LONG);
         error.show();

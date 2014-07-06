@@ -681,6 +681,10 @@ public class MainActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	/**
+	 * This method is to check if there is any existing connection
+	 * @return boolean
+	 */
 	private boolean haveNetworkConnection() {
 		boolean haveConnectedWifi = false;
 		boolean haveConnectedMobile = false;
