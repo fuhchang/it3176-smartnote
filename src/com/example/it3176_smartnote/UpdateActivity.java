@@ -533,22 +533,9 @@ public class UpdateActivity extends Activity {
 			startActivityForResult(intent, CAPTURE_VIDEO);
 
 		}
-		
-		else if(id==R.id.note_share){
-			if(noteContent.getText().toString().equals("")){
-				Toast.makeText(getApplicationContext(), "You don't have any content to share.", Toast.LENGTH_LONG).show();
-			}
-			else{
-				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-				sharingIntent.setType("text/plain");
-				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, noteContent.getText().toString());
-				startActivity(Intent.createChooser(sharingIntent, "Share via"));		
-			}
-		}
 		else if (id == R.id.attachLocation) {
 			getMyCurrentLocation();
 		}
-
 		else if (id == R.id.removeAtt) {
 			attachmentArray = getResources().getStringArray(
 					R.array.attachment_choice);
@@ -561,8 +548,8 @@ public class UpdateActivity extends Activity {
 		else if (id == R.id.addToCalendar) {
 			String title = suggestTitle.getText().toString();
 			String content = noteContent.getText().toString();
-			if (title.matches("") || content.matches("")
-					|| noteCategory.matches("")) {
+			String category = spCat.getSelectedItem().toString();
+			if (title.matches("") || content.matches("") || category.matches("")) {
 				Toast.makeText(getApplicationContext(),
 						"Please fill in all the required details",
 						Toast.LENGTH_LONG).show();

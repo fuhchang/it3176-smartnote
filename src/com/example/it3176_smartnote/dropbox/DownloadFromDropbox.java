@@ -68,8 +68,9 @@ import com.example.it3176_smartnote.model.Note;
  * Here we show getting metadata for a directory and downloading a file in a
  * background thread, trying to show typical exception handling and flow of
  * control for an app that downloads a file from Dropbox.
+ * @author Lee Zhuo Xun
+ *
  */
-
 public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
 
 
@@ -86,10 +87,6 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
     private boolean mCanceled;
     private Long mFileLen;
     private String mErrorMsg;
-
-    // Note that, since we use a single file name here for simplicity, you
-    // won't be able to use this code for two simultaneous downloads.
-    private final static String IMAGE_FILE_NAME = "dbroulette.png";
 
     public DownloadFromDropbox(Context context, DropboxAPI<?> api,String dropboxPath, String url) {
         // We set the context this way so we don't accidentally leak activities
@@ -233,16 +230,23 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
         	    //You'll need to add proper error handling here
         		e.printStackTrace();
         	}
+        	//
         	String noteTitle = textArrList.get(0);
         	String category = textArrList.get(1);
         	String content = "";
         	for(int i=2;i<textArrList.size();i++){
         		content += textArrList.get(i);
+        		content += "\n";
         	}
     	    System.out.println(content);
     	    try{
-				Note note = new Note(noteTitle, content, category, "", "", "");
-				
+    	    	Note note = null;
+    	    	if(category.equals("Personal") || (category.equals("Meeting Notes") || (category.equals("Client")))){    	    		
+    	    		note = new Note(noteTitle, content, category, "", "", "");
+    	    	}
+    	    	else{
+    	    		note = new Note(noteTitle, content, "Personal", "", "", "");
+    	    	}
 				SQLiteController entry = new SQLiteController(mContext);
 				entry.open();
 				entry.insertNote(note);
