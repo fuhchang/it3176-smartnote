@@ -416,7 +416,7 @@ public class CreateActivity extends Activity {
 		else if(id==R.id.addToCalendar){
 			String title = suggestTitle.getText().toString();
 			String content = noteContent.getText().toString();
-			if(title.matches("")||content.matches("")||noteCategory.matches("")){
+			if(title.matches("")||content.matches("")||spCat.getSelectedItem().toString().matches("")){
 				Toast.makeText(getApplicationContext(), "Please fill in all the required details", Toast.LENGTH_LONG).show();
 			}
 				else{
