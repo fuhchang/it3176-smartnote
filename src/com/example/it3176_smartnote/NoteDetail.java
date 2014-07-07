@@ -321,7 +321,11 @@ public class NoteDetail extends Activity {
 				Intent intent = new Intent();
 				intent.setAction(Intent.ACTION_SEND);
 				intent.setType("text/plain");
-				intent.putExtra(Intent.EXTRA_TEXT, "^" + note.getNote_name() + "^" + note.getNote_category() +"^" +  note.getNote_content()+ "^");
+				if(note.getNote_address().equals("")){
+					intent.putExtra(Intent.EXTRA_TEXT, "^" + note.getNote_name() + "^" + note.getNote_category() +"^" +  note.getNote_content()+ "^");
+				}else{
+				intent.putExtra(Intent.EXTRA_TEXT, "^" + note.getNote_name() + "^" + note.getNote_category() +"^" +  note.getNote_content()+ "^" + note.getNote_address() + "^");
+				}
 				startActivity(intent);
 			}
 			break;

@@ -647,7 +647,12 @@ public class MainActivity extends Activity {
 						note.setNote_content(readList.get(3));
 						note.setNote_img("");
 						note.setNote_video("");
-						note.setNote_address("");
+						if(readList.get(4).equals(null)){
+							note.setNote_address("");
+						}else{
+						Toast.makeText(getApplicationContext(), readList.get(4), Toast.LENGTH_LONG).show();
+						note.setNote_address(readList.get(4));
+						}
 						SQLiteController entry = new SQLiteController(this);
 						entry.open();
 						entry.insertNote(note);
