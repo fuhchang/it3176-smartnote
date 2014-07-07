@@ -348,7 +348,7 @@ public class NoteDetail extends Activity {
 						+ "\nContent:" + noteContent.getText().toString();
 				FileOutputStream outputStream;
 				File file = new File(Environment.getExternalStorageDirectory()
-						+ "/Documents/", FILENAME);
+						+ "/Download/", FILENAME);
 				file.setWritable(false);
 				file.setExecutable(false);
 				file.setReadable(true);

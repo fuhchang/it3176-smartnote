@@ -116,7 +116,7 @@ public class DownloadFromDropbox extends AsyncTask<Void, Long, Boolean> {
             }
 
             //Create a empty file in the Documents folder.
-            localFilePath = Environment.getExternalStorageDirectory() + "/Documents/" + mUrl.substring(mUrl.lastIndexOf("/") + 1, mUrl.length());
+            localFilePath = Environment.getExternalStorageDirectory() + "/Download/" + mUrl.substring(mUrl.lastIndexOf("/") + 1, mUrl.length());
             System.out.println("Cache Path: " + localFilePath);
             try {
                 mFos = new FileOutputStream(localFilePath);
