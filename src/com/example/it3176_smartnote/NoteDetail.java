@@ -349,9 +349,6 @@ public class NoteDetail extends Activity {
 				FileOutputStream outputStream;
 				File file = new File(Environment.getExternalStorageDirectory()
 						+ "/Download/", FILENAME);
-				file.setWritable(false);
-				file.setExecutable(false);
-				file.setReadable(true);
 				try {
 					outputStream = new FileOutputStream(file);
 					outputStream.write(string.getBytes());
