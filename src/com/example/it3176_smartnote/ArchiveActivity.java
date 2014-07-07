@@ -44,6 +44,7 @@ import android.widget.SearchView.OnQueryTextListener;
 
 import com.SQLiteController.it3176.SQLiteController;
 import com.example.it3176_smartnote.model.Note;
+import com.example.it3176_smartnote.util.SwipeDismissListViewTouchListener;
 
 @SuppressLint({ "ValidFragment", "SimpleDateFormat" })
 public class ArchiveActivity extends Activity {
@@ -119,6 +120,7 @@ public class ArchiveActivity extends Activity {
 							for(int i = 0; i < selected_notes.size(); i++){
 								restoreNotes(selected_notes.get(i));
 							}
+							Toast.makeText(getBaseContext(), "Note(s) restored", Toast.LENGTH_SHORT).show();
 						}
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -181,6 +183,7 @@ public class ArchiveActivity extends Activity {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							restoreNotes(notelist.getItem(tempt));
+							Toast.makeText(getBaseContext(), "Note restored", Toast.LENGTH_SHORT).show();
 						}
 					});
 					builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -392,7 +395,6 @@ public class ArchiveActivity extends Activity {
 			Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
 			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note(s) restored", Toast.LENGTH_SHORT).show();
 		}
 	}
 

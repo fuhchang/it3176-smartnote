@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.it3176_smartnote;
+package com.example.it3176_smartnote.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

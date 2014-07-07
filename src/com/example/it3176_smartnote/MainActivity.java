@@ -68,6 +68,7 @@ import com.dropbox.client2.session.Session.AccessType;
 import com.example.it3176_smartnote.dropbox.DownloadFromDropbox;
 import com.example.it3176_smartnote.dropbox.UploadToDropbox;
 import com.example.it3176_smartnote.model.Note;
+import com.example.it3176_smartnote.util.SwipeDismissListViewTouchListener;
 import com.example.it3176_smartnote.util.readFileAsString;
 
 @SuppressLint("ValidFragment")
@@ -197,6 +198,8 @@ public class MainActivity extends Activity {
 												archiveNote(selected_notes
 														.get(i));
 											}
+											Toast.makeText(getBaseContext(), "Note(s) archived",
+													Toast.LENGTH_SHORT).show();
 										}
 									});
 							archiveBuilder.setNegativeButton("Cancel",
@@ -230,6 +233,8 @@ public class MainActivity extends Activity {
 												deleteNote(selected_notes
 														.get(i));
 											}
+											Toast.makeText(getBaseContext(), "Note(s) deleted",
+													Toast.LENGTH_SHORT).show();
 										}
 									});
 							deleteBuilder.setNegativeButton("Cancel",
@@ -329,6 +334,8 @@ public class MainActivity extends Activity {
 																int which) {
 															archiveNote(notelist
 																	.getItem(tempt));
+															Toast.makeText(getBaseContext(), "Note archived",
+																	Toast.LENGTH_SHORT).show();
 														}
 													});
 									archiveBuilder
@@ -371,6 +378,8 @@ public class MainActivity extends Activity {
 																int which) {
 															deleteNote(notelist
 																	.getItem(tempt));
+															Toast.makeText(getBaseContext(), "Note deleted",
+																	Toast.LENGTH_SHORT).show();
 														}
 													});
 									deleteBuilder
@@ -735,8 +744,6 @@ public class MainActivity extends Activity {
 			Intent refresh = new Intent(MainActivity.this, MainActivity.class);
 			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note(s) archived",
-					Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -753,8 +760,6 @@ public class MainActivity extends Activity {
 			Intent refresh = new Intent(MainActivity.this, MainActivity.class);
 			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(refresh);
-			Toast.makeText(getBaseContext(), "Note(s) deleted",
-					Toast.LENGTH_SHORT).show();
 		}
 	}
 
