@@ -84,7 +84,7 @@ import android.widget.VideoView;
  */
 public class UpdateActivity extends Activity {
 	private int noteID;
-	private Note note;
+	private static Note note;
 
 	// Request Code 
 	int notifyID = 1088;
@@ -399,10 +399,25 @@ public class UpdateActivity extends Activity {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		Editor edit = sp.edit();
-		edit.putString("titleOfNote", suggestTitle.getText().toString());
-		edit.putString("content", noteContent.getText().toString());
+		if(!suggestTitle.getText().toString().equals("")){
+			edit.putString("titleOfNote", suggestTitle.getText().toString());
+		}
+		else{
+			edit.putString("titleOfNote", note.getNote_name());
+		}
+		if(!noteContent.getText().toString().equals("")){
+			edit.putString("content", noteContent.getText().toString());
+		}
+		else{
+			edit.putString("titleOfNote", note.getNote_content());
+		}
 		selectedPosition = spCat.getSelectedItemPosition();
-		edit.putInt("spinnerSelection", selectedPosition);
+		if(selectedPosition > 0){
+			edit.putInt("spinnerSelection", selectedPosition);
+		}
+		else{
+			edit.putInt("spinnerSelection", 0);
+		}
 		edit.commit();
 		super.onPause();
 	}
@@ -415,13 +430,13 @@ public class UpdateActivity extends Activity {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String titleOfNote = sp.getString("titleOfNote", "");
-		if (titleOfNote != "") {
+		if (titleOfNote == "") {
 			suggestTitle.setText(titleOfNote);
 		} else {
 			suggestTitle.setText(note.getNote_name());
 		}
 		String content = sp.getString("content", "");
-		if (content != "") {
+		if (content == "") {
 			noteContent.setText(content);
 		} else {
 			noteContent.setText(note.getNote_content());
@@ -858,142 +873,136 @@ public class UpdateActivity extends Activity {
 		}
 
 		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
+		public Dialog onCreateDialog(Bundle savedInstanceState)
+		{
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			if (dialogType == REMOVAL_CHOICE_DIALOG) {
+			
+			/*if(dialogType==SELECTION_CHOICE_DIALOG)
+			{								
+				builder.setTitle("Select Category");
+				builder.setItems(R.array.category_choice, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						noteCategory=selectionArray[which];
+						SPWhich = which;
+						//updateChoice();
+					}
+				});
+			}*/
+			
+			if(dialogType==REMOVAL_CHOICE_DIALOG){
 				builder.setTitle("What do you want to remove?");
-				builder.setItems(R.array.attachment_choice,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								// TODO Auto-generated method stub
-								if (which == 0) {
-									if (uriOfImage.equals("")) {
-										Toast.makeText(
-												getActivity(),
-												"You do not have any image attachment.",
-												Toast.LENGTH_SHORT).show();
-									} else {
-										imageFilePathTextView
-												.setVisibility(View.GONE);
-										uriOfImage = "";
-										imageView.setVisibility(View.GONE);
-										if ((imageView.getVisibility() == View.GONE)
-												&& (videoView.getVisibility() == View.GONE)
-												&& (currentLocation
-														.getVisibility() == View.GONE)) {
-											hrTv.setVisibility(View.GONE);
-											mLinearLayoutHeader
-													.setVisibility(View.GONE);
-											mLinearLayout
-													.setVisibility(View.GONE);
-											noteContent
-													.setVisibility(View.VISIBLE);
-										}
-									}
-								} else if (which == 1) {
-									if (uriOfVideo.equals("")) {
-										Toast.makeText(
-												getActivity(),
-												"You do not have any video attachment.",
-												Toast.LENGTH_SHORT).show();
-									} else {
-										uriOfVideo = "";
-										videoFilePathTextView
-												.setVisibility(View.GONE);
-										videoView.setVisibility(View.GONE);
-
-										if ((imageView.getVisibility() == View.GONE)
-												&& (videoView.getVisibility() == View.GONE)
-												&& (currentLocation
-														.getVisibility() == View.GONE)) {
-											hrTv.setVisibility(View.GONE);
-											mLinearLayoutHeader
-													.setVisibility(View.GONE);
-											mLinearLayout
-													.setVisibility(View.GONE);
-											noteContent
-													.setVisibility(View.VISIBLE);
-										}
-									}
-								} else if (which == 2) {
-
-									if (currentLocation.getText().toString()
-											.equals("")) {
-										Toast.makeText(
-												getActivity(),
-												"You do not have any location attachment.",
-												Toast.LENGTH_SHORT).show();
-									} else {
-										addTv.setVisibility(View.GONE);
-										currentLocation
-												.setVisibility(View.GONE);
-										currentLocation.setText("");
-										storingAddress = "";
-										System.out.println(mLinearLayout
-												.getHeight());
-										if ((imageView.getVisibility() == View.GONE)
-												&& (videoView.getVisibility() == View.GONE)
-												&& (currentLocation
-														.getVisibility() == View.GONE)) {
-											hrTv.setVisibility(View.GONE);
-											mLinearLayoutHeader
-													.setVisibility(View.GONE);
-											mLinearLayout
-													.setVisibility(View.GONE);
-											noteContent
-													.setVisibility(View.VISIBLE);
-										}
-									}
-								} else if (which == 3) {
-									if ((uriOfImage.equals(""))
-											&& (uriOfVideo.equals(""))
-											&& (currentLocation.getText()
-													.toString().equals(""))
-											&& (suggestTitle.getText()
-													.toString().equals(""))
-											&& (noteContent.getText()
-													.toString().equals(""))
-											&& (spCat.getSelectedItem()
-													.toString())
-													.equals("Personal")) {
-										Toast.makeText(getActivity(),
-												"Nothing to remove.",
-												Toast.LENGTH_SHORT).show();
-									} else {
-										imageUriTv.setVisibility(View.GONE);
-										uriOfImage = "";
-										imageView.setVisibility(View.GONE);
-
-										uriOfVideo = "";
-										videoUriTv.setVisibility(View.GONE);
-										videoView.setVisibility(View.GONE);
-
-										addTv.setVisibility(View.GONE);
-										currentLocation
-												.setVisibility(View.GONE);
-										currentLocation.setText("");
-										storingAddress = "";
-										if ((imageView.getVisibility() == View.GONE)
-												&& (videoView.getVisibility() == View.GONE)
-												&& (currentLocation
-														.getVisibility() == View.GONE)) {
-											hrTv.setVisibility(View.GONE);
-											mLinearLayoutHeader
-													.setVisibility(View.GONE);
-											mLinearLayout
-													.setVisibility(View.GONE);
-											noteContent
-													.setVisibility(View.VISIBLE);
-										}
-									}
+				builder.setItems(R.array.attachment_choice, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						if(which==0){							
+							if(uriOfImage.equals("")){
+								Toast.makeText(getActivity(), "You do not have any image attachment.", Toast.LENGTH_SHORT).show();							
+							}
+							else{
+								imageFilePathTextView.setVisibility(View.GONE);
+								uriOfImage = "";
+								imageView.setVisibility(View.GONE);
+														
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
 								}
 							}
-						});
+						}
+						else if(which==1){
+							if(uriOfVideo.equals("")){
+								Toast.makeText(getActivity(), "You do not have any video attachment.", Toast.LENGTH_SHORT).show();
+							}
+							else{
+								uriOfVideo = "";
+								videoFilePathTextView.setVisibility(View.GONE);
+								videoView.setVisibility(View.GONE);
+	
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+						else if(which==2){
+							if(currentLocation.getText().toString().equals("")){
+								Toast.makeText(getActivity(), "You do not have any location attachment.", Toast.LENGTH_SHORT).show();
+							}
+							else{
+								addTv.setVisibility(View.GONE);
+								currentLocation.setVisibility(View.GONE);
+								currentLocation.setText("");
+								storingAddress="";
+	
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+						else if(which ==3){
+							/*edit.putString("titleOfNote", suggestTitle.getText().toString());
+		edit.putString("content", noteContent.getText().toString());
+		selectedPosition = spCat.getSelectedItemPosition();
+		edit.putInt("spinnerSelection", selectedPosition);*/
+							if((uriOfImage.equals("")) && (uriOfVideo.equals("")) && (currentLocation.getText().toString().equals(""))&& (suggestTitle.getText().toString().equals("")) && (noteContent.getText().toString().equals("")) && (spCat.getSelectedItem().toString()).equals("Personal")){
+								Toast.makeText(getActivity(), "Nothing to remove.", Toast.LENGTH_SHORT).show();
+							}
+							else{
+								imageFilePathTextView.setVisibility(View.GONE);
+								uriOfImage = "";
+								imageView.setVisibility(View.GONE);
+								
+								uriOfVideo = "";
+								videoFilePathTextView.setVisibility(View.GONE);
+								videoView.setVisibility(View.GONE);
+								
+								addTv.setVisibility(View.GONE);
+								currentLocation.setVisibility(View.GONE);
+								currentLocation.setText("");
+								storingAddress="";
+								discard();
+								if((imageView.getVisibility() == View.GONE) && (videoView.getVisibility() == View.GONE) && (currentLocation.getVisibility() == View.GONE)){
+									hrTv.setVisibility(View.GONE);
+							        mLinearLayoutHeader.setVisibility(View.GONE);
+							        mLinearLayout.setVisibility(View.GONE);
+							        noteContent.setVisibility(View.VISIBLE);
+								}
+							}
+						}
+					}
+				});
 
 			}
+			
+			
 			return builder.create();
+		}
+
+	}
+	
+	//To remove all inputs in the note
+	public static void discard(){
+		suggestTitle.setText(note.getNote_name());
+		
+		noteContent.setText(note.getNote_content());
+		if (note.getNote_category().equals("Personal")) {
+			spCat.setSelection(0);
+		} else if (note.getNote_category().equals("Meeting Notes")) {
+			spCat.setSelection(1);
+		} else {
+			spCat.setSelection(2);
 		}
 	}
 
