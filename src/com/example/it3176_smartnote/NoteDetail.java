@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -325,13 +326,22 @@ public class NoteDetail extends Activity {
 			}
 			break;
 		case R.id.send_email:
-			Intent email = new Intent(Intent.ACTION_SEND);
-			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_category()
-					+ " - " + note.getNote_name());
-			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content());
+			Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
+			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_name() + " (" + note.getNote_category() + ")");
+			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content() + "\n\n\n" + note.getNote_address());
+			if(!note.getNote_img().isEmpty() || !note.getNote_video().isEmpty()){
+				ArrayList<Uri> uris = new ArrayList<Uri>();
+				if(!note.getNote_img().isEmpty()){
+					uris.add(Uri.parse("file://" + note.getNote_img()));
+				}
+				if(!note.getNote_video().isEmpty()){
+					uris.add(Uri.parse("file://" + note.getNote_video()));
+				}
+				System.out.println(note.getNote_video());
+				email.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+			}
 			email.setType("message/rfc822");
-			startActivity(Intent.createChooser(email,
-					"Choose an Email client: "));
+			startActivity(Intent.createChooser(email, "Choose an Email client: "));
 			break;
 
 		case R.id.upload_dropbox:
