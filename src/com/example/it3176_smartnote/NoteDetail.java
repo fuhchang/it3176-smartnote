@@ -328,7 +328,7 @@ public class NoteDetail extends Activity {
 		case R.id.send_email:
 			Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_name() + " (" + note.getNote_category() + ")");
-			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content() + "\n\n\n" + note.getNote_address());
+			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content() + "\n\n\nNote saved at: " + note.getNote_address());
 			if(!note.getNote_img().isEmpty() || !note.getNote_video().isEmpty()){
 				ArrayList<Uri> uris = new ArrayList<Uri>();
 				if(!note.getNote_img().isEmpty()){
@@ -337,7 +337,6 @@ public class NoteDetail extends Activity {
 				if(!note.getNote_video().isEmpty()){
 					uris.add(Uri.parse("file://" + note.getNote_video()));
 				}
-				System.out.println(note.getNote_video());
 				email.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
 			}
 			email.setType("message/rfc822");
