@@ -148,7 +148,6 @@ public class MainActivity extends Activity {
 				intent.putExtra("noteID", resultArray.get(position)
 						.getNote_id());
 				startActivity(intent);
-				MainActivity.this.finish();
 			}
 
 		});
