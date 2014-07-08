@@ -94,7 +94,7 @@ public class CreateActivity extends Activity {
 	MediaController videoMC;
 	MediaController audioMC;
 	
-	/***Request Code**/
+	/***Request Codes**/
 	int notifyID=1088;
 	private static final int PICK_IMAGE = 1;
 	private static final int CAPTURE_PHOTO=100;
@@ -131,15 +131,12 @@ public class CreateActivity extends Activity {
 	static Button removeVideoBtn;
 	static Button removeLocBtn;
 	
-	
+	/***For category selection using spinner***/
 	static Spinner spCat;
 	ArrayAdapter<CharSequence> catAdapter;
-	//TextView categorySelected;
 	String[] categoryArray;
 	int selectedPosition;
-	
-	
-	
+
 	/**Values to be stored in database**/
 	String titleOfNote="";
 	String content="";
@@ -339,13 +336,6 @@ public class CreateActivity extends Activity {
 		      AlertDialog alertDialog = alertDialogBuilder.create();
 		      alertDialog.show();
 		}
-	/*	else if(id==R.id.reset){
-				suggestTitle.getText().clear();
-				noteContent.getText().clear();
-				imageView.setImageResource(android.R.color.transparent);
-				noteCategory="";
-				categorySelectionChoice.setText("Category: None Selected");
-		}*/
 		else if(id==R.id.uploadImage){
 				Intent intent = new Intent();
 				intent.setType("image/*");
@@ -392,13 +382,6 @@ public class CreateActivity extends Activity {
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));		
 			}
 		}
-		/*else if(id==R.id.attachAudio){
-			 Intent intent = new Intent();
-	         intent.setType("audio/*");
-	         //intent.setAction(Intent.ACTION_GET_CONTENT);
-	         intent.setAction(Intent.ACTION_PICK);
-	         startActivityForResult(Intent.createChooser(intent, "Complete action using"),PICK_AUDIO);
-		}*/
 		
 		else if(id==R.id.attachLocation){
 			getMyCurrentLocation();
@@ -457,7 +440,7 @@ public class CreateActivity extends Activity {
 						imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 						imageView.setVisibility(View.VISIBLE);
 						Image = decodeSampledBitmapFromResource(uriOfImage,
-									140, 100);
+									140, 350);
 						imageView.setImageBitmap(Image);
 						   //Added
 						   final int rotateImage = getCameraPhotoOrientation(CreateActivity.this, mImageUri, uriOfImage);
@@ -526,7 +509,7 @@ public class CreateActivity extends Activity {
 							uriOfImage.lastIndexOf("/") + 1, uriOfImage.length()));
 					imageView.setVisibility(View.VISIBLE);
 					yourSelectedImage = decodeSampledBitmapFromResource(uriOfImage,
-							140, 100);
+							140, 290);
 					imageView.setImageBitmap(yourSelectedImage);
 					int width = imageView.getWidth();
 					int height = imageView.getHeight();
@@ -827,10 +810,6 @@ public class CreateActivity extends Activity {
 							}
 						}
 						else if(which ==3){
-							/*edit.putString("titleOfNote", suggestTitle.getText().toString());
-		edit.putString("content", noteContent.getText().toString());
-		selectedPosition = spCat.getSelectedItemPosition();
-		edit.putInt("spinnerSelection", selectedPosition);*/
 							if((uriOfImage.equals("")) && (uriOfVideo.equals("")) && (currentLocation.getText().toString().equals(""))&& (suggestTitle.getText().toString().equals("")) && (noteContent.getText().toString().equals("")) && (spCat.getSelectedItem().toString()).equals("Personal")){
 								Toast.makeText(getActivity(), "Nothing to remove.", Toast.LENGTH_SHORT).show();
 							}
@@ -925,7 +904,6 @@ public class CreateActivity extends Activity {
        }
 
       if (Address != null && !Address.isEmpty()) {
-    	  // doSomething
           addTv.setVisibility(View.VISIBLE);
     	  currentLocation.setVisibility(View.VISIBLE);
     	  hrTv.setVisibility(View.VISIBLE);
@@ -1042,7 +1020,7 @@ public class CreateActivity extends Activity {
 	    return animator;
 	}
 	
-	/************Insert note into database******************/
+	/************Events after pressing "save note"******************/
 	public void saveNote(){
 		titleOfNote = suggestTitle.getText().toString();
 		content = noteContent.getText().toString();	
@@ -1148,7 +1126,7 @@ public class CreateActivity extends Activity {
 		}
 	}
 	
-	
+	/**If user allows replacing of note title with on-going calendar event title**/
 	public void replaceTitle(){	
 		AlertDialog.Builder builder1 = new AlertDialog.Builder(CreateActivity.this);
         builder1.setTitle("On-going Calendar Event Alert");
@@ -1180,6 +1158,7 @@ public class CreateActivity extends Activity {
         alert11.show();
 	}
 	
+	/**Insert into database**/
 	public void saveNoteToDB(){
 		boolean result = true;
 		noteCategory = spCat.getSelectedItem().toString();
@@ -1226,6 +1205,7 @@ public class CreateActivity extends Activity {
 		mNotificationManager.notify(notifyID,mBuilder.build());
 	}
 
+	/***Remember inputs when application is in pause state***/
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
@@ -1242,7 +1222,7 @@ public class CreateActivity extends Activity {
 		super.onPause();
 	}
 	
-	
+	/***Set inputs when application is in resume state***/
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
@@ -1268,6 +1248,7 @@ public class CreateActivity extends Activity {
 		//}		
 	}
 	
+	/**Clear inputs**/
 	public static void discard(){
 		suggestTitle.setText("");
 		noteContent.setText("");
