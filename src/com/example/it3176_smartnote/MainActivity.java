@@ -119,7 +119,8 @@ public class MainActivity extends Activity {
 		} else {
 			mDBApi.getSession().setOAuth2AccessToken(token2);
 		}
-
+		
+		
 		SQLiteController controller = new SQLiteController(this);
 		controller.open();
 		ArrayList<Note> temptArray = controller.retrieveNotes();
@@ -134,7 +135,7 @@ public class MainActivity extends Activity {
 		notelist = new noteList(MainActivity.this, resultArray, imageId);
 		list = (ListView) findViewById(R.id.noteListView);
 		list.setAdapter(notelist);
-
+		//on click to view know- link to noteDetails
 		list.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -480,6 +481,10 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
 		boolean isConnected = haveNetworkConnection();
 		switch (item.getItemId()) {
+		/*selected the file that receive from bluetooth
+		 * done by fuhchang
+		 * */
+		 
 		case R.id.import_file:
 			Intent intentFile = new Intent(Intent.ACTION_GET_CONTENT);
 			Uri uri = Uri.parse(Environment.getExternalStorageDirectory()
@@ -642,7 +647,7 @@ public class MainActivity extends Activity {
 						note.setNote_content(readList.get(3));
 						note.setNote_img("");
 						note.setNote_video("");
-						if(readList.get(4).equals("")){
+						if(readList.get(4).equals("</body></html>")){
 							note.setNote_address("");
 						}else{
 						String getaddress = "";
@@ -760,7 +765,9 @@ public class MainActivity extends Activity {
 			startActivity(refresh);
 		}
 	}
-
+	/*
+	 * method for filter by date
+	 */
 	private class MyDatePicker extends DialogFragment implements
 			DatePickerDialog.OnDateSetListener {
 		int pYear;
@@ -867,7 +874,9 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
-
+	/*
+	 * method for filter by category
+	 */
 	private class MyCategoryDialog extends DialogFragment {
 
 		@Override
@@ -916,7 +925,9 @@ public class MainActivity extends Activity {
 
 		}
 	}
-
+	/*
+	 * method to call the sorting title
+	 */
 	private class sortByTitle extends DialogFragment {
 
 		@Override
@@ -958,7 +969,9 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * method to call the sorting date
+	 */
 	private class sortByDate extends DialogFragment {
 
 		@Override
@@ -998,7 +1011,9 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * method to call the sorting category
+	 */
 	private class sortByType extends DialogFragment {
 
 		@Override
@@ -1038,7 +1053,9 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * method to call the sorting address
+	 */
 	private class sortByAddress extends DialogFragment {
 
 		@Override
@@ -1090,7 +1107,9 @@ public class MainActivity extends Activity {
 		edit.putString(key, value);
 		edit.commit();
 	}
-
+	/*
+	 * sort title to asc
+	 */
 	private class TitleAscComparator implements Comparator<Note> {
 
 		@Override
@@ -1100,7 +1119,9 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort title to desc
+	 */
 	private class TitleDesComparator implements Comparator<Note> {
 
 		@Override
@@ -1110,7 +1131,9 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort date to asc
+	 */
 	private class DateAscComparator implements Comparator<Note> {
 
 		@Override
@@ -1120,7 +1143,9 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort Date to Desc
+	 */
 	private class DateDesComparator implements Comparator<Note> {
 
 		@Override
@@ -1130,7 +1155,10 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort address to asc
+	 *
+	 */
 	private class CategoryAscComparator implements Comparator<Note> {
 
 		@Override
@@ -1140,7 +1168,10 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort category to desc
+	 * 
+	 */
 	private class CategoryDesComparator implements Comparator<Note> {
 
 		@Override
@@ -1150,7 +1181,10 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort address to asc
+	 * 
+	 */
 	private class AddressAscComparator implements Comparator<Note> {
 
 		@Override
@@ -1160,17 +1194,22 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	/*
+	 * sort address to desc
+	 * 
+	 */
 	private class AddressDesComparator implements Comparator<Note> {
 
 		@Override
 		public int compare(Note lhs, Note rhs) {
 			// TODO Auto-generated method stub
-			return 0;
+			return rhs.getNote_address().compareTo(lhs.getNote_address());
 		}
 
 	}
-
+	/*
+	 * comfirmantion message to user to confirm if they want exit note
+	 */
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub

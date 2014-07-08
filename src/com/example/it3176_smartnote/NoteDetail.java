@@ -319,6 +319,9 @@ public class NoteDetail extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		boolean isConnected = haveNetworkConnection();
 		switch (item.getItemId()) {
+		/*
+		 * check for bluetooth and send note to selected device through bluetooth
+		 */
 		case R.id.sendNFC:
 			if(btAdapter == null){
 				Toast.makeText(getApplicationContext(), "no blue tooth", Toast.LENGTH_LONG).show();
