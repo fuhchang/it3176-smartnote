@@ -240,8 +240,8 @@
 
 							    <ImageView 
 							         android:id="@+id/imageView"
-							         android:layout_width="wrap_content"
-							         android:layout_height="wrap_content"
+							         android:layout_width="140dp"
+							         android:layout_height="100dp"
 							         android:layout_marginTop="5dp"
 							         android:layout_marginLeft="10dp"
 							         android:layout_marginRight="10dp"/> 
@@ -249,7 +249,7 @@
 							     
 							     <VideoView 
 							         android:id="@+id/videoView"
-							         android:layout_width="140dp"
+							         android:layout_width="fill_parent"
 							         android:layout_height="100dp" 
 							         android:layout_marginTop="5dp"
 							         android:layout_marginLeft="10dp"
@@ -280,7 +280,7 @@
 							    <TextView
 							        android:id="@+id/imageUriTv"
 							        android:layout_width="140dp"
-							        android:layout_height="50dp"
+							        android:layout_height="wrap_content"
 							        android:layout_gravity="center_horizontal"
 							        android:layout_marginLeft="10dp"
 							        android:layout_marginRight="10dp"
@@ -289,8 +289,8 @@
 							     
 							     <TextView
 							         android:id="@+id/videoUriTv"
-							         android:layout_width="140dp"
-							         android:layout_height="50dp"
+							         android:layout_width="fill_parent"
+							         android:layout_height="wrap_content"
 							         android:layout_gravity="center_horizontal"
 							         android:layout_marginLeft="10dp"
 							         android:layout_marginRight="10dp"
@@ -312,7 +312,7 @@
 					    	 </LinearLayout>
 							 <LinearLayout
 					             android:id="@+id/lLA3"
-					             android:layout_marginTop="150dp"
+					             android:layout_marginTop="130dp"
 					             android:layout_width="fill_parent"
 					             android:layout_height="wrap_content"
 					             android:orientation="horizontal"

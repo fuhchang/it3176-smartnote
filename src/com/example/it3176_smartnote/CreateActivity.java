@@ -440,7 +440,7 @@ public class CreateActivity extends Activity {
 						imageUriTv.setText(uriOfImage.substring(uriOfImage.lastIndexOf("/") + 1,uriOfImage.length()));
 						imageView.setVisibility(View.VISIBLE);
 						Image = decodeSampledBitmapFromResource(uriOfImage,
-									140, 350);
+									140, 300);
 						imageView.setImageBitmap(Image);
 						   //Added
 						   final int rotateImage = getCameraPhotoOrientation(CreateActivity.this, mImageUri, uriOfImage);
@@ -509,7 +509,7 @@ public class CreateActivity extends Activity {
 							uriOfImage.lastIndexOf("/") + 1, uriOfImage.length()));
 					imageView.setVisibility(View.VISIBLE);
 					yourSelectedImage = decodeSampledBitmapFromResource(uriOfImage,
-							140, 290);
+							140, 300);
 					imageView.setImageBitmap(yourSelectedImage);
 					int width = imageView.getWidth();
 					int height = imageView.getHeight();

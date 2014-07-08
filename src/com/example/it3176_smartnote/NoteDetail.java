@@ -207,7 +207,7 @@ public class NoteDetail extends Activity {
 			final int rotateImage = getCameraPhotoOrientation(NoteDetail.this,
 					Uri.parse(note.getNote_img()), note.getNote_img());
 			Bitmap yourSelectedImage = decodeSampledBitmapFromResource(
-					note.getNote_img(), 140, 100);
+					note.getNote_img(), 140, 300);
 			imageView.setImageBitmap(yourSelectedImage);
 			Matrix matrix = new Matrix();
 			imageView.setScaleType(ScaleType.MATRIX);
@@ -274,7 +274,8 @@ public class NoteDetail extends Activity {
 			mLinearLayoutHeader.setVisibility(View.VISIBLE);
 			hrTv.setVisibility(View.VISIBLE);
 			addTv.setVisibility(View.VISIBLE);
-			addTv.setText(note.getNote_address());
+			currentLocation.setVisibility(View.VISIBLE);
+			currentLocation.setText(note.getNote_address());
 		}
 
 		ActionBar actionBar = getActionBar();
@@ -286,7 +287,11 @@ public class NoteDetail extends Activity {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.note_detail, menu);
-
+		
+		/*
+		 * Set menu button according to preference setting
+		 * Done by: Sherry
+		 */
 		final SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String selected_setting = sp.getString("selected_setting",
@@ -329,6 +334,10 @@ public class NoteDetail extends Activity {
 				startActivity(intent);
 			}
 			break;
+		/*
+		 * Send email with title, content, address, location and attachment (image,video)
+		 * Done by: Sherry
+		 */
 		case R.id.send_email:
 			Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_name() + " (" + note.getNote_category() + ")");
@@ -392,6 +401,10 @@ public class NoteDetail extends Activity {
 				alert.show();
 			}
 			break;
+		/*
+		 * Settings to select preferences
+		 * Done by: Sherry
+		 */
 		case R.id.action_settings:
 
 			final SharedPreferences sp = PreferenceManager
@@ -442,6 +455,10 @@ public class NoteDetail extends Activity {
 			prefDialog.show();
 			break;
 
+		/*
+		 * Archive or Delete note depends on preference setting
+		 * Done by: Sherry
+		 */
 		case R.id.btn_remove:
 			final SharedPreferences rsp = PreferenceManager
 					.getDefaultSharedPreferences(this);
@@ -647,7 +664,11 @@ public class NoteDetail extends Activity {
 		}
 		return haveConnectedWifi || haveConnectedMobile;
 	}
-
+	
+	/*
+	 * Archive note method
+	 * Done by: Sherry
+	 */
 	private void archiveNote() {
 		note = new Note(getIntent().getIntExtra("noteID", 0));
 		SQLiteController controller = new SQLiteController(NoteDetail.this);
@@ -667,6 +688,10 @@ public class NoteDetail extends Activity {
 		}
 	}
 
+	/*
+	 * Delete note method
+	 * Done by: Sherry
+	 */
 	private void deleteNote() {
 		note = new Note(getIntent().getIntExtra("noteID", 0));
 		SQLiteController controller = new SQLiteController(NoteDetail.this);
@@ -685,7 +710,11 @@ public class NoteDetail extends Activity {
 					.show();
 		}
 	}
-
+	
+	/*
+	 * Saving preference
+	 * Done by: Sherry (Reference from practical)
+	 */
 	private void savePreferences(String key, boolean value) {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -694,6 +723,10 @@ public class NoteDetail extends Activity {
 		edit.commit();
 	}
 
+	/*
+	 * Saving preference
+	 * Done by: Sherry (Reference from practical)
+	 */
 	private void savePreferences(String key, String value) {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);

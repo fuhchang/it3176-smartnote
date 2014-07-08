@@ -1,3 +1,7 @@
+/*
+ * Archive page using Fuh Chang's View and Search
+ * Done by: Sherry
+ */
 package com.example.it3176_smartnote;
 
 import java.text.SimpleDateFormat;

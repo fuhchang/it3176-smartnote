@@ -257,7 +257,7 @@ public class UpdateActivity extends Activity {
 					note.getNote_img().lastIndexOf("/") + 1,
 					note.getNote_img().length()));
 			Bitmap yourSelectedImage = decodeSampledBitmapFromResource(
-					uriOfImage, 140, 100);
+					uriOfImage, 140, 300);
 			imageView.setImageBitmap(yourSelectedImage);
 			Matrix matrix = new Matrix();
 			imageView.setScaleType(ScaleType.MATRIX); // required
@@ -558,7 +558,7 @@ public class UpdateActivity extends Activity {
 					imageFilePathTextView.setVisibility(View.VISIBLE);
 					imageView.setVisibility(View.VISIBLE);
 					Image = decodeSampledBitmapFromResource(uriOfImage, 140,
-							100);
+							300);
 					imageView.setImageBitmap(Image);
 					Matrix matrix = new Matrix();
 					imageView.setScaleType(ScaleType.MATRIX); // required
@@ -628,7 +628,7 @@ public class UpdateActivity extends Activity {
 						uriOfImage.lastIndexOf("/") + 1, uriOfImage.length()));
 				imageView.setVisibility(View.VISIBLE);
 				yourSelectedImage = decodeSampledBitmapFromResource(uriOfImage,
-						140, 100);
+						140, 300);
 				imageView.setImageBitmap(yourSelectedImage);
 				Matrix matrix = new Matrix();
 				imageView.setScaleType(ScaleType.MATRIX); // required

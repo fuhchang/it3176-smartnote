@@ -105,7 +105,7 @@
 
                         <VideoView
                             android:id="@+id/videoView"
-                            android:layout_width="140dp"
+                            android:layout_width="fill_parent"
                             android:layout_height="100dp"
                             android:layout_gravity="center"
                             android:layout_marginLeft="10dp"
@@ -134,7 +134,7 @@
                         <TextView
                             android:id="@+id/imageFilePathTextView"
                             android:layout_width="140dp"
-                            android:layout_height="50dp"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
@@ -143,8 +143,8 @@
 
                         <TextView
                             android:id="@+id/videoFilePathTextView"
-                            android:layout_width="140dp"
-                            android:layout_height="50dp"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
@@ -167,7 +167,7 @@
                         android:id="@+id/lLA2"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="150dp"
+                        android:layout_marginTop="130dp"
                         android:orientation="horizontal" >
 
                         <TextView

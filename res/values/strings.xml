@@ -30,6 +30,8 @@
 	<string name="import_file">import file</string>
 	<string name="sendBlueTooth">BlueTooth sharing</string>
     <!-- Delete|Archive note -->
+    <string name="btn_archive">Archive</string>
+    <string name="btn_delete">Delete</string>
     <string name="btn_remove">Remove</string>
     <string name="cb_remember_setting">Remember this setting?</string>
     <string name="btn_reactivate">Reactivate</string>

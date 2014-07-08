@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+        android:id="@+id/btn_archive"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_collection"
+        android:title="@string/btn_archive" />
+    
+    <item
+        android:id="@+id/btn_delete"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_discard"
+        android:title="@string/btn_delete" />
+
+</menu>

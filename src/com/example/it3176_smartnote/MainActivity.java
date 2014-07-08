@@ -109,8 +109,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		cateArray = getResources().getStringArray(R.array.category_choice);
 
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(this);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		token2 = sp.getString("token2", null);
 
 		mDBApi = new DropboxAPI<AndroidAuthSession>(session);
@@ -151,150 +150,130 @@ public class MainActivity extends Activity {
 			}
 
 		});
+		
+		/*
+		 * Select multiple note to archive or delete
+		 * Done by: Sherry
+		 */
+		list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+		list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+				
+				case R.id.btn_archive:
+					// Calls getSelectedIds method from noteList Class
+					SparseBooleanArray selected_archive = notelist.getSelectedIds();
 
+					// Captures all selected ids with a loop
+					for (int i = (selected_archive.size() - 1); i >= 0; i--) {
+						if (selected_archive.valueAt(i)) {
+							selected_notes.add(notelist.getItem(selected_archive.keyAt(i)));
+						}
+					}
+					
+					// Prompt for archive confirmation
+					AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(MainActivity.this);
+
+					archiveBuilder.setTitle("Archive").setMessage("These note(s) will be archived.");
+
+					archiveBuilder.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,	int which) {
+							for (int i = 0; i < selected_notes.size(); i++) {
+								archiveNote(selected_notes.get(i));
+							}
+							Toast.makeText(getBaseContext(), "Note(s) archived",Toast.LENGTH_SHORT).show();
+						}
+					});
+					archiveBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog,int which) {
+						}
+					});
+					AlertDialog archive_dialog = archiveBuilder.create();
+					archive_dialog.show();
+					
+					// Close CAB
+					mode.finish();
+					break;
+				
+				case R.id.btn_delete:
+					// Calls getSelectedIds method from noteList Class
+					SparseBooleanArray selected_delete = notelist.getSelectedIds();
+
+					// Captures all selected ids with a loop
+					for (int i = (selected_delete.size() - 1); i >= 0; i--) {
+						if (selected_delete.valueAt(i)) {
+							selected_notes.add(notelist.getItem(selected_delete.keyAt(i)));
+						}
+					}
+					
+					// Prompt for delete confirmation
+					AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(MainActivity.this);
+
+					deleteBuilder.setTitle("Delete").setMessage("These note(s) will be deleted.");
+
+					deleteBuilder.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							for (int i = 0; i < selected_notes.size(); i++) {
+								deleteNote(selected_notes.get(i));
+							}
+							Toast.makeText(getBaseContext(), "Note(s) deleted",Toast.LENGTH_SHORT).show();
+						}
+					});
+					deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					AlertDialog delete_dialog = deleteBuilder.create();
+					delete_dialog.show();
+					
+					// Close CAB
+					mode.finish();
+					break;
+				}
+				
+				return false;
+			}
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				mode.getMenuInflater().inflate(R.menu.archive_delete, menu);
+				return true;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+				notelist.removeSelection();
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				return false;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode,
+					int position, long id, boolean checked) {
+				// Capture total checked items
+				final int checkedCount = list.getCheckedItemCount();
+				// Set the CAB title according to total checked items
+				mode.setTitle(checkedCount + " Selected");
+				// Calls toggleSelection method from noteList Class
+				notelist.toggleSelection(position);
+			}
+		});
+		
+		/*
+		 * Swipe note to archive or delete when have selected preference in settings
+		 * Done by: Sherry
+		 */
 		sp = PreferenceManager.getDefaultSharedPreferences(this);
 		selected_setting = sp.getString("selected_setting", "YourSetting");
-
-		if (selected_setting.equals("archive")
-				|| selected_setting.equals("delete")) {
-			list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-			list.setMultiChoiceModeListener(new MultiChoiceModeListener() {
-
-				@Override
-				public boolean onActionItemClicked(ActionMode mode,
-						MenuItem item) {
-					switch (item.getItemId()) {
-
-					case R.id.btn_remove:
-
-						// Calls getSelectedIds method from noteList Class
-						SparseBooleanArray selected = notelist.getSelectedIds();
-
-						// Captures all selected ids with a loop
-						for (int i = (selected.size() - 1); i >= 0; i--) {
-							if (selected.valueAt(i)) {
-								selected_notes.add(notelist.getItem(selected
-										.keyAt(i)));
-							}
-						}
-
-						if (selected_setting.equals("archive")) {
-							// Prompt for archive confirmation
-							AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
-									MainActivity.this);
-
-							archiveBuilder.setTitle("Archive").setMessage(
-									"These note(s) will be archived.");
-
-							archiveBuilder.setPositiveButton("Ok",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											for (int i = 0; i < selected_notes
-													.size(); i++) {
-												archiveNote(selected_notes
-														.get(i));
-											}
-											Toast.makeText(getBaseContext(), "Note(s) archived",
-													Toast.LENGTH_SHORT).show();
-										}
-									});
-							archiveBuilder.setNegativeButton("Cancel",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-										}
-									});
-							AlertDialog dialog = archiveBuilder.create();
-							dialog.show();
-						}
-
-						else if (selected_setting.equals("delete")) {
-							// Prompt for delete confirmation
-							AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(
-									MainActivity.this);
-
-							deleteBuilder.setTitle("Delete").setMessage(
-									"These note(s) will be deleted.");
-
-							deleteBuilder.setPositiveButton("Ok",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											for (int i = 0; i < selected_notes
-													.size(); i++) {
-												deleteNote(selected_notes
-														.get(i));
-											}
-											Toast.makeText(getBaseContext(), "Note(s) deleted",
-													Toast.LENGTH_SHORT).show();
-										}
-									});
-							deleteBuilder.setNegativeButton("Cancel",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-										}
-									});
-							AlertDialog dialog = deleteBuilder.create();
-							dialog.show();
-						}
-
-						// Close CAB
-						mode.finish();
-						break;
-					}
-					return false;
-				}
-
-				@Override
-				public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-					mode.getMenuInflater().inflate(R.menu.remove, menu);
-
-					if (selected_setting.equals("archive")) {
-						menu.getItem(0)
-								.setIcon(R.drawable.ic_action_collection);
-					}
-
-					else if (selected_setting.equals("delete")) {
-						menu.getItem(0).setIcon(R.drawable.ic_action_discard);
-					}
-					return true;
-				}
-
-				@Override
-				public void onDestroyActionMode(ActionMode mode) {
-					notelist.removeSelection();
-				}
-
-				@Override
-				public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-					return false;
-				}
-
-				@Override
-				public void onItemCheckedStateChanged(ActionMode mode,
-						int position, long id, boolean checked) {
-					// Capture total checked items
-					final int checkedCount = list.getCheckedItemCount();
-					// Set the CAB title according to total checked items
-					mode.setTitle(checkedCount + " Selected");
-					// Calls toggleSelection method from noteList Class
-					notelist.toggleSelection(position);
-				}
-			});
-		}
-
-		if (selected_setting.equals("archive")
-				|| selected_setting.equals("delete")) {
+		if (selected_setting.equals("archive") || selected_setting.equals("delete")) {
 			// Create a ListView-specific touch listener. ListViews are given
 			// special treatment because
 			// by default they handle touches for their list items... i.e.
@@ -536,10 +515,18 @@ public class MainActivity extends Activity {
 			startActivity(intent);
 			this.finish();
 			break;
+		/*
+		 * Go to archive page
+		 * Done by: Sherry
+		 */
 		case R.id.action_archive:
 			Intent archive_intent = new Intent(this, ArchiveActivity.class);
 			startActivity(archive_intent);
 			break;
+		/*
+		 * Settings to select preference
+		 * Done by: Sherry
+		 */
 		case R.id.action_settings:
 			sp = PreferenceManager.getDefaultSharedPreferences(this);
 			selected_setting = sp.getString("selected_setting", "YourSetting");
@@ -655,11 +642,15 @@ public class MainActivity extends Activity {
 						note.setNote_content(readList.get(3));
 						note.setNote_img("");
 						note.setNote_video("");
-						if(readList.get(4).equals(null)){
+						if(readList.get(4).equals("")){
 							note.setNote_address("");
 						}else{
-						Toast.makeText(getApplicationContext(), readList.get(4), Toast.LENGTH_LONG).show();
-						note.setNote_address(readList.get(4));
+						String getaddress = "";
+						StringTokenizer address = new StringTokenizer(readList.get(4), "<br>");
+						while(address.hasMoreElements()){
+							getaddress = getaddress + address.nextElement().toString();
+						}
+							note.setNote_address(getaddress);
 						}
 						SQLiteController entry = new SQLiteController(this);
 						entry.open();
@@ -729,7 +720,11 @@ public class MainActivity extends Activity {
 								// stream
 
 	}
-
+	
+	/*
+	 * Archive note method
+	 * Done by: Sherry
+	 */
 	private void archiveNote(Note note) {
 		SQLiteController controller = new SQLiteController(MainActivity.this);
 		try {
@@ -745,7 +740,11 @@ public class MainActivity extends Activity {
 			startActivity(refresh);
 		}
 	}
-
+	
+	/*
+	 * Delete note method
+	 * Done by: Sherry
+	 */
 	private void deleteNote(Note note) {
 		SQLiteController controller = new SQLiteController(MainActivity.this);
 		try {
@@ -1079,7 +1078,11 @@ public class MainActivity extends Activity {
 		}
 
 	}
-
+	
+	/*
+	 * Saving preference
+	 * Done by: Sherry (Reference from practical)
+	 */
 	private void savePreferences(String key, String value) {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(this);

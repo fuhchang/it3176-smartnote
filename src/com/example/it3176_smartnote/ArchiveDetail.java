@@ -1,3 +1,7 @@
+/*
+ * Note detail from Archive page using Fuh Chang's View
+ * Done by: Sherry
+ */
 package com.example.it3176_smartnote;
 
 import android.animation.Animator;
