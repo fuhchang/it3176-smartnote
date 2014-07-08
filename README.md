@@ -41,13 +41,16 @@ In order for this prohect to work:
 
 Installation
 ------------
-* Install as you would normally install a contributed drupal module. See:
-   https://drupal.org/documentation/install/modules-themes/modules-7
-   for further information.
-* You likely want to disable Toolbar module, since its output clashes with
-   Administration menu.
+* 1) After installing the DropboxChooserSDK, copy and paste the entire SDK into the project's workspace
+* 2) Import the SDK into the eclipse workspace. (Note: Use the General -> File System)
+* 3) Next, go to the project -> properties -> Android and add the SDK as a library project.
+* 4) Lastly, go to Java Build Path --> add external jars as stated above into the build path
    
    
 Configuration
 -------------
-* You will need a Dropbox Account in your mobile phone in order to use this application.
+* You will need a Dropbox Account in your phone in order to use this application. Create a Dropbox Account before using this application
+* Your phone will need to have either WIFi or Mobile data connection on when upload note to Dropbox and download note from Dropbox
+* Your phone will also require a camera to capture image and video.
+* Your phone will nedd to have GPS on to attach location
+* You will need a Email Account in your phone in order to email with note.
