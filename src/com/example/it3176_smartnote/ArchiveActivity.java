@@ -101,8 +101,44 @@ public class ArchiveActivity extends Activity {
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 				switch (item.getItemId()) {
 				
-				case R.id.btn_reactivate:
+				case R.id.btn_delete:
+					// Calls getSelectedIds method from noteList Class
+					SparseBooleanArray selected_delete = notelist.getSelectedIds();
+
+					// Captures all selected ids with a loop
+					for (int i = (selected_delete.size() - 1); i >= 0; i--) {
+						if (selected_delete.valueAt(i)) {
+							selected_notes.add(notelist.getItem(selected_delete.keyAt(i)));
+						}
+					}
 					
+					// Prompt for delete confirmation
+					AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ArchiveActivity.this);
+
+					deleteBuilder.setTitle("Delete").setMessage("These note(s) will be deleted.");
+
+					deleteBuilder.setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							for (int i = 0; i < selected_notes.size(); i++) {
+								deleteNote(selected_notes.get(i));
+							}
+							Toast.makeText(getBaseContext(), "Note(s) deleted",Toast.LENGTH_SHORT).show();
+						}
+					});
+					deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					});
+					AlertDialog delete_dialog = deleteBuilder.create();
+					delete_dialog.show();
+					
+					// Close CAB
+					mode.finish();
+					break;
+				
+				case R.id.btn_reactivate:
 					// Calls getSelectedIds method from noteList Class
 					SparseBooleanArray selected = notelist.getSelectedIds();
 					
@@ -384,6 +420,22 @@ public class ArchiveActivity extends Activity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void deleteNote(Note note) {
+		SQLiteController controller = new SQLiteController(ArchiveActivity.this);
+		try {
+			controller.open();
+			controller.deleteNote(note);
+		} catch (SQLException e) {
+			System.out.println(e);
+		} finally {
+			controller.close();
+			this.finish();
+			Intent refresh = new Intent(ArchiveActivity.this, ArchiveActivity.class);
+			refresh.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(refresh);
+		}
 	}
 	
 	private void restoreNotes(Note note) {

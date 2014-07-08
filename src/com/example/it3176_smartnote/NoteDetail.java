@@ -344,7 +344,8 @@ public class NoteDetail extends Activity {
 		case R.id.send_email:
 			Intent email = new Intent(Intent.ACTION_SEND_MULTIPLE);
 			email.putExtra(Intent.EXTRA_SUBJECT, note.getNote_name() + " (" + note.getNote_category() + ")");
-			email.putExtra(Intent.EXTRA_TEXT, note.getNote_content() + "\n\n\nNote saved at: " + note.getNote_address());
+			if(!note.getNote_address().isEmpty())
+				email.putExtra(Intent.EXTRA_TEXT, note.getNote_content() + "\n\n\nNote saved at: " + note.getNote_address());
 			if(!note.getNote_img().isEmpty() || !note.getNote_video().isEmpty()){
 				ArrayList<Uri> uris = new ArrayList<Uri>();
 				if(!note.getNote_img().isEmpty()){
@@ -598,12 +599,12 @@ public class NoteDetail extends Activity {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								// Prompt for delete confirmation
-								AlertDialog.Builder archiveBuilder = new AlertDialog.Builder(
+								AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(
 										NoteDetail.this);
-								archiveBuilder.setTitle("Delete").setMessage(
+								deleteBuilder.setTitle("Delete").setMessage(
 										"This note will be deleted.");
 
-								archiveBuilder.setPositiveButton("Ok",
+								deleteBuilder.setPositiveButton("Ok",
 										new DialogInterface.OnClickListener() {
 											@Override
 											public void onClick(
@@ -618,7 +619,7 @@ public class NoteDetail extends Activity {
 												deleteNote();
 											}
 										});
-								archiveBuilder.setNegativeButton("Cancel",
+								deleteBuilder.setNegativeButton("Cancel",
 										new DialogInterface.OnClickListener() {
 											@Override
 											public void onClick(
@@ -626,7 +627,7 @@ public class NoteDetail extends Activity {
 													int which) {
 											}
 										});
-								AlertDialog deleteDialog = archiveBuilder
+								AlertDialog deleteDialog = deleteBuilder
 										.create();
 								deleteDialog.show();
 							}

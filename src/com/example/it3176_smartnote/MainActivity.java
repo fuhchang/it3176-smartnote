@@ -242,7 +242,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				mode.getMenuInflater().inflate(R.menu.archive_delete, menu);
+				mode.getMenuInflater().inflate(R.menu.archive_and_delete, menu);
 				return true;
 			}
 
@@ -270,7 +270,7 @@ public class MainActivity extends Activity {
 		
 		/*
 		 * Swipe note to archive or delete when have selected preference in settings
-		 * Done by: Sherry
+		 * Done by: Sherry (using SwipeDismissListViewTouchListener, information can be found in the class)
 		 */
 		sp = PreferenceManager.getDefaultSharedPreferences(this);
 		selected_setting = sp.getString("selected_setting", "YourSetting");

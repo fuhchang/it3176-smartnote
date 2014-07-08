@@ -176,11 +176,43 @@ public class ArchiveDetail extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		
-		if(item.getItemId() == R.id.btn_reactivate) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(ArchiveDetail.this);
-			builder.setTitle("Restore").setMessage("This note will be restored.");
+		switch (item.getItemId()) {
+		
+		case R.id.btn_delete:
+			AlertDialog.Builder deleteBuilder = new AlertDialog.Builder(ArchiveDetail.this);
+			deleteBuilder.setTitle("Delete").setMessage("This note will be deleted.");
+
+			deleteBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					SQLiteController controller = new SQLiteController(ArchiveDetail.this);
+					try{
+						controller.open();
+						controller.deleteNote(note);
+					} catch(SQLException e){
+						System.out.println(e);
+					} finally{
+						controller.close();
+						ArchiveDetail.this.finish();
+						Intent refresh = new Intent(ArchiveDetail.this, ArchiveActivity.class);
+						startActivity(refresh);
+					}
+				}
+			});
+			deleteBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			});
+			AlertDialog deleteDialog = deleteBuilder.create();
+			deleteDialog.show();
+			break;
+		
+		case R.id.btn_reactivate:
+			AlertDialog.Builder restoreBuilder = new AlertDialog.Builder(ArchiveDetail.this);
+			restoreBuilder.setTitle("Restore").setMessage("This note will be restored.");
 			
-			builder.setPositiveButton("Ok", new DialogInterface.OnClickListener(){
+			restoreBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					SQLiteController controller = new SQLiteController(ArchiveDetail.this);
@@ -197,12 +229,13 @@ public class ArchiveDetail extends Activity {
 					}
 				}
 			});
-			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+			restoreBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
 				@Override
 				public void onClick(DialogInterface dialog, int which) {}
 			});
-			AlertDialog dialog = builder.create();
-			dialog.show();
+			AlertDialog restoreDialog = restoreBuilder.create();
+			restoreDialog.show();
+			break;
 		}
 		
 		return super.onOptionsItemSelected(item);
