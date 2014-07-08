@@ -1,7 +1,5 @@
-it3176-smartnote
+IT3176 -- SMART Note
 ================
-
-it3176-mobileapp-smartnote
 
 CONTENTS OF THIS FILE
 ---------------------
@@ -17,12 +15,7 @@ Intelligence Solutions is Asia’s key technology solutions distributor offering
 solutions for SMEs and enterprise in the region. Their services include Mobility
 Applications, IT Infrastructures and Network Resource Optimization.
 
-In their recent movement to increase work productivity, the management approaches
-you to develop a mobile application for the company. The company has a team of
-sales personals and consultants who are often engaged in sales meetings and
-discussions with clients or potential customers.
-
-SmartNote is a native android application to help the employees manage
+SmartNote is a native android application that helps employees to manage
 meeting notes more effectively to increase their productivity. The application should
 make it easy for keeping track and managing meeting notes on their device. Users of
 this application will no longer have to deal with notes that are scattered everywhere
